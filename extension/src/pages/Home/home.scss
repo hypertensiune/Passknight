@@ -1,0 +1,91 @@
+main.home {
+  section.vaults {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 5%;
+
+    overflow-y: scroll;
+    height: 60vh;
+    mask-image: linear-gradient(to bottom, black calc(100% - 48px), transparent 100%);
+
+    div.item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #121212;
+      border-radius: 10px;
+      cursor: pointer;
+      padding: 0.25rem 1rem;
+      margin-bottom: 0.5rem;
+
+      min-height: 13%;
+
+      // https://codepen.io/nicva/pen/JeXJKK?anon=true&view=pen
+      .lock {
+        width: 24px;
+        height: 21px;
+        border: 3px solid #ff5153;
+        border-radius: 5px;
+        position: relative;
+        cursor: pointer;
+        -webkit-transition: all 0.1s ease-in-out;
+        transition: all 0.1s ease-in-out;
+
+        transform: translateY(10%) scale(0.7);
+
+        &:after {
+          content: "";
+          display: block;
+          background: #ff5153;
+          width: 3px;
+          height: 7px;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          margin: -3.5px 0 0 -2px;
+          -webkit-transition: all 0.1s ease-in-out;
+          transition: all 0.1s ease-in-out;
+        }
+
+        &:before {
+          content: "";
+          display: block;
+          width: 15px;
+          height: 12px;
+          bottom: 100%;
+          position: absolute;
+          left: 50%;
+          margin-left: -8px;
+          border: 3px solid #ff5153;
+          border-top-right-radius: 50%;
+          border-top-left-radius: 50%;
+          border-bottom: 0;
+          -webkit-transition: all 0.1s ease-in-out;
+          transition: all 0.1s ease-in-out;
+        }
+      }
+
+      &:hover {
+        background-color: rgba(#121212, 0.7);
+
+        .lock {
+          transform: rotate(10deg) translateY(5%) scale(0.7);
+          border-color: darkolivegreen;
+
+          &:after {
+            background-color: darkolivegreen;
+          }
+
+          &:before {
+            border-color: darkolivegreen;
+            bottom: 130%;
+            left: 31%;
+            margin-left: -11.5px;
+            transform: rotate(-45deg);
+          }
+        }
+      }
+    }
+  }
+}

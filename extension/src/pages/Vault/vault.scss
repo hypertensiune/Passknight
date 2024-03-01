@@ -1,0 +1,23 @@
+section.header {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  margin-top: -8%;
+
+  h3 {
+    margin: 0;
+    margin-right: 0.5rem;
+    color: white;
+  }
+
+  i {
+    cursor: pointer;
+    color: #ff5153;
+    transition: all .1s;
+
+    &:hover {
+      color: darken($color: #ff5153, $amount: 5%);
+    }
+  }
+}

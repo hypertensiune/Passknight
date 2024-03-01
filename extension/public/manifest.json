@@ -1,0 +1,32 @@
+{
+    "manifest_version": 3,
+    "name": "PassKnight",
+    "description": "Password manager & vault",
+    "version": "0.0.1",
+    "action": {
+        "default_popup": "index.html",
+        "default_title": "Open"
+    },
+    "permissions": [
+        "scripting",
+        "tabs",
+        "storage"
+    ],
+    "host_permissions": [
+        "http://*/",
+        "https://*/"
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "content_scripts": [
+        {
+            "js": ["content.js"],
+            "matches": ["<all_urls>"]
+        }
+    ],
+    "icons": {
+        "48": "shield.png",
+        "128": "shield.png"
+    }
+}

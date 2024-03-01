@@ -1,0 +1,67 @@
+#root {
+  //width: calc(100% - 2rem);
+  padding: 1rem;
+}
+
+main {
+  margin-top: 5%;
+
+  a,
+  a:hover {
+    color: white;
+  }
+}
+
+div.add-button {
+  display: flex;
+  align-items: center;
+  border-radius: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  background-color: var(--mantine-color-blue-filled);
+  justify-content: center;
+  cursor: pointer;
+  margin: 0 auto;
+  margin-top: 1rem;
+
+  &:hover {
+    background-color: var(--mantine-primary-color-filled-hover);
+  }
+
+  &::before,
+  &::after {
+    content: ' ';
+    height: 16px;
+    width: 2px;
+    background-color: silver;
+  }
+
+  &::after {
+    transform-origin: center;
+    transform: rotate(90deg) translateY(1px);
+  }
+}
+
+div.app-logo {
+  margin-top: 10%;
+  padding: 0 18vw;
+  display: flex;
+  justify-content: center;
+}
+
+div.form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 5%;
+  }
+
+  margin-bottom: 15%;
+}
