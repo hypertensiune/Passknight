@@ -4,10 +4,6 @@
 
 <p align="center">Open source self hosted password manager.</p>
 
-<p align="center">
-  <img  src="img/img1.png" width=50%></img>
-</p>
-
 ## Description
 
 <p>Passknight is a cross-platform, self hosted password manager.</p> 
