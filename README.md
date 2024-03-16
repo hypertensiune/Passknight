@@ -2,11 +2,9 @@
     <img center src="extension/src/assets/logo.svg">
 </h1>
 
-<p align="center">Open source self hosted password manager.</p>
+<h3 align="center">Open source self hosted password manager.</h3>
 
-<p align="center">
-  <img  src="img/img1.png" width=50%></img>
-</p>
+<br>
 
 ## Description
 
@@ -18,7 +16,8 @@
 
 ### Current supported platforms
 - Browser ( extension ) - Chromium based browsers, Firefox
-- Windows - **future**
+- Windows - **WIP**
+
 
 ## Security
 
@@ -47,9 +46,12 @@ The key used for this encryption is imported from the firebase user UID (which i
 #### Cryptography libraries
 
 - Browser extension - [WebCrypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API)
-- Windows - [CryptoPP](https://www.cryptopp.com/)
+
 
 ## Setup
+
+### If you want to build the Windows app yourself see [...]
+
 ### Firebase setup is required for the browser extension and optional for the desktop application.
 
 - Login to [firebase](firebase.com) and create a new project.
@@ -91,21 +93,4 @@ Copy your config from **Project settings > General**.
 
 <br>
 
-### Desktop application - future
-
-To initialize Firebase create a ```firebaseConfig.json``` file in the root folder.
-```
-{
-    "apiKey": "",
-    "authDomain": "",
-    "projectId": "",
-    "storageBucket": "",
-    "messagingSenderId": "",
-    "appId": ""
-}
-
-```
-
-
-
-
+### Desktop application - WIP

@@ -95,7 +95,7 @@ export default function Generator({ _history }: { _history: string[] }) {
         <label>Length</label>
         <Slider style={{ width: '80%' }} defaultValue={length} min={5} max={128} labelAlwaysOn onChange={setLength} />
       </div>
-      <div className='pass-container'>
+      <div className='pass-container' id='pass-container'>
         <div id="pass" className="result">{printPassword(password)}</div>
         <div className='actions'>
           <span className='action' onClick={() => navigator.clipboard.writeText(password)}><i className="fa-regular fa-copy"></i></span>

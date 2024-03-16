@@ -4,6 +4,8 @@ export function getCurrentActiveWebsite(callback: Function) {
     const website = url.match(/https?:\/\/([^\/]*)/)?.at(1);
     callback(website);
   });
+
+  //callback("Netflix");
 }
 
 export function clipboardDeleteCommand() {

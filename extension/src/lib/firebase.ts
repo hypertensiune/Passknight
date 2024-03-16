@@ -10,7 +10,7 @@ import { clearPersistence, loadPersistence, savePersistence } from "./extension"
 import firebaseConfig from "./firebaseConfig.js";
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore();
+const db = getFirestore();  
 const auth = getAuth(app);
 
 let vaultsInfo: Map<string, string> = new Map();
