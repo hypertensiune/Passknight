@@ -31,15 +31,15 @@ The derivation proccess is done using **600,000** iterations of **PBKDF2** with 
 
 #### Encryption & Decryption
 
-To encrypt and decrypt your passwords, Passknigth uses the **AES-CTR** algorithm with a randomly generated 16 bytes counter.
+To encrypt and decrypt your passwords, Passknigth uses the **AES-CBC** algorithm with a randomly generated 16 bytes IV.
 
-The first 16 bytes of the stored buffer is represented by the counter.
+The first 16 bytes of the stored buffer is represented by the IV.
 
 #### Auth persistence - only in browser extension
 
 To be able to use firebase's auth persistence Passknight encrypts the private key (using [crypto.subtle.wrapKey](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/wrapKey)) and stores it in session storage.
 
-The key used for this encryption is imported from the firebase user UID (which is guaranteed to be unique for each application) using the **AES-CTR** algorithm.
+The key used for this encryption is imported from the firebase user UID (which is guaranteed to be unique for each application) using the **AES-CBC** algorithm.
 
 #### Cryptography libraries
 
@@ -48,9 +48,7 @@ The key used for this encryption is imported from the firebase user UID (which i
 
 ## Setup
 
-### If you want to build the Windows app yourself see [...]
-
-### Firebase setup is required for the browser extension and optional for the desktop application.
+### Firebase setup is required for the browser extension.
 
 - Login to [firebase](firebase.com) and create a new project.
 - Register a **web app**. 
@@ -88,7 +86,3 @@ const firebaseConfig = {
 window.firebaseConfig = firebaseConfig;
 ```
 Copy your config from **Project settings > General**.
-
-<br>
-
-### Desktop application - WIP
