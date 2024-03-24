@@ -6,9 +6,10 @@ import { getSalt } from "./firebase.ts";
 export function generateSalt(): string {
   const arr = crypto.getRandomValues(new Uint8Array(32));
 
-  return (new TextDecoder()).decode(arr);
+  return Base64.encode(arr);
 }
 
+// TO DO: Change to AES-CBC mode.
 export class Cryptography {
   private initialized = false;
 
@@ -19,7 +20,7 @@ export class Cryptography {
   private dec = new TextDecoder();
 
   private privateKeyType = {
-    name: "AES-CTR",
+    name: "AES-CBC",
     length: 256
   };
 
@@ -52,8 +53,8 @@ export class Cryptography {
   init(masterpassword: string) {
     this.importKey(this.string2Buf(masterpassword)).then(async (key: CryptoKey) => {
 
-      // the salt is randomly generated when the vault is created and stored in it
-      // get it from the vault to derive the key
+      // The salt is randomly generated when the vault is created and stored in the vault
+      // Get it from the vault to derive the key
       const salt = await getSalt();
       this.deriveKey(key, this.string2Buf(salt)).then((key: CryptoKey) => {
         this.privateKey = key;
@@ -76,15 +77,14 @@ export class Cryptography {
 
     const padded = this.concatBufs(buf, pad);
 
-    crypto.subtle.importKey("raw", padded, { name: "AES-CTR" }, false, ["wrapKey"]).then((wrapKey: CryptoKey) => {
+    crypto.subtle.importKey("raw", padded, { name: "AES-CBC" }, false, ["wrapKey"]).then((wrapKey: CryptoKey) => {
       crypto.subtle.wrapKey(
         "raw", 
         this.privateKey!, 
         wrapKey, 
         { 
-          name: "AES-CTR", 
-          length: 128, 
-          counter: new Uint8Array(16) 
+          name: "AES-CBC", 
+          iv: new Uint8Array(16) 
         }
       ).then((wrapped: ArrayBuffer) => {
         saveKeyToStorage(Base64.encode(wrapped));
@@ -105,15 +105,14 @@ export class Cryptography {
 
       const padded = this.concatBufs(buf, pad);
 
-      crypto.subtle.importKey("raw", padded, { name: "AES-CTR" }, false, ["unwrapKey"]).then((unwrapKey: CryptoKey) => {
+      crypto.subtle.importKey("raw", padded, { name: "AES-CBC" }, false, ["unwrapKey"]).then((unwrapKey: CryptoKey) => {
         crypto.subtle.unwrapKey(
           "raw",
           Base64.decode(key),
           unwrapKey,
           {
-            name: "AES-CTR", 
-            length: 128,
-            counter: new Uint8Array(16) 
+            name: "AES-CBC", 
+            iv: new Uint8Array(16) 
           },
           this.privateKeyType,
           true,
@@ -146,8 +145,8 @@ export class Cryptography {
   }
 
   /**
-   * Split the input buffer in the actual data and a salt. 
-   * The salt is the first bytes in the buffer. 
+   * Split the input buffer in the actual data and the IV used for encryption. 
+   * The IV is the first bytes in the buffer. 
    */
   private split(input: ArrayBuffer, bytes: number) {
     const arr = new Uint8Array(input);
@@ -161,18 +160,17 @@ export class Cryptography {
       return;
     }
 
-    const counter = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(16));
 
     const algorithmParams = {
-      name: "AES-CTR",
-      counter: counter,
-      length: 64
+      name: "AES-CBC",
+      iv: iv,
     }
 
     const result = await crypto.subtle.encrypt(algorithmParams, this.privateKey, this.string2Buf(input));
 
-    // Add the counter to the data buffer to be used for decrypting. Represented by the first 16 bytes;
-    const buf = this.concatBufs(counter.buffer, result);
+    // Add the IV to the data buffer to be used for decrypting. Represented by the first 16 bytes;
+    const buf = this.concatBufs(iv.buffer, result);
 
     return Base64.encode(buf);
   }
@@ -187,20 +185,19 @@ export class Cryptography {
       return;
     }
 
-    let counter: any, data: any;
+    let iv: any, data: any;
 
     // Get the counter for decrypting. Represented by the first 16 bytes.
     if (typeof input === "string") {
-      [counter, data] = this.split(Base64.decode(input), 16);
+      [iv, data] = this.split(Base64.decode(input), 16);
     }
     else {
-      [counter, data] = this.split(input, 16);
+      [iv, data] = this.split(input, 16);
     }
 
     const algo = {
-      name: "AES-CTR",
-      counter: counter,
-      length: 64
+      name: "AES-CBC",
+      iv: iv,
     }
 
     const result = await crypto.subtle.decrypt(algo, this.privateKey, data);

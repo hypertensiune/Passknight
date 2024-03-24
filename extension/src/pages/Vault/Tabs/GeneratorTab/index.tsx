@@ -75,8 +75,6 @@ export default function Generator({ _history }: { _history: string[] }) {
       clearInterval(timeoutHandle);
     }
     timeoutHandle = setTimeout(() => {
-      console.log("saving...");
-
       const newarr = [...history];
       if (history.length > 15) {
         newarr.pop()

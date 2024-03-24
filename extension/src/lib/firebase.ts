@@ -35,8 +35,6 @@ declare global {
     const res = await getDoc(doc(db, "vaults", "ids"));
     const resObj = res.data() as Object;
 
-    console.log("USER", user);
-
     window.UID = user?.uid || "";
     
     vaultsInfo = new Map(Object.entries(resObj));
@@ -54,7 +52,6 @@ declare global {
       unlockedVaultID = vaultsInfo.get(name);
       options = [true, name];
     }
-  
     subscriber([data, ...options]);
   });
 })();
@@ -72,7 +69,7 @@ export function createVault(name: string, password: string, callback: Function) 
   const auth = getAuth(app);
   createUserWithEmailAndPassword(auth, `${name}@passknight.vault`, password).then(async (user: UserCredential) => {
     const salt = generateSalt();
-    await setDoc(doc(db, "vaults", "ids"), { [name]: user.user.uid }, { merge: true });
+    await setDoc(doc(db, "vaults", "ids"), { [name.toLowerCase()]: user.user.uid }, { merge: true });
     await setDoc(doc(db, "vaults", user.user.uid), { "salt": salt, "passwords": [], "notes": [], "history": [] });
 
     callback();
@@ -114,7 +111,6 @@ export async function getVaultContent(): Promise<VaultContent> {
   if (unlockedVaultID === undefined) {
     return { passwords: [], notes: [], history: [] };
   }
-
   const data = (await getDoc(doc(db, "vaults", unlockedVaultID))).data();
   return data as VaultContent;
 }
@@ -142,7 +138,6 @@ export async function addItemToVault(item: PasswordItem | NoteItem): Promise<boo
   if (isPasswordItem(item)) {
     const encrypted = await crypto.encrypt(item.password);
     item.password = encrypted!;
-
     await updateDoc(doc(db, "vaults", unlockedVaultID), { passwords: arrayUnion(item) });
   }
   else {
