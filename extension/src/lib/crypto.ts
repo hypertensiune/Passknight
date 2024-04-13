@@ -9,7 +9,6 @@ export function generateSalt(): string {
   return Base64.encode(arr);
 }
 
-// TO DO: Change to AES-CBC mode.
 export class Cryptography {
   private initialized = false;
 
@@ -119,7 +118,6 @@ export class Cryptography {
           ["encrypt", "decrypt"]
         ).then((unwrapped: CryptoKey) => {
           this.privateKey = unwrapped;
-          console.log("unwrapped");
         });
       });
     });

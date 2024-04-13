@@ -16,7 +16,7 @@ async function copy(text: string, decrypt: boolean) {
     text = await cryptoObject.decrypt(text) || "";
   }
 
-  navigator.clipboard.writeText(text).then(() => console.log("Password copied"));
+  navigator.clipboard.writeText(text);
 
   clipboardDeleteCommand();
 }
