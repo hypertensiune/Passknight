@@ -14,6 +14,7 @@ function shuffle(array: []): [] {
   return array;
 }
 
+// https://github.com/bitwarden/clients/blob/main/libs/common/src/tools/generator/password/password-generation.service.ts
 export function generatePassword(length: number, options: { lowercase: boolean, uppercase: boolean, numbers: boolean, symbols: boolean }): string {
   let output = "";
 
@@ -22,15 +23,54 @@ export function generatePassword(length: number, options: { lowercase: boolean, 
   const numbers = "01234567890";
   const symbols = "!@#$%^&*";
 
-  const chars = (options.lowercase ? lowercase : "") + (options.uppercase ? uppercase : "") + (options.numbers ? numbers : "") + (options.symbols ? symbols : "");
-  const charsShuffled = shuffle(chars.split("") as []).join("");
+  let positions = "";
+  let chars = "";
+
+  // Make sure at least one of every type of characters is used if selected.
+  if(options.lowercase)
+  {
+    chars += lowercase;
+    positions += 'l';
+  }
+  if(options.uppercase)
+  {
+    chars += uppercase;
+    positions += 'u';
+  }
+  if(options.numbers)
+  {
+    chars += numbers;
+    positions += 'n';
+  }
+  if(options.symbols)
+  {
+    chars += symbols;
+    positions += 's';
+  }
+
+  while(positions.length < length)
+    positions += 'a';
+
+  const positionsShuffled = shuffle(positions.split("") as []).join("");
 
   if (chars.length == 0)
     return "";
 
   for (let i = 0; i < length; i++) {
-    const randomIndex = getRandomNumber(0, chars.length - 1);
-    output += charsShuffled[randomIndex];
+    let tempChars = chars;
+    switch(positionsShuffled[i])
+    {
+      case 'l':
+        tempChars = lowercase; break;
+      case 'u':
+        tempChars = uppercase; break;
+      case 'n':
+        tempChars = numbers; break;
+      case 's':
+        tempChars = symbols; break;
+    }
+    const rand = getRandomNumber(0, tempChars.length - 1);
+    output += tempChars[rand];
   }
 
   return output;
