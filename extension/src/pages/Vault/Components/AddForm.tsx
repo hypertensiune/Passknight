@@ -15,11 +15,10 @@ async function submitNew(item: PasswordItem | NoteItem, addNewItem: (item: Passw
 
 export default function AddForm({ opened, close, addNewItem }: { opened: boolean, close: () => void, addNewItem: (item: PasswordItem | NoteItem) => void }) {
 
-  const [website, setWebsite] = useState("");
   const [itemType, setItemType] = useState("Password");
 
   const passForm = useForm({
-    initialValues: { name: '', website: website, username: '', password: '' },
+    initialValues: { name: '', website: '', username: '', password: '' },
   });
 
   const noteForm = useForm({
@@ -29,12 +28,13 @@ export default function AddForm({ opened, close, addNewItem }: { opened: boolean
   const getActiveForm = () => itemType === 'Password' ? passForm : noteForm;
 
   useEffect(() => {
-    getCurrentActiveWebsite((web: string) => setWebsite(web));
+    getCurrentActiveWebsite((web: string) => passForm.setValues({website: web}));
   }, []);
 
   return (
     <Drawer opened={opened} onClose={close} position='bottom' size="100%">
       <form onSubmit={getActiveForm().onSubmit((data: PasswordItem | NoteItem) => {
+        console.log(data);
         submitNew(data, addNewItem);
         passForm.reset();
         noteForm.reset();
@@ -45,7 +45,7 @@ export default function AddForm({ opened, close, addNewItem }: { opened: boolean
         {itemType === "Password" ? (
           <>
             <TextInput label="Name" {...passForm.getInputProps('name')} />
-            <TextInput label="Website" placeholder={website} {...passForm.getInputProps('website')} />
+            <TextInput label="Website" placeholder={passForm.getTransformedValues().website} {...passForm.getInputProps('website')} />
             <TextInput label="Username" placeholder='Your username' {...passForm.getInputProps('username')} />
             <PasswordInput label="Password" placeholder='Your password' {...passForm.getInputProps('password')} />
           </>
