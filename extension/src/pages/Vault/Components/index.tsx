@@ -32,7 +32,7 @@ export function List({ children }: any) {
 export function PasswordListItem({ data, onClick }: { data: PasswordItem, onClick: () => void }) {
   return (
     <div className="list-item" onClick={onClick}>
-      <img src={`https://${data.website}/favicon.ico`} width="20px" />
+      <img src={`http://www.google.com/s2/favicons?domain=${data.website}`} width="20px" />
       <div className="details" style={{ width: '70%' }}>
         <div className='name'>{data.name}</div>
         <div className='username'>{data.username}</div>
