@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
-import { LoadingOverlay, Tabs } from "@mantine/core";
+import { LoadingOverlay, Tabs, Tooltip } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 
-import { getVaultContent, lockVault } from "@lib/firebase";
+import { deleteVault, getVaultContent, lockVault } from "@lib/firebase";
 
 import GeneratorTab from "./Tabs/GeneratorTab";
 import VaultTab from "./Tabs/VaultTab";
 import Current from "./Tabs/Current";
 
 import './vault.scss';
+import ConfirmDelete from "./Components/ConfirmDelete";
 
 export default function Vault() {
   const { vault } = useParams();
@@ -18,6 +19,7 @@ export default function Vault() {
   const [data, setData] = useState<VaultContent>({ passwords: [], notes: [], history: [] });
 
   const [visible, { close }] = useDisclosure(true);
+  const [opened, drawerHandlers] = useDisclosure(false);
 
   useEffect(() => {
     getVaultContent().then(content => {
@@ -28,6 +30,13 @@ export default function Vault() {
 
   return (
     <>
+      <div className="delete" onClick={drawerHandlers.open}>
+        <Tooltip label="Delete vault" color="gray" position="bottom">
+          <div className="trash-btn">
+            <i className="fa-solid fa-trash"></i>
+          </div>
+        </Tooltip>
+      </div>
       <LoadingOverlay visible={visible} zIndex={1000} overlayProps={{ radius: "sm", blur: 100, }} />
       <section className="header">
         <h3>{vault}</h3>
@@ -53,6 +62,7 @@ export default function Vault() {
           </Tabs>
         </section>
       </main>
+      <ConfirmDelete size="75%" string="vault" opened={opened} close={drawerHandlers.close} action={() => deleteVault(vault!)}/>
     </>
   )
 }

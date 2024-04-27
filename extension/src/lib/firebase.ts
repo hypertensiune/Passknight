@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, setDoc, doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
-import { UserCredential, browserSessionPersistence, createUserWithEmailAndPassword, getAuth, onAuthStateChanged, setPersistence, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { getFirestore, setDoc, doc, getDoc, updateDoc, arrayUnion, arrayRemove, deleteDoc, deleteField } from "firebase/firestore";
+import { User, UserCredential, browserSessionPersistence, createUserWithEmailAndPassword, deleteUser, getAuth, onAuthStateChanged, setPersistence, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 
 import useCrypto from "../hooks/useCrypto";
 
@@ -17,6 +17,8 @@ let vaultsInfo: Map<string, string> = new Map();
 let unlockedVaultID: string | undefined = undefined;
 
 let subscriber = (_: any) => { };
+
+let currentUser: User | null = null;
 
 declare global {
   interface Window {
@@ -72,8 +74,21 @@ export function createVault(name: string, password: string, callback: Function) 
     await setDoc(doc(db, "vaults", "ids"), { [name.toLowerCase()]: user.user.uid }, { merge: true });
     await setDoc(doc(db, "vaults", user.user.uid), { "salt": salt, "passwords": [], "notes": [], "history": [] });
 
+    currentUser = user.user;
+
     callback();
   });
+}
+
+/**
+ * Delete the currently unlocked vault.
+ */
+export async function deleteVault(vault: string) {
+  if(currentUser != null) {
+    await deleteDoc(doc(db, "vaults", unlockedVaultID!));
+    await deleteUser(currentUser);
+    await updateDoc(doc(db, "vaults", "ids"), {[vault]: deleteField()});
+  }
 }
 
 export async function unlockVault(vault: string, password: string) {
@@ -83,11 +98,13 @@ export async function unlockVault(vault: string, password: string) {
 
   await setPersistence(auth, browserSessionPersistence);
 
-  await signInWithEmailAndPassword(auth, `${vault}@passknight.vault`, password).catch(error => {
-    if (error) {
-      success = false;
-    }
-  });
+  await signInWithEmailAndPassword(auth, `${vault}@passknight.vault`, password)
+    .then((user: UserCredential) => currentUser = user.user)
+    .catch(error => {
+      if (error) {
+        success = false;
+      }
+    });
 
   if(success) {
     unlockedVaultID = vaultsInfo?.get(vault);
