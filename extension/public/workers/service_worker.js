@@ -28,44 +28,87 @@ function autofill(data) {
   });
 }
 
-chrome.contextMenus.create({
-  title: "Passknight",
-  contexts: ["editable"],
-  id: "PK_ROOT",
-  onclick: autofill("data")
-});
+function sortPasswordItems(passwordItems) {
 
-function renderContextMenuItems(passwordItems) {
+  // Group the items by the website property
+  let grouped = {};
+  for(const item of passwordItems) {
+    if(grouped.hasOwnProperty(item.website)) {
+      grouped[item.website].push(item);
+    }
+    else {
+      grouped[item.website] = [item];
+    }
+  }
+
+  // Sort the grouped items by website in alphabetical order
+  // https://stackoverflow.com/a/51725400
+  const sorted = Object.keys(grouped).sort().reduce((a, c) => (a[c] = grouped[c], a), {});
+
+  return sorted;
+}
+
+function renderContextMenuItems(items) {
+
+  const sorted = sortPasswordItems(items);
+
   chrome.contextMenus.removeAll();
-
   chrome.contextMenus.create({
     title: "Passknight",
     contexts: ["editable"],
     id: "PK_ROOT",
   });
 
-  for(const [index, item] of passwordItems.entries()) {
+  for(const [key, value] of Object.entries(sorted)) {
 
     chrome.contextMenus.create({
-      title: item.name,
-      contexts: ["editable"],
+      title: key,
       parentId: "PK_ROOT",
-      id: `PK_${index}`,
+      contexts: ["editable"],
+      id: `PK_${key}`
     });
 
-    chrome.contextMenus.create({
-      title: "Fill username",
-      contexts: ["editable"],
-      parentId: `PK_${index}`,
-      id: `PK_${index}_U`,
-    });
-
-    chrome.contextMenus.create({
-      title: "Fill password",
-      contexts: ["editable"],
-      parentId: `PK_${index}`,
-      id: `PK_${index}_P`,
-    });
+    // If there is only one password saved for this website show it directly
+    if(value.length == 1) {
+      chrome.contextMenus.create({
+        title: "Fill username",
+        contexts: ["editable"],
+        parentId: `PK_${key}`,
+        id: `PK_${key}_0_U`,
+      });
+  
+      chrome.contextMenus.create({
+        title: "Fill password",
+        contexts: ["editable"],
+        parentId: `PK_${key}`,
+        id: `PK_${key}_0_P`,
+      });
+    }
+    else {
+      // Show all saved passwords under the this website's menu
+      for(const [index, item] of value.entries()) {
+        chrome.contextMenus.create({
+          title: item.name,
+          contexts: ["editable"],
+          parentId: `PK_${key}`,
+          id: `PK_${key}_${index}`,
+        });
+    
+        chrome.contextMenus.create({
+          title: "Fill username",
+          contexts: ["editable"],
+          parentId: `PK_${key}_${index}`,
+          id: `PK_${key}_${index}_U`,
+        });
+    
+        chrome.contextMenus.create({
+          title: "Fill password",
+          contexts: ["editable"],
+          parentId: `PK_${key}_${index}`,
+          id: `PK_${key}_${index}_P`,
+        });
+      }
+    }
   }
 
   chrome.contextMenus.onClicked.addListener(async (info, tab) => {
@@ -75,14 +118,15 @@ function renderContextMenuItems(passwordItems) {
 
     const split = info.menuItemId.split("_");
 
-    let index = parseInt(split[1]);
-    let type = split[2];
+    let url = split[1];
+    let index = parseInt(split[2]);
+    let type = split[3];
 
     if(type == "U") {
-      autofill(passwordItems[index].username);
+      autofill(sorted[url][index].username);
     }
     else if(type == "P") {
-      const dec = await decrypt(passwordItems[index].password);
+      const dec = await decrypt(sorted[url][index].password);
       autofill(dec);
     }
   }); 

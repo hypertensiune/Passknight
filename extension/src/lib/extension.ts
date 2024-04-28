@@ -1,5 +1,3 @@
-import useCrypto from "@hooks/useCrypto";
-
 export function getCurrentActiveWebsite(callback: Function) {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs: any) => {
     const url = tabs[0].url as string;
