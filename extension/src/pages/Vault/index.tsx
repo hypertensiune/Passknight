@@ -12,6 +12,7 @@ import Current from "./Tabs/Current";
 
 import './vault.scss';
 import ConfirmDelete from "./Components/ConfirmDelete";
+import { getCurrentActiveWebsite, renderContextMenuItems } from "@lib/extension";
 
 export default function Vault() {
   const { vault } = useParams();
@@ -21,10 +22,20 @@ export default function Vault() {
   const [visible, { close }] = useDisclosure(true);
   const [opened, drawerHandlers] = useDisclosure(false);
 
+  const [current, setCurrent] = useState<PasswordItem[]>([]);
+
   useEffect(() => {
     getVaultContent().then(content => {
       setData(content);
-      close();
+
+      // Context menu items for autofilling
+      renderContextMenuItems(content.passwords);
+
+      getCurrentActiveWebsite((web: string) => {
+        const currentList = content.passwords.filter(pass => pass.website === web);
+        setCurrent(currentList);
+        close();
+      });
     });
   }, []);
 
@@ -51,7 +62,7 @@ export default function Vault() {
               <Tabs.Tab value="generator">Generator</Tabs.Tab>
             </Tabs.List>
             <Tabs.Panel value="current">
-              <Current data={data} />
+              <Current data={current} />
             </Tabs.Panel>
             <Tabs.Panel value="vault">
               <VaultTab data={data} key={data.passwords[0]?.password} />

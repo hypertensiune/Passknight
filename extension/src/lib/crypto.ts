@@ -1,4 +1,4 @@
-import * as Base64 from "./base64.ts";
+import * as Base64 from "../../public/base64.js";
 
 import { saveKeyToStorage, loadKeyFromStorage } from "./extension.ts";
 import { getSalt } from "./firebase.ts";

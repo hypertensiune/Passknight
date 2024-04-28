@@ -10,14 +10,16 @@
     "permissions": [
         "scripting",
         "tabs",
-        "storage"
+        "storage",
+        "contextMenus"
     ],
     "host_permissions": [
         "http://*/",
         "https://*/"
     ],
     "background": {
-        "service_worker": "background.js"
+        "service_worker": "workers/service_worker.js",
+        "type": "module"
     },
     "content_scripts": [
         {

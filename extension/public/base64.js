@@ -13,7 +13,7 @@ for (let i = 0; i < chars.length; i++) {
   lookup[chars.charCodeAt(i)] = i;
 }
 
-export const encode = (arraybuffer: ArrayBuffer): string => {
+export const encode = (arraybuffer) => {
   let bytes = new Uint8Array(arraybuffer),
     i,
     len = bytes.length,
@@ -35,7 +35,7 @@ export const encode = (arraybuffer: ArrayBuffer): string => {
   return base64;
 };
 
-export const decode = (base64: string): ArrayBuffer => {
+export const decode = (base64) => {
   let bufferLength = base64.length * 0.75,
     len = base64.length,
     i,
