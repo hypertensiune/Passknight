@@ -1,0 +1,29 @@
+﻿<Application x:Class="Passknight.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:Passknight"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <!-- Colors -->
+
+            <SolidColorBrush x:Key="ForegroundColor" Color="#c9c9c9"/>
+            <SolidColorBrush x:Key="ForegroundColorError" Color="#ef9a9a"/>
+            <SolidColorBrush x:Key="PrimaryColor" Color="#1871c2"/>
+
+            <SolidColorBrush x:Key="BackgroundPrimary" Color="#242424"/>
+            <SolidColorBrush x:Key="BackgroundSecondary" Color="#2e2e2e"/>
+            <SolidColorBrush x:Key="ListItemPrimary" Color="#121212"/>
+
+            <FontFamily x:Key="firaCode">pack://application:,,,/Resources/#Fira Code</FontFamily>
+            <ResourceDictionary.MergedDictionaries>
+                <ui:ThemesDictionary Theme="Dark" />
+                <ui:ControlsDictionary />
+                <ResourceDictionary Source="/Resources/Styles/Logo.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/Tab.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/GeneratorPasswordBox.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/PasswordsTab.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

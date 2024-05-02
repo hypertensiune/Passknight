@@ -1,0 +1,94 @@
+﻿<UserControl x:Class="Passknight.Views.TabViews.GeneratorTab"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Passknight.Views.TabViews"
+             xmlns:conv="clr-namespace:Passknight.Converters"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="2*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="5*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="Length"/>
+            <Label Grid.Column="1" Content="{Binding GeneratorSettings.Length}"/>
+            <Slider Grid.Column="2" Minimum="5" Maximum="128" Value="{Binding GeneratorSettings.Length, Mode=TwoWay}"/>
+        </Grid>
+
+        <Border
+            Grid.Row="1"
+            BorderBrush="DarkSlateGray"
+            BorderThickness="1"
+            CornerRadius="2"
+            Margin="0, 20, 0, 20">
+
+            <Grid
+                Background="#2c041c">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="36"/>
+                </Grid.RowDefinitions>
+
+                <Grid.Resources>
+                    <conv:GeneratorPasswordStyleConverter x:Key="StyleConverter"/>
+                </Grid.Resources>
+
+                <ItemsControl Grid.Row="0" ItemsSource="{Binding GeneratedPassword}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" Margin="10"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock 
+                                Margin="0"
+                                Padding="0" 
+                                FontFamily="{StaticResource firaCode}" 
+                                FontSize="16" 
+                                FontWeight="Regular" 
+                                Text="{Binding}" 
+                                TextWrapping="Wrap"
+                                Style="{Binding Converter={StaticResource StyleConverter}}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <ui:Button 
+                        Icon="{ui:SymbolIcon Copy24}"
+                        Cursor="Hand"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        Command="{Binding CopyGeneratedPasswordCommand}"/>
+                    <ui:Button 
+                        Icon="{ui:SymbolIcon ArrowRepeatAll24}"
+                        Cursor="Hand"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        Command="{Binding RegeneratePasswordCommand}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <UniformGrid Grid.Row="2" Columns="4" Margin="20, 0">
+            <CheckBox Content="abc" IsChecked="{Binding GeneratorSettings.Lowercase, Mode=TwoWay}"/>
+            <CheckBox Content="ABC" IsChecked="{Binding GeneratorSettings.Uppercase, Mode=TwoWay}"/>
+            <CheckBox Content="123" IsChecked="{Binding GeneratorSettings.Numbers, Mode=TwoWay}"/>
+            <CheckBox Content="#$@" IsChecked="{Binding GeneratorSettings.Symbols, Mode=TwoWay}"/>
+        </UniformGrid>
+    </Grid>
+</UserControl>

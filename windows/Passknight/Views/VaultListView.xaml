@@ -1,0 +1,66 @@
+﻿<UserControl x:Class="Passknight.Views.VaultListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Passknight.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="580" d:DesignWidth="400"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:svgc="http://sharpvectors.codeplex.com/svgc/">
+    <Grid Background="{StaticResource BackgroundPrimary}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="8*"/>
+            <RowDefinition Height="2*"/>
+        </Grid.RowDefinitions>
+        <Image Margin="0,40,0,0" Width="240" Grid.Row="0" Source="{StaticResource logo}"/>
+        <ScrollViewer Grid.Row="1">
+            <StackPanel>
+                <ItemsControl ItemsSource="{Binding Vaults}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <ui:Button 
+                                Background="{StaticResource ListItemPrimary}"
+                                Appearance="Secondary" 
+                                CornerRadius="8"
+                                Content="{Binding}"
+                                HorizontalAlignment="Stretch"
+                                Cursor="Hand"
+                                Margin="20,5,20,5"
+                                Padding="16, 12, 0, 12"
+                                BorderThickness="0"
+                                Foreground="{StaticResource ForegroundColor}"
+                                FontSize="16"
+                                FontWeight="Medium"
+                                Icon="{ui:SymbolIcon LockClosed24}"
+                                Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}},Path=DataContext.UnlockCommand}"
+                                CommandParameter="{Binding}"
+                                HorizontalContentAlignment="Left">
+                                <ui:Button.MouseOverBackground>
+                                    <SolidColorBrush Color="#121212" Opacity="0.7"/>
+                                </ui:Button.MouseOverBackground>
+                            </ui:Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+        <ui:Button 
+            Grid.Row="2" 
+            Background="{StaticResource PrimaryColor}" 
+            HorizontalAlignment="Center"
+            Icon="{ui:SymbolIcon Add24}"
+            Height="36"
+            Width="36"
+            Cursor="Hand"
+            Command="{Binding NewVaultCommand}">
+            <ui:Button.CornerRadius>
+                <CornerRadius>50</CornerRadius>
+            </ui:Button.CornerRadius>
+            <ui:Button.MouseOverBackground>
+                <SolidColorBrush Color="#1871c2" Opacity="0.7"/>
+            </ui:Button.MouseOverBackground>
+        </ui:Button>
+    </Grid>
+</UserControl>

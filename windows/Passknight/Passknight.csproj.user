@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup />
+  <ItemGroup>
+    <ApplicationDefinition Update="App.xaml">
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Views\Forms\NoteItemForm.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\TabViews\GeneratorTab.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\TabViews\PasswordsTab.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\VaultUnlockView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\VaultListView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\VaultView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="MainWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Resources\Styles\PasswordsTab.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Forms\NoteItemForm.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\TabViews\GeneratorTab.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\TabViews\PasswordsTab.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\VaultUnlockView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\VaultListView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\VaultView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+</Project>

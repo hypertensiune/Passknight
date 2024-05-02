@@ -1,0 +1,41 @@
+﻿<Window x:Class="Passknight.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Passknight"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:views="clr-namespace:Passknight.Views"
+        xmlns:vms="clr-namespace:Passknight.ViewModels"
+        mc:Ignorable="d"
+        Title="Passknight" Height="580" Width="400"
+        WindowStyle="None"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
+    <Grid>
+        <Grid.Resources>
+            <DataTemplate DataType="{x:Type vms:VaultListViewModel}">
+                <views:VaultListView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vms:VaultUnlockViewModel}">
+                <views:VaultUnlockView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vms:VaultViewModel}">
+                <views:VaultView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vms:NewVaultViewModel}">
+                <views:NewVaultForm/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vms:PasswordFormViewModel}">
+                <views:PasswordItemForm/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vms:NoteFormViewModel}">
+                <views:NoteItemForm/>
+            </DataTemplate>
+        </Grid.Resources>
+        <StackPanel Height="580" Background="{StaticResource BackgroundPrimary}">
+            <ui:TitleBar ShowMaximize="False" Width="340" HorizontalAlignment="Right"/>
+            <ContentControl Height="540" Content="{Binding CurrentViewModel}"/>
+        </StackPanel>
+    </Grid>
+</Window>
