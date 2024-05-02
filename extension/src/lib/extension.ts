@@ -23,6 +23,9 @@ export async function loadPersistence(key: string) {
 
 export function clearPersistence() {
   chrome.storage.session.remove(["firebase", "key"]);
+
+  // When a user is signed out and the firebase persistence is cleared, remove all the context menu items
+  removeContextMenus();
 }
 
 export function saveKeyToStorage(key: string) {
@@ -40,4 +43,20 @@ export async function loadKeyFromStorage() {
 
 export async function renderContextMenuItems(items: PasswordItem[]) {
   chrome.runtime.sendMessage({action: "renderContextMenuItems", data: items});
+}
+
+function removeContextMenus() {
+  chrome.contextMenus.removeAll();
+  chrome.contextMenus.create({
+    title: "Passknight",
+    contexts: ["editable"],
+    id: "PK_ROOT",
+  });
+  
+  chrome.contextMenus.create({
+    title: "Unlock a vault",
+    contexts: ["editable"],
+    parentId: "PK_ROOT",
+    id: "PK_1"
+  });
 }

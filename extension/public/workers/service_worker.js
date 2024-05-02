@@ -28,6 +28,23 @@ function autofill(data) {
   });
 }
 
+// Display the default context menu items when the browser is started
+chrome.runtime.onStartup.addListener(() => {
+  chrome.contextMenus.removeAll();
+  chrome.contextMenus.create({
+    title: "Passknight",
+    contexts: ["editable"],
+    id: "PK_ROOT",
+  });
+  
+  chrome.contextMenus.create({
+    title: "Unlock a vault",
+    contexts: ["editable"],
+    parentId: "PK_ROOT",
+    id: "PK_1"
+  });
+});
+
 function sortPasswordItems(passwordItems) {
 
   // Group the items by the website property
