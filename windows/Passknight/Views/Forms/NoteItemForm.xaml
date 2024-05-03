@@ -4,9 +4,59 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Passknight.Views"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-            
+             d:DesignHeight="580" d:DesignWidth="400">
+    <Grid Background="{StaticResource BackgroundPrimary}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="6*"/>
+            <RowDefinition Height="4*"/>
+        </Grid.RowDefinitions>
+        <ui:Button 
+            Icon="{ui:SymbolIcon ArrowLeft24}"
+            BorderThickness="0"
+            Background="Transparent"
+            Cursor="Hand"
+            FontSize="18"
+            Margin="5, -80, 5, 5"
+            Command="{Binding BackCommand}">
+        </ui:Button>
+        <TextBlock 
+            Grid.Row="0"
+            Text="Add Note"  
+            FontSize="24" 
+            Foreground="{StaticResource ForegroundColor}"
+            FontWeight="Bold"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"/>
+        <StackPanel 
+            Grid.Row="1"
+            Margin="20, 0">
+            <Label Content="Name" Foreground="{StaticResource ForegroundColor}" FontWeight="Bold"/>
+            <ui:TextBox Grid.Row="1" Text="{Binding Item.Name, Mode=TwoWay}" Height="34"/>
+        </StackPanel>
+        <StackPanel 
+            Grid.Row="2"
+            Margin="20, 0"> 
+            <Label Content="Content" Foreground="{StaticResource ForegroundColor}" FontWeight="Bold"/>
+            <ui:TextBox 
+                Grid.Row="1"
+                TextWrapping="Wrap" 
+                AcceptsReturn="True" 
+                MinHeight="136"
+                MaxHeight="204"
+                VerticalScrollBarVisibility="Visible"
+                Height="auto"  
+                Text="{Binding Item.Content, Mode=TwoWay}" />
+        </StackPanel>
+        <ui:Button 
+            Grid.Row="5"
+            HorizontalAlignment="Center"
+            Background="{StaticResource PrimaryColor}"
+            Command="{Binding SubmitCommand}">
+            Add
+        </ui:Button>
     </Grid>
 </UserControl>

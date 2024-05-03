@@ -1,5 +1,6 @@
 ﻿using Passknight.Core;
 using Passknight.Models;
+using Passknight.Models.Items;
 using Passknight.Stores;
 using System;
 using System.Collections.Generic;
@@ -102,22 +103,11 @@ namespace Passknight.Services.Firebase
             return response;
         }
 
-        public async Task<bool> AddItemInVault<T>(T item, List<T> items)
-        {
-            if (typeof(T) == typeof(PasswordItem))
-            {
-                items.Add(item);
-                string body = JSONConverter.PasswordItems(items as List<PasswordItem>);
-                var res = await firestore.UpdateDoc(firebaseStore.CurrentUnlockedVaultID, "passwords", body, authentification.ID_TOKEN);
-
-                return true;
-            }
-
-            return false;
-        }
-        
         /// <summary>
-        /// Used to update the passwords, notes and history fields in a vault.
+        /// Used to update the passwords, notes and history fields in a vault. <br/>
+        /// <typeparamref name="T"/> is <see cref="string"/> => history <br/>
+        /// <typeparamref name="T"/> is <see cref="NoteItem"/> => notes <br/>
+        /// <typeparamref name="T"/> is <see cref="PasswordItem"/> => passwords <br/>
         /// </summary>
         public async Task<bool> UpdateFieldInVault<T>(List<T> items)
         {
@@ -125,6 +115,14 @@ namespace Passknight.Services.Firebase
             {
                 string body = JSONConverter.PasswordItems(items as List<PasswordItem>);
                 var res = await firestore.UpdateDoc(firebaseStore.CurrentUnlockedVaultID, "passwords", body, authentification.ID_TOKEN);
+            }
+            else if(typeof(T) == typeof(NoteItem))
+            {
+
+            }
+            else if(typeof(T) == typeof(string))
+            {
+
             }
 
             return true;

@@ -13,6 +13,9 @@
     <Compile Update="Views\TabViews\GeneratorTab.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\TabViews\NotesTab.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\TabViews\PasswordsTab.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -30,13 +33,19 @@
     <Page Update="MainWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Resources\Styles\PasswordsTab.xaml">
+    <Page Update="Resources\NoteIcon.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Resources\Styles\TabItems.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\Forms\NoteItemForm.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\TabViews\GeneratorTab.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\TabViews\NotesTab.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\TabViews\PasswordsTab.xaml">

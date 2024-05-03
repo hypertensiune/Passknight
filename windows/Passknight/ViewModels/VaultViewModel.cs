@@ -1,5 +1,6 @@
 ﻿using Passknight.Core;
 using Passknight.Models;
+using Passknight.Models.Items;
 using Passknight.Services;
 using Passknight.Services.Firebase;
 using Passknight.ViewModels.FormViewModels;
@@ -14,6 +15,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using Passknight.Services.Generator;
 
 namespace Passknight.ViewModels
 {
@@ -23,45 +25,36 @@ namespace Passknight.ViewModels
     class VaultViewModel : Core.ViewModel
     {
         private Firebase _firebase;
-
-        public Vault Vault { get; private set; }
+        private readonly NavigationService _navigationService;
 
         private readonly Cryptography _cryptography = new Cryptography();
 
+        public Vault Vault { get; private set; }
+
         public ICommand OpenPasswordItemAddFormCommand { get; }
         public ICommand OpenPasswordItemEditFormCommand { get; }
-        public ICommand BackCommand { get; }
-
-        private readonly NavigationService _navigationService;
-
-        #region PasswordsTab
+        public ICommand OpenNoteItemAddFormCommand { get; }
+        public ICommand OpenNoteItemEditFormCommand { get; }
 
         public ICommand CopyUsernameCommand { get; }
         public ICommand CopyPasswordCommand { get; }
 
-        #endregion
+        public ICommand RegeneratePasswordCommand { get; }
+        public ICommand CopyGeneratedPasswordCommand { get; }
 
-        #region GeneratorTab
-
+        public Settings GeneratorSettings { get; } = new Settings();
         private Generator generator = new Generator();
 
-        private string generatedPassword;
+        private string _generatedPassword;
         public List<string> GeneratedPassword
         {
             get
             {
-                var split = Regex.Matches(generatedPassword, @"(\d+)|([a-zA-Z]+)|([!@#$%^&*]+)");
+                var split = Regex.Matches(_generatedPassword, @"(\d+)|([a-zA-Z]+)|([!@#$%^&*]+)");
                 return split.Select(gr => gr.Value).ToList();
             }
         }
 
-        public GeneratorSettings GeneratorSettings { get; }
-
-        public ICommand RegeneratePasswordCommand { get; }
-        public ICommand CopyGeneratedPasswordCommand { get; }
-
-        #endregion
-        
         public VaultViewModel(Services.NavigationService navigationService, Firebase firebase, string masterPassword)
         {
             _firebase = firebase;
@@ -72,16 +65,25 @@ namespace Passknight.ViewModels
             OpenPasswordItemAddFormCommand = new RelayCommand(OpenPasswordItemAddFormCommandHanlder);
             OpenPasswordItemEditFormCommand = new RelayCommand(OpenPasswordItemEditFormCommandHandler);
 
+            OpenNoteItemAddFormCommand = new RelayCommand(OpenNoteItemAddFormCommandHanlder);
+            OpenNoteItemEditFormCommand = new RelayCommand(OpenNoteItemEditFormCommandHandler);
+
             CopyUsernameCommand = new RelayCommand((object? param) => Clipboard.SetText((string)param!));
             CopyPasswordCommand = new RelayCommand((object? param) => Clipboard.SetText((_cryptography.Decrypt((string)param!))));
 
-            GeneratorSettings = new GeneratorSettings();
-            GeneratorSettings.OnSettingChanged += OnGeneratorSettingsChanged;
 
-            generatedPassword = generator.GeneratePassword(GeneratorSettings);
+            GeneratorSettings.OnSettingsChanged += OnGeneratorSettingsChanged;
+
+            _generatedPassword = generator.GeneratePassword(GeneratorSettings);
 
             RegeneratePasswordCommand = new RelayCommand((object? param) => { });
             CopyGeneratedPasswordCommand = new RelayCommand((object? param) => { });
+        }
+
+        private async Task GetVaultAsync()
+        {
+            Vault = await _firebase.GetVault();
+            OnPropertyChanged(nameof(Vault));
         }
 
         private void OpenPasswordItemAddFormCommandHanlder(object? param)
@@ -94,16 +96,20 @@ namespace Passknight.ViewModels
             _navigationService.NavigateTo<PasswordFormViewModel>(_firebase, _cryptography, FormType.Edit, (PasswordItem)param!, Vault.PasswordItems);
         }
 
-        private void OnGeneratorSettingsChanged()
+        private void OpenNoteItemAddFormCommandHanlder(object? param)
         {
-            generatedPassword = generator.GeneratePassword(GeneratorSettings);
-            OnPropertyChanged(nameof(GeneratedPassword));
+            _navigationService.NavigateTo<NoteFormViewModel>(_firebase, _cryptography, FormType.Add, Vault.NoteItems);
         }
 
-        private async Task GetVaultAsync()
+        private void OpenNoteItemEditFormCommandHandler(object? param)
         {
-            Vault = await _firebase.GetVault();
-            OnPropertyChanged(nameof(Vault));
+            _navigationService.NavigateTo<NoteFormViewModel>(_firebase, _cryptography, FormType.Edit, (NoteItem)param!, Vault.NoteItems);
+        }
+
+        private void OnGeneratorSettingsChanged()
+        {
+            _generatedPassword = generator.GeneratePassword(GeneratorSettings);
+            OnPropertyChanged(nameof(GeneratedPassword));
         }
     }
 }

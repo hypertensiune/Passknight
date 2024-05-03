@@ -27,7 +27,6 @@
   <ItemGroup>
     <None Remove="Resources\FiraCode-Regular.ttf" />
     <None Remove="Resources\logo.png" />
-    <None Remove="Resources\logo.svg" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,7 +40,6 @@
     <Resource Include="Resources\FiraCode-Regular.ttf">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\logo.svg" />
   </ItemGroup>
 
   <ItemGroup>

@@ -16,13 +16,15 @@
             <SolidColorBrush x:Key="ListItemPrimary" Color="#121212"/>
 
             <FontFamily x:Key="firaCode">pack://application:,,,/Resources/#Fira Code</FontFamily>
+            
             <ResourceDictionary.MergedDictionaries>
                 <ui:ThemesDictionary Theme="Dark" />
                 <ui:ControlsDictionary />
-                <ResourceDictionary Source="/Resources/Styles/Logo.xaml"/>
+                <ResourceDictionary Source="/Resources/Logo.xaml"/>
+                <ResourceDictionary Source="/Resources/NoteIcon.xaml"/>
                 <ResourceDictionary Source="/Resources/Styles/Tab.xaml"/>
                 <ResourceDictionary Source="/Resources/Styles/GeneratorPasswordBox.xaml"/>
-                <ResourceDictionary Source="/Resources/Styles/PasswordsTab.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/TabItems.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

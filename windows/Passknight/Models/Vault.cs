@@ -9,19 +9,18 @@ namespace Passknight.Models
 {
     class Vault
     {
+        private readonly VaultContent _content;
+
         public string Name { get; }
-        public List<PasswordItem> PasswordItems { get; }
-        public List<NoteItem> NoteItems {get; }
-        public List<string> GeneratorHistory {get; }
-        public string Salt { get; }
+        public List<PasswordItem> PasswordItems => _content.PasswordItems;
+        public List<NoteItem> NoteItems => _content.NoteItems;
+        public List<string> GeneratorHistory => _content.GeneratorHistory;
+        public string Salt => _content.Salt;
 
         public Vault(string name, VaultContent content)
         {
             Name = name;
-            PasswordItems = content.PasswordItems;
-            NoteItems = content.NoteItems;
-            GeneratorHistory = content.GeneratorHistory;
-            Salt = content.Salt;
+            _content = content;
         }
     }
 }

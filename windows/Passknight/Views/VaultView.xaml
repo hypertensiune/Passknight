@@ -58,9 +58,7 @@
                     <tabs:PasswordsTab/>
                 </ui:TabViewItem>
                 <ui:TabViewItem Style="{StaticResource tabItem}" Header="Notes">
-                    <Grid>
-                        <Label Content="Hello"/>
-                    </Grid>
+                    <tabs:NotesTab/>
                 </ui:TabViewItem>
                 <ui:TabViewItem Style="{StaticResource tabItem}" Header="Generator">
                     <tabs:GeneratorTab/>

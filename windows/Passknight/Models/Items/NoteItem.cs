@@ -20,5 +20,7 @@ namespace Passknight.Models.Items
         {
             Content = encrypt(Content);
         }
+
+        public NoteItem Clone() => (NoteItem)this.MemberwiseClone();
     }
 }

@@ -1,0 +1,10 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DrawingImage x:Key="noteIcon">
+        <DrawingImage.Drawing>
+            <DrawingGroup ClipGeometry="M0,0 V512 H384 V0 H0 Z">
+                <GeometryDrawing Brush="#ffc9c9c9" Geometry="F1 M384,512z M0,0z M320,464C328.8,464,336,456.8,336,448L336,160 256,160C238.3,160,224,145.7,224,128L224,48 64,48C55.2,48,48,55.2,48,64L48,448C48,456.8,55.2,464,64,464L320,464z M0,64C0,28.7,28.7,0,64,0L229.5,0C246.5,0,262.8,6.7,274.8,18.7L365.3,109.2C377.3,121.2,384,137.5,384,154.5L384,448C384,483.3,355.3,512,320,512L64,512C28.7,512,0,483.3,0,448L0,64z" />
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+</ResourceDictionary>

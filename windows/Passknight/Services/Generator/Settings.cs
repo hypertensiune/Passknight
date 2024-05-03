@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Passknight.Services
+namespace Passknight.Services.Generator
 {
-    class GeneratorSettings : ObservableObject
+    class Settings : ObservableObject
     {
         private bool lowercase;
         public bool Lowercase
@@ -17,7 +17,7 @@ namespace Passknight.Services
             {
                 lowercase = value;
                 OnPropertyChanged(nameof(Lowercase));
-                OnSettingChanged?.Invoke();
+                OnSettingsChanged?.Invoke();
             }
         }
 
@@ -29,7 +29,7 @@ namespace Passknight.Services
             {
                 uppercase = value;
                 OnPropertyChanged(nameof(Uppercase));
-                OnSettingChanged?.Invoke();
+                OnSettingsChanged?.Invoke();
             }
         }
 
@@ -41,7 +41,7 @@ namespace Passknight.Services
             {
                 numbers = value;
                 OnPropertyChanged(nameof(Numbers));
-                OnSettingChanged?.Invoke();
+                OnSettingsChanged?.Invoke();
             }
         }
 
@@ -53,7 +53,7 @@ namespace Passknight.Services
             {
                 symbols = value;
                 OnPropertyChanged(nameof(Symbols));
-                OnSettingChanged?.Invoke();
+                OnSettingsChanged?.Invoke();
             }
         }
 
@@ -67,16 +67,16 @@ namespace Passknight.Services
                 length = value;
                 OnPropertyChanged(nameof(Length));
 
-                if(length != prevLength)
+                if (length != prevLength)
                 {
                     prevLength = length;
-                    OnSettingChanged?.Invoke();
+                    OnSettingsChanged?.Invoke();
                 }
             }
         }
 
 
-        public GeneratorSettings()
+        public Settings()
         {
             uppercase = true;
             numbers = true;
@@ -85,6 +85,6 @@ namespace Passknight.Services
             length = 5;
         }
 
-        public event Action? OnSettingChanged;
+        public event Action? OnSettingsChanged;
     }
 }

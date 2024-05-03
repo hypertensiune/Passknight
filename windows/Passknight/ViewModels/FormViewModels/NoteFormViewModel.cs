@@ -16,5 +16,12 @@ namespace Passknight.ViewModels
         {
             Item = new NoteItem();
         }
+
+        public NoteFormViewModel(NavigationService navigationService, Firebase firebase, Cryptography cryptography, FormType type, NoteItem item, List<NoteItem> noteItems) : base(navigationService, firebase, cryptography, type, noteItems)
+        {
+            Item = item.Clone();
+            Item.Decrypt(cryptography.Decrypt);
+            _originalItem = item;
+        }
     }
 }

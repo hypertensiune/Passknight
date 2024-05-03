@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Passknight.Services
+namespace Passknight.Services.Generator
 {
     /// <summary>
     /// Generate secure random passwords.
@@ -22,7 +22,7 @@ namespace Passknight.Services
         private string ShufflePositions(string positions)
         {
             var shuffled = positions.ToCharArray();
-            for(int i = 0; i < shuffled.Length; i++)
+            for (int i = 0; i < shuffled.Length; i++)
             {
                 int j = random.Next(0, shuffled.Length - 1);
                 char tmp = shuffled[i];
@@ -33,7 +33,7 @@ namespace Passknight.Services
             return new string(shuffled);
         }
 
-        public string GeneratePassword(GeneratorSettings settings)
+        public string GeneratePassword(Settings settings)
         {
             string positions = "";
 
@@ -43,7 +43,7 @@ namespace Passknight.Services
                 characters += lowercase;
                 positions += 'l';
             }
-            if(settings.Uppercase)
+            if (settings.Uppercase)
             {
                 characters += uppercase;
                 positions += 'u';
@@ -65,10 +65,10 @@ namespace Passknight.Services
             var shuffledPositions = ShufflePositions(positions);
 
             string password = "";
-            for(int i = 0; i < settings.Length; i++)
+            for (int i = 0; i < settings.Length; i++)
             {
                 string chars = characters;
-                switch(shuffledPositions[i])
+                switch (shuffledPositions[i])
                 {
                     case 'l':
                         chars = lowercase; break;
