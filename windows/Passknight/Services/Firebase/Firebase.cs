@@ -28,7 +28,6 @@ namespace Passknight.Services.Firebase
         {
             authentification = new Auth(API_KEY);
             firestore = new Firestore();
-
             firebaseStore = new FirebaseStore();
         }
 
@@ -53,6 +52,12 @@ namespace Passknight.Services.Firebase
             }
 
             return response;
+        }
+
+        public void LockVault()
+        {
+            authentification.SignOut();
+            firebaseStore.Clear();
         }
 
         public async Task<Vault> GetVault()

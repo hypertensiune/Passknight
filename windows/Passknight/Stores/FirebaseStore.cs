@@ -10,7 +10,6 @@ namespace Passknight.Stores
     {
         private string _currentUnlockedVaultID;
         private string _currentUnlockedVaultName;
-        private string _currentUnlockedVaultSalt;
 
         public string CurrentUnlockedVaultID
         {
@@ -24,10 +23,10 @@ namespace Passknight.Stores
             set => _currentUnlockedVaultName = value;
         }
 
-        public string CurrentUnlockedVaultSalt
+        public void Clear()
         {
-            get => _currentUnlockedVaultSalt;
-            set => _currentUnlockedVaultSalt = value;
+            _currentUnlockedVaultID = string.Empty;
+            _currentUnlockedVaultName = string.Empty;
         }
     }
 }

@@ -31,6 +31,7 @@ namespace Passknight.ViewModels
 
         public Vault Vault { get; private set; }
 
+        public ICommand LockVaultCommand { get; }
         public ICommand OpenPasswordItemAddFormCommand { get; }
         public ICommand OpenPasswordItemEditFormCommand { get; }
         public ICommand OpenNoteItemAddFormCommand { get; }
@@ -62,6 +63,8 @@ namespace Passknight.ViewModels
 
             GetVaultAsync().Then(() => _cryptography.Initialize(masterPassword, Vault.Salt));
 
+            LockVaultCommand = new RelayCommand(Lock);
+
             OpenPasswordItemAddFormCommand = new RelayCommand(OpenPasswordItemAddFormCommandHanlder);
             OpenPasswordItemEditFormCommand = new RelayCommand(OpenPasswordItemEditFormCommandHandler);
 
@@ -70,7 +73,6 @@ namespace Passknight.ViewModels
 
             CopyUsernameCommand = new RelayCommand((object? param) => Clipboard.SetText((string)param!));
             CopyPasswordCommand = new RelayCommand((object? param) => Clipboard.SetText((_cryptography.Decrypt((string)param!))));
-
 
             GeneratorSettings.OnSettingsChanged += OnGeneratorSettingsChanged;
 
@@ -84,6 +86,13 @@ namespace Passknight.ViewModels
         {
             Vault = await _firebase.GetVault();
             OnPropertyChanged(nameof(Vault));
+        }
+
+        private void Lock(object? param)
+        {
+            _firebase.LockVault();
+            _navigationService.NavigateTo<VaultListViewModel>(_firebase);
+            _navigationService.InvalidateNavigateBack();
         }
 
         private void OpenPasswordItemAddFormCommandHanlder(object? param)
