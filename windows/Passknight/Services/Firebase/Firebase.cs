@@ -118,7 +118,8 @@ namespace Passknight.Services.Firebase
             }
             else if(typeof(T) == typeof(NoteItem))
             {
-
+                string body = JSONConverter.NoteItems(items as List<NoteItem>);
+                var res = await firestore.UpdateDoc(firebaseStore.CurrentUnlockedVaultID, "notes", body, authentification.ID_TOKEN);
             }
             else if(typeof(T) == typeof(string))
             {
