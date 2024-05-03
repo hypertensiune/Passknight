@@ -14,7 +14,8 @@ namespace Passknight.Services.Firebase
 {
     /// <summary>
     /// Class used to handle all firebase authentification processes.
-    /// Wrapper around firebase REST Api.
+    /// Wrapper around firebase REST Api. <br/>
+    /// <a href="https://firebase.google.com/docs/reference/rest/auth"/>
     /// </summary>
     class Auth
     {

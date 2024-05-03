@@ -49,7 +49,7 @@ namespace Passknight.Services
         /// Encrypt the input using AES-CBC.
         /// </summary>
         /// <returns>
-        /// The encrypted string in base64 encoded.
+        /// The encrypted string in base64.
         /// </returns>
         public string Encrypt(string input)
         {

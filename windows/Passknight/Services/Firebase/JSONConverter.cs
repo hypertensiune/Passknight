@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using Passknight.Models;
+using Passknight.Models.Items;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,13 +20,6 @@ namespace Passknight.Services.Firebase
             {
                 foreach (JProperty prop in json)
                 {
-                    //string key = prop.Name;
-                    //string value = "";
-                    //foreach(JProperty prop2 in prop.First)
-                    //{
-                    //    value = prop2.Value.ToString();
-                    //}
-
                     vaults.Add(prop.Name);
                 }
             }
@@ -82,6 +76,45 @@ namespace Passknight.Services.Firebase
             string Salt = (string)json.SelectToken("fields.salt.stringValue")!;
 
             return new VaultContent(PasswordList, NoteList, GeneratorHistory, Salt);
+        }
+
+        public static string PasswordItems(List<PasswordItem> items)
+        {
+            string res = "{\n" +
+                         "   \"fields\": {\n" +
+                         "       \"passwords\": {\n" +
+                         "           \"arrayValue\": {\n" +
+                         "              \"values\": [\n";
+
+            foreach (var item in items)
+            {
+                res += "{\n" +
+                       "    \"mapValue\": {" +
+                       "        \"fields\": {" +
+                       "            \"name\": {" +
+                       "                \"stringValue\": \"" + item.Name + "\"" +
+                       "            },\n" +
+                       "            \"website\": {" +
+                       "                \"stringValue\": \"" + item.Website + "\"" +
+                       "            },\n" +
+                       "            \"username\": {" +
+                       "                \"stringValue\": \"" + item.Username + "\"" +
+                       "            },\n" +
+                       "            \"password\": {" +
+                       "                \"stringValue\": \"" + item.Password + "\"" +
+                       "            },\n" +
+                       "        }\n" +
+                       "    }\n" +
+                       "},\n";
+            }
+
+            res += "                ]\n" +
+                   "            }\n" +
+                   "        }\n" +
+                   "    }\n" +
+                   "}\n";
+            
+            return res;
         }
     }
 }

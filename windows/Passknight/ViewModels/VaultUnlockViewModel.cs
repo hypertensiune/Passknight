@@ -1,4 +1,5 @@
 ﻿using Passknight.Core;
+using Passknight.Services;
 using Passknight.Services.Firebase;
 using System;
 using System.Collections.Generic;
@@ -48,15 +49,15 @@ namespace Passknight.ViewModels
         private async void OnUnlockVaultCommand(object? param)
         {
             var response = await _firebase.UnlockVault(_vault, Password);
-            Password = string.Empty;
             if(response)
             {
-                _navigationService.NavigateTo<VaultViewModel>(_firebase);
+                _navigationService.NavigateTo<VaultViewModel>(_firebase, Password);
             }
             else
             {
                 MessageBox.Show("Invalid master password", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            Password = string.Empty;
         }
 
         private void OnBackClick(object? param)

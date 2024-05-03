@@ -1,4 +1,4 @@
-﻿using Passknight.Models;
+﻿using Passknight.Models.Items;
 using Passknight.Services;
 using Passknight.Services.Firebase;
 using Passknight.ViewModels.FormViewModels;
@@ -12,7 +12,7 @@ namespace Passknight.ViewModels
 {
     class NoteFormViewModel : ItemFormViewModel<NoteItem>
     {
-        public NoteFormViewModel(NavigationService navigationService, Firebase firebase) : base(navigationService, firebase)
+        public NoteFormViewModel(NavigationService navigationService, Firebase firebase, Cryptography cryptography, FormType type, List<NoteItem> noteItems) : base(navigationService, firebase, cryptography, type, noteItems)
         {
             Item = new NoteItem();
         }

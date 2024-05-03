@@ -12,7 +12,7 @@ namespace Passknight.ViewModels
     {
         private Services.NavigationService NavigationService { get; set; }
         public Core.ViewModel CurrentViewModel => NavigationService.CurrentViewModel;
-
+        
         public MainViewModel(Services.NavigationService navigationService)
         {
             NavigationService = navigationService;

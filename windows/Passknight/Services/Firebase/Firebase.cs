@@ -22,9 +22,7 @@ namespace Passknight.Services.Firebase
         private FirebaseStore firebaseStore;
 
         private List<string> vaults = new List<string>();
-
         
-
         public Firebase(string API_KEY)
         {
             authentification = new Auth(API_KEY);
@@ -102,6 +100,34 @@ namespace Passknight.Services.Firebase
             }
 
             return response;
+        }
+
+        public async Task<bool> AddItemInVault<T>(T item, List<T> items)
+        {
+            if (typeof(T) == typeof(PasswordItem))
+            {
+                items.Add(item);
+                string body = JSONConverter.PasswordItems(items as List<PasswordItem>);
+                var res = await firestore.UpdateDoc(firebaseStore.CurrentUnlockedVaultID, "passwords", body, authentification.ID_TOKEN);
+
+                return true;
+            }
+
+            return false;
+        }
+        
+        /// <summary>
+        /// Used to update the passwords, notes and history fields in a vault.
+        /// </summary>
+        public async Task<bool> UpdateFieldInVault<T>(List<T> items)
+        {
+            if (typeof(T) == typeof(PasswordItem))
+            {
+                string body = JSONConverter.PasswordItems(items as List<PasswordItem>);
+                var res = await firestore.UpdateDoc(firebaseStore.CurrentUnlockedVaultID, "passwords", body, authentification.ID_TOKEN);
+            }
+
+            return true;
         }
     }
 }

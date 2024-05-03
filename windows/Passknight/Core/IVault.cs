@@ -1,4 +1,4 @@
-﻿using Passknight.Models;
+﻿using Passknight.Models.Items;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +19,6 @@ namespace Passknight.Core
             {
                 AddNoteItem(item as NoteItem);
             }
-
         }
 
         public void RemoveItem<T>(T item)

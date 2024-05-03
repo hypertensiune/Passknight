@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Passknight.Models.Items;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ namespace Passknight.Models
         public List<PasswordItem> PasswordItems { get; }
         public List<NoteItem> NoteItems {get; }
         public List<string> GeneratorHistory {get; }
-        public string Salt {get; }
+        public string Salt { get; }
 
         public Vault(string name, VaultContent content)
         {

@@ -2,6 +2,8 @@
 using Passknight.Models;
 using Passknight.Services;
 using Passknight.Services.Firebase;
+using Passknight.ViewModels.FormViewModels;
+using Passknight.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,13 +22,17 @@ namespace Passknight.ViewModels
     /// </summary>
     class VaultViewModel : Core.ViewModel
     {
-        private Firebase firebase;
+        private Firebase _firebase;
 
         public Vault Vault { get; private set; }
-        public List<string> GeneratorHistory { get; }
 
-        public ICommand OpenPasswordItemForm { get; }
+        private readonly Cryptography _cryptography = new Cryptography();
+
+        public ICommand OpenPasswordItemAddFormCommand { get; }
+        public ICommand OpenPasswordItemEditFormCommand { get; }
         public ICommand BackCommand { get; }
+
+        private readonly NavigationService _navigationService;
 
         #region PasswordsTab
 
@@ -56,35 +62,47 @@ namespace Passknight.ViewModels
 
         #endregion
         
-        public VaultViewModel(Services.NavigationService navigationService, Firebase firebase)
+        public VaultViewModel(Services.NavigationService navigationService, Firebase firebase, string masterPassword)
         {
-            this.firebase = firebase;
+            _firebase = firebase;
+            _navigationService = navigationService;
 
-            OpenPasswordItemForm = new RelayCommand((object? obj) => navigationService.NavigateTo<PasswordFormViewModel>(firebase));
+            GetVaultAsync().Then(() => _cryptography.Initialize(masterPassword, Vault.Salt));
 
-            CopyUsernameCommand = new RelayCommand((object? param) => Clipboard.SetText(param as string));
-            CopyPasswordCommand = new RelayCommand((object? param) => Clipboard.SetText(param as string));
+            OpenPasswordItemAddFormCommand = new RelayCommand(OpenPasswordItemAddFormCommandHanlder);
+            OpenPasswordItemEditFormCommand = new RelayCommand(OpenPasswordItemEditFormCommandHandler);
+
+            CopyUsernameCommand = new RelayCommand((object? param) => Clipboard.SetText((string)param!));
+            CopyPasswordCommand = new RelayCommand((object? param) => Clipboard.SetText((_cryptography.Decrypt((string)param!))));
 
             GeneratorSettings = new GeneratorSettings();
-            GeneratorSettings.OnSettingChanged += OnGeneratorSettingChanged;
+            GeneratorSettings.OnSettingChanged += OnGeneratorSettingsChanged;
 
             generatedPassword = generator.GeneratePassword(GeneratorSettings);
 
             RegeneratePasswordCommand = new RelayCommand((object? param) => { });
             CopyGeneratedPasswordCommand = new RelayCommand((object? param) => { });
-
-            GetVault();
         }
 
-        private void OnGeneratorSettingChanged()
+        private void OpenPasswordItemAddFormCommandHanlder(object? param)
+        {
+            _navigationService.NavigateTo<PasswordFormViewModel>(_firebase, _cryptography, FormType.Add, Vault.PasswordItems);
+        }
+
+        private void OpenPasswordItemEditFormCommandHandler(object? param)
+        {
+            _navigationService.NavigateTo<PasswordFormViewModel>(_firebase, _cryptography, FormType.Edit, (PasswordItem)param!, Vault.PasswordItems);
+        }
+
+        private void OnGeneratorSettingsChanged()
         {
             generatedPassword = generator.GeneratePassword(GeneratorSettings);
             OnPropertyChanged(nameof(GeneratedPassword));
         }
 
-        private async void GetVault()
+        private async Task GetVaultAsync()
         {
-            Vault = await firebase.GetVault();
+            Vault = await _firebase.GetVault();
             OnPropertyChanged(nameof(Vault));
         }
     }
