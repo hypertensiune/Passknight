@@ -13,8 +13,8 @@
 <p>Easy to setup a secure environment for your whole family.</p>
 
 ### Current supported platforms
-- Browser ( extension ) - Chromium based browsers, Firefox
-- Windows - **WIP**
+- Browser (extension) - Chromium based browsers, Firefox
+- Windows
 
 
 ## Security
@@ -32,18 +32,18 @@ The derivation proccess is done using **600,000** iterations of **PBKDF2** with 
 #### Encryption & Decryption
 
 To encrypt and decrypt your passwords, Passknigth uses the **AES-CBC** algorithm with a randomly generated 16 bytes IV.
-
 The first 16 bytes of the stored buffer is represented by the IV.
 
 #### Auth persistence - only in browser extension
 
 To be able to use firebase's auth persistence Passknight encrypts the private key (using [crypto.subtle.wrapKey](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/wrapKey)) and stores it in session storage.
 
-The key used for this encryption is imported from the firebase user UID (which is guaranteed to be unique for each application) using the **AES-CBC** algorithm.
+The key used for this encryption is imported from the firebase user UID (which is guaranteed to be unique) using the **AES-CBC** algorithm.
 
 #### Cryptography libraries
 
 - Browser extension - [WebCrypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API)
+- Windows - [.NET Cryptography](https://learn.microsoft.com/en-us/dotnet/standard/security/cryptography-model)
 
 
 ## Setup
@@ -69,11 +69,11 @@ service cloud.firestore {
   }
 }
 ```
-<br><br>
+
 
 ### Browser extension
 
-To initialize the Firebase create a file called ```firebaseConfig.js``` in the extension's folder that should look like this:
+To initialize Firebase create a file called ```firebaseConfig.js``` in the extension's folder that should look like this:
 ```
 const firebaseConfig = {
     apiKey: "",
@@ -85,4 +85,16 @@ const firebaseConfig = {
 };
 window.firebaseConfig = firebaseConfig;
 ```
-Copy your config from **Project settings > General**.
+
+### Windows
+
+Create a file ```appsettings.json``` in the application root directory that should look like this:
+```
+{
+  "ConnectionStrings": {
+    "API_KEY": ""
+  }
+}
+```
+
+**Your config from can be found in <u>**Project settings > General</u>**.**
