@@ -1,4 +1,6 @@
 .vs
+.idea
 Passknight/bin
 Passknight/obj
 appsettings.json
+
