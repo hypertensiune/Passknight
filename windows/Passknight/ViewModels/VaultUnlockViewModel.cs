@@ -48,13 +48,14 @@ namespace Passknight.ViewModels
         private async void OnUnlockVaultCommand(object? param)
         {
             var response = await _firebase.UnlockVault(_vault, Password.Input);
-            Password.ClearField();
             if (response)
             {
                 _navigationService.NavigateTo<VaultViewModel>(_firebase, Password.Input);
+                Password.ClearField();
             }
             else
             {
+                Password.ClearField();
                 Password.SetError();
             }  
         }
