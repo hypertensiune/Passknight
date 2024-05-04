@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Passknight.Core;
+using Passknight.Models;
 using Passknight.Services;
 using Passknight.Services.Firebase;
 
@@ -18,9 +19,9 @@ namespace Passknight.ViewModels
         private NavigationService _navigationService;
         private Firebase _firebase;
 
-        public string Name { get; set; }
-        public string MasterPassword { get; set; }
-        public string ConfirmMasterPassword { get; set; }
+        public ErrorInputField Name { get; set; } = new ErrorInputField();
+        public ErrorInputField Password { get; set; } = new ErrorInputField();
+        public ErrorInputField Confirm { get; set; } = new ErrorInputField();
 
         public ICommand ConfirmCommand { get; }
         public ICommand BackCommand { get; }
@@ -30,8 +31,8 @@ namespace Passknight.ViewModels
             _navigationService = navigationService;
             _firebase = firebase;
 
-            MasterPassword = "";
-            ConfirmMasterPassword = "";
+            //MasterPassword = "";
+            //ConfirmMasterPassword = "";
 
             BackCommand = new RelayCommand((object? obj) => _navigationService.NavigateBack());
             ConfirmCommand = new RelayCommand(SubmitNewVault);
@@ -39,8 +40,28 @@ namespace Passknight.ViewModels
 
         private async void SubmitNewVault(object? param)
         {
-            var response = await _firebase.CreateNewVault(Name, MasterPassword);
-            if(response)
+            if (Name.Input == "")
+            {
+                Name.SetError();
+            }
+            
+            if (Password.Input.Length < 15)
+            {
+                Password.SetError();
+            }
+
+            if (Password.Input != Confirm.Input)
+            {
+                Confirm.SetError();
+            }
+
+            if(Name.Error || Password.Error || Confirm.Error)
+            {
+                return;
+            }
+
+            var response = await _firebase.CreateNewVault(Name.Input, Password.Input);
+            if (response)
             {
                 _navigationService.NavigateTo<VaultViewModel>(_firebase);
             }

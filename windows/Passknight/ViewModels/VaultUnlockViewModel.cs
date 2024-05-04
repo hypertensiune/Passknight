@@ -1,4 +1,5 @@
 ﻿using Passknight.Core;
+using Passknight.Models;
 using Passknight.Services;
 using Passknight.Services.Firebase;
 using System;
@@ -25,7 +26,7 @@ namespace Passknight.ViewModels
             set => _vault = value;
         }
 
-        public string Password { get; set; }
+        public ErrorInputField Password { get; set; } = new ErrorInputField();
 
         public ICommand BackCommand { get; }
         public ICommand UnlockVaultCommand { get; }
@@ -40,24 +41,22 @@ namespace Passknight.ViewModels
 
             _vault = vault;
 
-            Password = "";
-
             BackCommand = new RelayCommand(OnBackClick);
             UnlockVaultCommand = new RelayCommand(OnUnlockVaultCommand);
         }
 
         private async void OnUnlockVaultCommand(object? param)
         {
-            var response = await _firebase.UnlockVault(_vault, Password);
-            if(response)
+            var response = await _firebase.UnlockVault(_vault, Password.Input);
+            Password.ClearField();
+            if (response)
             {
-                _navigationService.NavigateTo<VaultViewModel>(_firebase, Password);
+                _navigationService.NavigateTo<VaultViewModel>(_firebase, Password.Input);
             }
             else
             {
-                MessageBox.Show("Invalid master password", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            Password = string.Empty;
+                Password.SetError();
+            }  
         }
 
         private void OnBackClick(object? param)

@@ -9,6 +9,7 @@
 
             <SolidColorBrush x:Key="ForegroundColor" Color="#c9c9c9"/>
             <SolidColorBrush x:Key="ForegroundColorError" Color="#ef9a9a"/>
+            <SolidColorBrush x:Key="ForegroundColorError2" Color="#e03131"/>
             <SolidColorBrush x:Key="PrimaryColor" Color="#1871c2"/>
 
             <SolidColorBrush x:Key="BackgroundPrimary" Color="#242424"/>

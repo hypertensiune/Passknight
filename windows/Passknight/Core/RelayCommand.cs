@@ -9,13 +9,13 @@ namespace Passknight.Core
 {
     public class RelayCommand : ICommand
     {
-        private readonly Predicate<object?> _canExecute;
+        private readonly Predicate<object?>? _canExecute;
         private readonly Action<object?> _execute;
 
-        public RelayCommand(Action<object?> execute)
+        public RelayCommand(Action<object?> execute, Predicate<object?>? canExecute = null)
         {
             _execute = execute;
-            //_canExecute = canExecute;
+            _canExecute = canExecute;
         }
 
         public event EventHandler? CanExecuteChanged
@@ -26,7 +26,11 @@ namespace Passknight.Core
 
         public bool CanExecute(object? parameter)
         {
-            //return _canExecute(parameter); 
+            if(_canExecute != null)
+            {
+                return _canExecute(parameter);
+            }
+
             return true;
         }
 

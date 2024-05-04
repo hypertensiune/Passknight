@@ -5,9 +5,14 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Passknight.Views"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:conv="clr-namespace:Passknight.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="580" d:DesignWidth="400">
     <Grid Background="{StaticResource BackgroundPrimary}">
+        <Grid.Resources>
+            <conv:ErrorVisibilityConverter x:Key="ErrorVisibilityConverter"/>
+        </Grid.Resources>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="2*"/>
             <RowDefinition Height="2*"/>
@@ -36,7 +41,8 @@
             Grid.Row="1"
             Margin="20, 0">
             <Label Content="Vault Name" Foreground="{StaticResource ForegroundColor}" FontWeight="Bold"/>
-            <ui:TextBox Grid.Row="1" Text="{Binding Name, Mode=TwoWay}" Height="34"/>
+            <ui:TextBox Grid.Row="1" Text="{Binding Name.Input, Mode=TwoWay}" Height="34"/>
+            <Label Visibility="{Binding Name.Error, Converter={StaticResource ErrorVisibilityConverter}}" Content="Vault name is required!" Foreground="{StaticResource  ForegroundColorError2}"/>
         </StackPanel>
         <StackPanel 
             Grid.Row="2"
@@ -44,13 +50,15 @@
             <Label Content="Master Password" Foreground="{StaticResource ForegroundColor}" FontWeight="Bold"/>
             <Label Content="The master password cannot be recovered if you forget it!" Foreground="{StaticResource ForegroundColorError}"/>
             <Label Content="15 characters minimum" Foreground="{StaticResource ForegroundColorError}"/>
-            <ui:PasswordBox x:Name="password" Password="{Binding MasterPassword, Mode=TwoWay}" PasswordChar="●"/>
+            <ui:PasswordBox x:Name="password" Password="{Binding Password.Input, Mode=TwoWay}" PasswordChar="●"/>
+            <Label Visibility="{Binding Password.Error, Converter={StaticResource ErrorVisibilityConverter}}" Content="Password should be at least 15 characters!" Foreground="{StaticResource  ForegroundColorError2}"/>
         </StackPanel>
         <StackPanel 
             Grid.Row="3"
             Margin="20, 0">
             <Label Content="Confirm master password" Foreground="{StaticResource ForegroundColor}" FontWeight="Bold"/>
-            <ui:PasswordBox x:Name="confirm" Password="{Binding ConfirmMasterPassword, Mode=TwoWay}" PasswordChar="●"/>
+            <ui:PasswordBox x:Name="confirm" Password="{Binding Confirm.Input, Mode=TwoWay}" PasswordChar="●"/>
+            <Label Visibility="{Binding Confirm.Error, Converter={StaticResource ErrorVisibilityConverter}}" Content="Passwords didn't match!" Foreground="{StaticResource  ForegroundColorError2}"/>
         </StackPanel>
         <ui:Button 
             Grid.Row="4"
