@@ -10,11 +10,11 @@
              xmlns:svgc="http://sharpvectors.codeplex.com/svgc/">
     <Grid Background="{StaticResource BackgroundPrimary}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="3*"/>
+            <RowDefinition Height="2*"/>
             <RowDefinition Height="8*"/>
             <RowDefinition Height="2*"/>
         </Grid.RowDefinitions>
-        <Image Margin="0,40,0,0" Width="240" Grid.Row="0" Source="{StaticResource logo}"/>
+        <Image Width="240" Grid.Row="0" Source="{StaticResource logo}"/>
         <ScrollViewer Grid.Row="1">
             <StackPanel>
                 <ItemsControl ItemsSource="{Binding Vaults}">

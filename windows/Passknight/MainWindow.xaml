@@ -34,8 +34,8 @@
             </DataTemplate>
         </Grid.Resources>
         <StackPanel Height="580" Background="{StaticResource BackgroundPrimary}">
-            <ui:TitleBar ShowMaximize="False" Width="340" HorizontalAlignment="Right"/>
-            <ContentControl Height="540" Content="{Binding CurrentViewModel}"/>
+            <ui:TitleBar ShowMaximize="False" Width="340" HorizontalAlignment="Right" Height="30"/>
+            <ContentControl Height="550" Content="{Binding CurrentViewModel}"/>
         </StackPanel>
     </Grid>
 </Window>

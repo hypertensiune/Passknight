@@ -11,24 +11,23 @@
     <Grid Background="{StaticResource BackgroundPrimary}">
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>
-            <RowDefinition Height="3*"/>
+            <RowDefinition Height="2*"/>
             <RowDefinition Height="5*"/>
             <RowDefinition Height="5*"/>
         </Grid.RowDefinitions>
         <ui:Button 
-            Grid.Row="0" 
             Icon="{ui:SymbolIcon ArrowLeft24}"
             BorderThickness="0"
             Background="Transparent"
             Cursor="Hand"
             FontSize="18"
-            Margin="5, -80, 5, 5"
+            Margin="5, -50, 5, 5"
             Command="{Binding BackCommand}">
         </ui:Button>
         <AccessText 
             Grid.Row="1"
             HorizontalAlignment="Center"
-            VerticalAlignment="Center"
+            VerticalAlignment="Top"
             FontSize="24"
             Foreground="{StaticResource ForegroundColor}"
             FontWeight="Bold"

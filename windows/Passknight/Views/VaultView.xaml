@@ -7,14 +7,14 @@
              xmlns:tabs="clr-namespace:Passknight.Views.TabViews"
              mc:Ignorable="d" 
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-             d:DesignHeight="580" d:DesignWidth="400">
+             d:DesignHeight="550" d:DesignWidth="400">
     <StackPanel Background="{StaticResource BackgroundPrimary}">
         <Grid Height="530">
             <Grid.RowDefinitions>
                 <RowDefinition Height="2*"/>
                 <RowDefinition Height="12*"/>
             </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0">
+            <StackPanel Grid.Row="0" Margin="0,-1,0,1">
                 <Image Margin="0,0,0,-30" Width="240" Source="{StaticResource logo}"/>
                 <Grid HorizontalAlignment="Center">
                     <Grid.ColumnDefinitions>
@@ -37,6 +37,7 @@
                         Background="Transparent"
                         BorderBrush="Transparent"
                         Foreground="Red"
+                        Command="{Binding LockVaultCommand}"
                         Cursor="Hand" HorizontalAlignment="Center" RenderTransformOrigin="0.541,1.164">
                         <ui:Button.MouseOverBackground>
                             <SolidColorBrush Color="Transparent"/>

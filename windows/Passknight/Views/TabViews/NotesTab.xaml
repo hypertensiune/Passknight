@@ -19,7 +19,13 @@
         </Grid.Resources>
 
         <ScrollViewer Grid.Row="0">
-            <StackPanel>
+            <ScrollViewer.OpacityMask>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="Black" Offset="0.8" />
+                    <GradientStop Color="Transparent" Offset="1" />
+                </LinearGradientBrush>
+            </ScrollViewer.OpacityMask>
+            <StackPanel Margin="0,0,0,35">
                 <ItemsControl ItemsSource="{Binding Vault.NoteItems}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
