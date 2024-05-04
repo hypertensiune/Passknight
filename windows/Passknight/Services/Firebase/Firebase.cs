@@ -4,6 +4,7 @@ using Passknight.Models.Items;
 using Passknight.Stores;
 using System;
 using System.Collections.Generic;
+using System.IO.Packaging;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -113,28 +114,32 @@ namespace Passknight.Services.Firebase
         }
 
         /// <summary>
-        /// Used to update the passwords, notes and history fields in the currently unlocked vault. <br/>
-        /// <typeparamref name="T"/> is <see cref="string"/> => history <br/>
-        /// <typeparamref name="T"/> is <see cref="NoteItem"/> => notes <br/>
-        /// <typeparamref name="T"/> is <see cref="PasswordItem"/> => passwords <br/>
+        /// Used to update the passwords fields in the currently unlocked vault. <br/>
         /// </summary>
-        public async Task<bool> UpdateFieldInVault<T>(List<T> items)
+        public async Task<bool> UpdateFieldInVault(List<PasswordItem> items)
         {
-            if (typeof(T) == typeof(PasswordItem))
-            {
-                string body = JSONConverter.PasswordItems(items as List<PasswordItem>);
-                var res = await firestore.UpdateDoc(firebaseStore.CurrentUnlockedVaultID, "passwords", body, authentification.ID_TOKEN);
-            }
-            else if(typeof(T) == typeof(NoteItem))
-            {
-                string body = JSONConverter.NoteItems(items as List<NoteItem>);
-                var res = await firestore.UpdateDoc(firebaseStore.CurrentUnlockedVaultID, "notes", body, authentification.ID_TOKEN);
-            }
-            else if(typeof(T) == typeof(string))
-            {
+            string body = JSONConverter.PasswordItems(items as List<PasswordItem>);
+            var res = await firestore.UpdateDoc(firebaseStore.CurrentUnlockedVaultID, "passwords", body, authentification.ID_TOKEN);
 
-            }
+            return true;
+        }
 
+        /// <summary>
+        /// Used to update the notes fields in the currently unlocked vault. <br/>
+        /// </summary>
+        public async Task<bool> UpdateFieldInVault(List<NoteItem> items)
+        {
+            string body = JSONConverter.NoteItems(items as List<NoteItem>);
+            var res = await firestore.UpdateDoc(firebaseStore.CurrentUnlockedVaultID, "notes", body, authentification.ID_TOKEN);
+
+            return true;
+        }
+
+        /// <summary>
+        /// Used to update the history fields in the currently unlocked vault. <br/>
+        /// </summary>
+        public async Task<bool> UpdateFieldInVault(List<string> items)
+        {
             return true;
         }
     }
