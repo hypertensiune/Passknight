@@ -41,7 +41,7 @@
                                         <ColumnDefinition Width="2*"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <Image Source="{StaticResource noteIcon}" MaxWidth="18"/>
+                                    <Image Source="{StaticResource noteIcon}" Width="18"/>
 
                                     <TextBlock Text="{Binding Name}" Grid.Column="1" FontSize="16" Foreground="White" VerticalAlignment="Center"/>
                                 </Grid>
