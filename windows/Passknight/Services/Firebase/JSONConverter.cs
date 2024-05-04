@@ -87,40 +87,46 @@ namespace Passknight.Services.Firebase
         /// </summary>
         public static string PasswordItems(List<PasswordItem> items)
         {
-            string res = "{\n" +
-                         "   \"fields\": {\n" +
-                         "       \"passwords\": {\n" +
-                         "           \"arrayValue\": {\n" +
-                         "              \"values\": [\n";
-
+            string res = """
+                {
+                    "fields": {
+                        "passwords": {
+                            "arrayValue": {
+                                "values": [
+                """;
+            
             foreach (var item in items)
             {
-                res += "{\n" +
-                       "    \"mapValue\": {" +
-                       "        \"fields\": {" +
-                       "            \"name\": {" +
-                       "                \"stringValue\": \"" + item.Name + "\"" +
-                       "            },\n" +
-                       "            \"website\": {" +
-                       "                \"stringValue\": \"" + item.Website + "\"" +
-                       "            },\n" +
-                       "            \"username\": {" +
-                       "                \"stringValue\": \"" + item.Username + "\"" +
-                       "            },\n" +
-                       "            \"password\": {" +
-                       "                \"stringValue\": \"" + item.Password + "\"" +
-                       "            },\n" +
-                       "        }\n" +
-                       "    }\n" +
-                       "},\n";
+                res += $$"""
+                    {
+                        "mapValue": {
+                            "fields": {
+                                "name": {
+                                    "stringValue": "{{item.Name}}"
+                                },
+                                "website": {
+                                    "stringValue": "{{item.Website}}"
+                                },
+                                "username": {
+                                    "stringValue": "{{item.Username}}"
+                                },
+                                "password": {
+                                    "stringValue": "{{item.Password}}"
+                                }
+                            }
+                        }
+                    },
+                    """;
             }
 
-            res += "                ]\n" +
-                   "            }\n" +
-                   "        }\n" +
-                   "    }\n" +
-                   "}\n";
-            
+            res += """
+                                ]
+                            }
+                        }
+                    }
+                }
+                """;
+
             return res;
         }
 
@@ -129,33 +135,39 @@ namespace Passknight.Services.Firebase
         /// </summary>
         public static string NoteItems(List<NoteItem> items)
         {
-            string res = "{\n" +
-                         "   \"fields\": {\n" +
-                         "       \"notes\": {\n" +
-                         "           \"arrayValue\": {\n" +
-                         "              \"values\": [\n";
+            string res = """
+                {
+                    "fields": {
+                        "notes": {
+                            "arrayValue": {
+                                "values": [
+                """;
 
             foreach (var item in items)
             {
-                res += "{\n" +
-                       "    \"mapValue\": {" +
-                       "        \"fields\": {" +
-                       "            \"name\": {" +
-                       "                \"stringValue\": \"" + item.Name + "\"" +
-                       "            },\n" +
-                       "            \"content\": {" +
-                       "                \"stringValue\": \"" + item.Content + "\"" +
-                       "            },\n" +
-                       "        }\n" +
-                       "    }\n" +
-                       "},\n";
+                res += $$"""
+                    {
+                        "mapValue": {
+                            "fields": {
+                                "name": {
+                                    "stringValue": "{{item.Name}}"
+                                },
+                                "content": {
+                                    "stringValue": "{{item.Content}}"
+                                }
+                            }
+                        }
+                    },
+                    """;
             }
 
-            res += "                ]\n" +
-                   "            }\n" +
-                   "        }\n" +
-                   "    }\n" +
-                   "}\n";
+            res += """
+                                ]
+                            }
+                        }
+                    }
+                }
+                """;
 
             return res;
         }

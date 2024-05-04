@@ -76,30 +76,34 @@ namespace Passknight.Services.Firebase
                 firebaseStore.CurrentUnlockedVaultID = ID!;
                 firebaseStore.CurrentUnlockedVaultName = vault;
 
-                var body = "{\n" +
-                            "   \"fields\": {\n" +
-                            "       \"salt\": {\n" +
-                            "           \"stringValue\": \"salt\"\n" +     
-                            "       },\n" +  
-                            "       \"passwords\": {\n" +
-                            "           \"arrayValue\": {}\n" +
-                            "       },\n" +
-                            "       \"notes\": {\n" +
-                            "           \"arrayValue\": {}\n" +
-                            "       },\n" +
-                            "       \"history\": {\n" +
-                            "           \"arrayValue\": {}\n" +
-                            "       },\n" +
-                            "   }\n" +
-                            "}";
+                var body = """
+                {
+                    "fields": {
+                        "salt": {
+                            "stringValue": "salt"
+                        },
+                        "passwords": {
+                            "arrayValue": {}
+                        },
+                        "notes": {
+                            "arrayValue": {}
+                        },
+                        "history": {
+                            "arrayValue": {}
+                        },
+                    }
+                }
+                """;
 
-                var body2 = "{\n" +
-                            "   \"fields\": {\n" +
-                            "       \"" + vault + "\": {\n" +
-                            "           \"stringValue\": \"" + ID! + "\"\n" +
-                            "       },\n" +
-                            "   }\n" +
-                            "}";
+                var body2 = $$"""
+                {
+                    "fields": {
+                        "{{vault}}": {
+                            "stringValue": "{{ID!}}"
+                        }
+                    }
+                }
+                """;
 
                 await firestore.SetDoc(ID!, body, authentification.ID_TOKEN);
                 await firestore.UpdateDoc("ids", vault, body2, authentification.ID_TOKEN);
@@ -109,7 +113,7 @@ namespace Passknight.Services.Firebase
         }
 
         /// <summary>
-        /// Used to update the passwords, notes and history fields in a vault. <br/>
+        /// Used to update the passwords, notes and history fields in the currently unlocked vault. <br/>
         /// <typeparamref name="T"/> is <see cref="string"/> => history <br/>
         /// <typeparamref name="T"/> is <see cref="NoteItem"/> => notes <br/>
         /// <typeparamref name="T"/> is <see cref="PasswordItem"/> => passwords <br/>
