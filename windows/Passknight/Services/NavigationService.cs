@@ -10,35 +10,35 @@ namespace Passknight.Services
 {
     public class NavigationService
     {
-        private Stores.NavigationStore _navigationStore;
-
-        public Core.ViewModel? CurrentViewModel => _navigationStore.CurrentViewModel;
-        public Core.ViewModel? PreviousViewModel => _navigationStore.PreviousViewModel;
+        private Stack<Core.ViewModel> _viewModelStack;
+        public Core.ViewModel? CurrentViewModel => _viewModelStack.Peek();
 
         public event Action OnNavigate;
 
         public NavigationService()
         {
-            _navigationStore = new Stores.NavigationStore();
+            _viewModelStack = new Stack<Core.ViewModel>();
         }
 
         public void SetDefaultViewModel(Core.ViewModel viewModel)
         {
-            _navigationStore.CurrentViewModel = viewModel;
+            _viewModelStack.Push(viewModel);
         }
 
         public void NavigateBack()
         {
-            if(_navigationStore.PreviousViewModel != null && _navigationStore.CurrentViewModel != _navigationStore.PreviousViewModel) 
+            if(_viewModelStack.Count > 0)
             {
-                _navigationStore.CurrentViewModel = _navigationStore.PreviousViewModel;
-                OnNavigate.Invoke();
+                _viewModelStack.Pop();
+                OnNavigate?.Invoke();
             }
         }
 
         public void InvalidateNavigateBack()
         {
-            _navigationStore.PreviousViewModel = null;
+            Core.ViewModel current = _viewModelStack.Pop();
+            _viewModelStack.Clear();
+            _viewModelStack.Push(current);  
         }
 
         /// <summary>
@@ -56,8 +56,7 @@ namespace Passknight.Services
             }
             parameters[0] = this;
 
-            _navigationStore.PreviousViewModel = _navigationStore.CurrentViewModel;
-            _navigationStore.CurrentViewModel = (Core.ViewModel)Activator.CreateInstance(typeof(T), parameters)!;
+            _viewModelStack.Push((Core.ViewModel)Activator.CreateInstance(typeof(T), parameters)!);
             OnNavigate.Invoke();
         }
     }
