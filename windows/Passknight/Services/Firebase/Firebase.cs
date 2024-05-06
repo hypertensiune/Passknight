@@ -109,6 +109,14 @@ namespace Passknight.Services.Firebase
             return response;
         }
 
+        public async Task<bool> DeleteVault()
+        {
+            var res = await firestore.UpdateDoc("ids", firebaseStore.CurrentUnlockedVaultName, "", authentification.ID_TOKEN);
+            res = await firestore.DeleteDoc(firebaseStore.CurrentUnlockedVaultID, authentification.ID_TOKEN);
+
+            return true;
+        }
+
         /// <summary>
         /// Used to update the passwords fields in the currently unlocked vault. <br/>
         /// <typeparamref name="T"/> is <see cref="PasswordItem"/> => passwords field

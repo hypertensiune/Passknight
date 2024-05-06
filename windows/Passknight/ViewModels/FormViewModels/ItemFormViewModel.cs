@@ -6,6 +6,7 @@ using Passknight.Services.Firebase;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -28,15 +29,18 @@ namespace Passknight.ViewModels.FormViewModels
         private readonly List<T> _items;
         
         private readonly Firebase _firebase;
+        private readonly NavigationService _navigationService;
         private readonly Cryptography _cryptography;
 
         private readonly FormType _formType;
         
         public ICommand BackCommand { get; }
         public ICommand SubmitCommand { get; }
+        public ICommand DeleteCommand { get; }
         
         protected ItemFormViewModel(Services.NavigationService navigationService, Firebase firebase, Cryptography cryptography, FormType type, List<T> items)
         {
+            _navigationService = navigationService;
             _firebase = firebase;
             _cryptography = cryptography;
             _formType = type;
@@ -44,6 +48,7 @@ namespace Passknight.ViewModels.FormViewModels
             
             BackCommand = new RelayCommand((object? obj) => navigationService.NavigateBack());
             SubmitCommand = new RelayCommand(SubmitCommandHandler);
+            DeleteCommand = new RelayCommand(DeleteCommandHandler);
         }
         
         private async void SubmitCommandHandler(object? obj)
@@ -83,7 +88,25 @@ namespace Passknight.ViewModels.FormViewModels
                 }
             }
 
-            BackCommand.Execute(null);
+            _navigationService.NavigateBack();
+        }
+
+        private void DeleteCommandHandler(object? param)
+        {
+            _navigationService.NavigateTo<DeleteConfirmViewModel>(Delete);
+        }
+
+        private async void Delete()
+        {
+            _items.Remove(_originalItem!);
+            var res = await _firebase.UpdateFieldInVault<T>(_items);
+            if (!res)
+            {
+                MessageBox.Show("Item couldn't be deleted", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _items.Add(_originalItem!);
+
+                return;
+            }
         }
     }
 }

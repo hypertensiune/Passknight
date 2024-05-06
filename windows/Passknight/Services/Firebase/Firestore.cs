@@ -61,5 +61,16 @@ namespace Passknight.Services.Firebase
 
             return body;
         }
+
+        public async Task<string> DeleteDoc(string doc, string ID_TOKEN)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"{BASE_URI}/{doc}");
+            request.Headers.Add("Authorization", "Bearer " + ID_TOKEN);
+
+            var response = await httpClient.SendAsync(request);
+            string body = await response.Content.ReadAsStringAsync();
+
+            return body;
+        }
     }
 }

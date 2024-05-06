@@ -31,9 +31,6 @@ namespace Passknight.ViewModels
             _navigationService = navigationService;
             _firebase = firebase;
 
-            //MasterPassword = "";
-            //ConfirmMasterPassword = "";
-
             BackCommand = new RelayCommand((object? obj) => _navigationService.NavigateBack());
             ConfirmCommand = new RelayCommand(SubmitNewVault);
         }

@@ -43,6 +43,8 @@ namespace Passknight.ViewModels
         public ICommand RegeneratePasswordCommand { get; }
         public ICommand CopyGeneratedPasswordCommand { get; }
 
+        public ICommand DeleteVaultCommand { get; }
+
         public Settings GeneratorSettings { get; } = new Settings();
         private Generator generator = new Generator();
 
@@ -64,6 +66,7 @@ namespace Passknight.ViewModels
             GetVaultAsync().Then(() => _cryptography.Initialize(masterPassword, Vault.Salt));
 
             LockVaultCommand = new RelayCommand(Lock);
+            DeleteVaultCommand = new RelayCommand(DeleteVaultCommandHandler);
 
             OpenPasswordItemAddFormCommand = new RelayCommand(OpenPasswordItemAddFormCommandHanlder);
             OpenPasswordItemEditFormCommand = new RelayCommand(OpenPasswordItemEditFormCommandHandler);
@@ -91,6 +94,18 @@ namespace Passknight.ViewModels
         private void Lock(object? param)
         {
             _firebase.LockVault();
+            _navigationService.NavigateTo<VaultListViewModel>(_firebase);
+            _navigationService.InvalidateNavigateBack();
+        }
+
+        private void DeleteVaultCommandHandler(object? param)
+        {
+            _navigationService.NavigateTo<DeleteConfirmViewModel>(DeleteVault);
+        }
+
+        private void DeleteVault()
+        {
+            _firebase.DeleteVault();
             _navigationService.NavigateTo<VaultListViewModel>(_firebase);
             _navigationService.InvalidateNavigateBack();
         }
