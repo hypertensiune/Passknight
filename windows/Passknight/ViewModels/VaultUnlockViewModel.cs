@@ -15,7 +15,7 @@ using System.Windows.Input;
 namespace Passknight.ViewModels
 {
     /// <summary>
-    /// Dependencies: <see cref="Firebase"/> firebase, <see cref="string"/> vault
+    /// Dependencies: <see cref="IDatabase"/> database, <see cref="string"/> vault
     /// </summary>
     class VaultUnlockViewModel : Core.ViewModel
     {
@@ -32,12 +32,12 @@ namespace Passknight.ViewModels
         public ICommand UnlockVaultCommand { get; }
 
         private Services.NavigationService _navigationService;
-        private Firebase _firebase;
+        private IDatabase _database;
 
-        public VaultUnlockViewModel(Services.NavigationService navigationService, Firebase firebase, string vault)
+        public VaultUnlockViewModel(Services.NavigationService navigationService, IDatabase database, string vault)
         {
             _navigationService = navigationService;
-            _firebase = firebase;
+            _database = database;
 
             _vault = vault;
 
@@ -47,10 +47,10 @@ namespace Passknight.ViewModels
 
         private async void OnUnlockVaultCommand(object? param)
         {
-            var response = await _firebase.UnlockVault(_vault, Password.Input);
+            var response = await _database.UnlockVault(_vault, Password.Input);
             if (response)
             {
-                _navigationService.NavigateTo<VaultViewModel>(_firebase, Password.Input);
+                _navigationService.NavigateTo<VaultViewModel>(_database, Password.Input);
                 Password.ClearField();
             }
             else

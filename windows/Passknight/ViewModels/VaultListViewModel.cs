@@ -7,26 +7,26 @@ using System.Windows;
 using System.Windows.Input;
 
 using Passknight.Core;
-using Passknight.Services.Firebase;
+using Passknight.Services;
 
 namespace Passknight.ViewModels
 {
     /// <summary>
-    /// Dependencies: <see cref="Firebase"/>
+    /// Dependencies: <see cref="IDatabase"/>
     /// </summary>
     partial class VaultListViewModel : Core.ViewModel
     {
         public List<string>? Vaults { get; set; }
 
         private Services.NavigationService _navigationService;
-        private Firebase _firebase;
+        private IDatabase _database;
         public ICommand UnlockCommand { get; }
         public ICommand NewVaultCommand { get; }
 
-        public VaultListViewModel(Services.NavigationService navigationService, Firebase firebase)
+        public VaultListViewModel(Services.NavigationService navigationService, IDatabase database)
         {
             _navigationService = navigationService;
-            _firebase = firebase;
+            _database = database;
 
             UnlockCommand = new RelayCommand(UnlockCommandHandler);
             NewVaultCommand = new RelayCommand(NewVaultCommandHandler);
@@ -36,18 +36,18 @@ namespace Passknight.ViewModels
 
         private async void GetVaults()
         {
-            Vaults = await _firebase.GetVaultNames();
+            Vaults = await _database.GetVaultNames();
             OnPropertyChanged(nameof(Vaults));
         }
 
         private void UnlockCommandHandler(object? param)
         {
-            _navigationService.NavigateTo<VaultUnlockViewModel>(_firebase, param!);
+            _navigationService.NavigateTo<VaultUnlockViewModel>(_database, param!);
         }
 
         private void NewVaultCommandHandler(object? param)
         {
-            _navigationService.NavigateTo<NewVaultViewModel>(_firebase);
+            _navigationService.NavigateTo<NewVaultViewModel>(_database);
         }
     }
 }

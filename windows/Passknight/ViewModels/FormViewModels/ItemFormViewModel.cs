@@ -28,7 +28,7 @@ namespace Passknight.ViewModels.FormViewModels
         
         private readonly List<T> _items;
         
-        private readonly Firebase _firebase;
+        private readonly IDatabase _database;
         private readonly NavigationService _navigationService;
         private readonly Cryptography _cryptography;
 
@@ -38,10 +38,10 @@ namespace Passknight.ViewModels.FormViewModels
         public ICommand SubmitCommand { get; }
         public ICommand DeleteCommand { get; }
         
-        protected ItemFormViewModel(Services.NavigationService navigationService, Firebase firebase, Cryptography cryptography, FormType type, List<T> items)
+        protected ItemFormViewModel(Services.NavigationService navigationService, IDatabase database, Cryptography cryptography, FormType type, List<T> items)
         {
             _navigationService = navigationService;
-            _firebase = firebase;
+            _database = database;
             _cryptography = cryptography;
             _formType = type;
             _items = items;
@@ -58,7 +58,7 @@ namespace Passknight.ViewModels.FormViewModels
                 Item.Encrypt(_cryptography.Encrypt);
                 _items.Add(Item);
 
-                var res = await _firebase.UpdateFieldInVault(_items);
+                var res = await _database.UpdateFieldInVault(_items);
                 if (!res)
                 {
                     MessageBox.Show("Item couldn't be added", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -78,7 +78,7 @@ namespace Passknight.ViewModels.FormViewModels
                 Item.Encrypt(_cryptography.Encrypt);
                 _items[index] = Item;
 
-                var res = await _firebase.UpdateFieldInVault(_items);
+                var res = await _database.UpdateFieldInVault(_items);
                 if (!res)
                 {
                     MessageBox.Show("Item couldn't be edited", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -99,7 +99,7 @@ namespace Passknight.ViewModels.FormViewModels
         private async void Delete()
         {
             _items.Remove(_originalItem!);
-            var res = await _firebase.UpdateFieldInVault<T>(_items);
+            var res = await _database.UpdateFieldInVault<T>(_items);
             if (!res)
             {
                 MessageBox.Show("Item couldn't be deleted", "Error", MessageBoxButton.OK, MessageBoxImage.Error);

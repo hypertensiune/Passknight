@@ -24,8 +24,8 @@ namespace Passknight.ViewModels
     /// </summary>
     class VaultViewModel : Core.ViewModel
     {
-        private Firebase _firebase;
         private readonly NavigationService _navigationService;
+        private readonly IDatabase _database;
 
         private readonly Cryptography _cryptography = new Cryptography();
 
@@ -58,10 +58,10 @@ namespace Passknight.ViewModels
             }
         }
 
-        public VaultViewModel(Services.NavigationService navigationService, Firebase firebase, string masterPassword)
+        public VaultViewModel(Services.NavigationService navigationService, IDatabase database, string masterPassword)
         {
-            _firebase = firebase;
             _navigationService = navigationService;
+            _database = database;
 
             GetVaultAsync().Then(() => _cryptography.Initialize(masterPassword, Vault.Salt));
 
@@ -87,14 +87,14 @@ namespace Passknight.ViewModels
 
         private async Task GetVaultAsync()
         {
-            Vault = await _firebase.GetVault();
+            Vault = await _database.GetVault();
             OnPropertyChanged(nameof(Vault));
         }
 
         private void Lock(object? param)
         {
-            _firebase.LockVault();
-            _navigationService.NavigateTo<VaultListViewModel>(_firebase);
+            _database.LockVault();
+            _navigationService.NavigateTo<VaultListViewModel>(_database);
             _navigationService.InvalidateNavigateBack();
         }
 
@@ -105,29 +105,29 @@ namespace Passknight.ViewModels
 
         private void DeleteVault()
         {
-            _firebase.DeleteVault();
-            _navigationService.NavigateTo<VaultListViewModel>(_firebase);
+            _database.DeleteVault();
+            _navigationService.NavigateTo<VaultListViewModel>(_database);
             _navigationService.InvalidateNavigateBack();
         }
 
         private void OpenPasswordItemAddFormCommandHanlder(object? param)
         {
-            _navigationService.NavigateTo<PasswordFormViewModel>(_firebase, _cryptography, FormType.Add, Vault.PasswordItems);
+            _navigationService.NavigateTo<PasswordFormViewModel>(_database, _cryptography, FormType.Add, Vault.PasswordItems);
         }
 
         private void OpenPasswordItemEditFormCommandHandler(object? param)
         {
-            _navigationService.NavigateTo<PasswordFormViewModel>(_firebase, _cryptography, FormType.Edit, (PasswordItem)param!, Vault.PasswordItems);
+            _navigationService.NavigateTo<PasswordFormViewModel>(_database, _cryptography, FormType.Edit, (PasswordItem)param!, Vault.PasswordItems);
         }
 
         private void OpenNoteItemAddFormCommandHanlder(object? param)
         {
-            _navigationService.NavigateTo<NoteFormViewModel>(_firebase, _cryptography, FormType.Add, Vault.NoteItems);
+            _navigationService.NavigateTo<NoteFormViewModel>(_database, _cryptography, FormType.Add, Vault.NoteItems);
         }
 
         private void OpenNoteItemEditFormCommandHandler(object? param)
         {
-            _navigationService.NavigateTo<NoteFormViewModel>(_firebase, _cryptography, FormType.Edit, (NoteItem)param!, Vault.NoteItems);
+            _navigationService.NavigateTo<NoteFormViewModel>(_database, _cryptography, FormType.Edit, (NoteItem)param!, Vault.NoteItems);
         }
 
         private void OnGeneratorSettingsChanged()

@@ -12,12 +12,12 @@ namespace Passknight.ViewModels
 {
     class PasswordFormViewModel : ItemFormViewModel<PasswordItem>
     {
-        public PasswordFormViewModel(NavigationService navigationService, Firebase firebase, Cryptography cryptography, FormType type, List<PasswordItem> passwordItems) : base(navigationService, firebase, cryptography, type, passwordItems)
+        public PasswordFormViewModel(NavigationService navigationService, IDatabase database, Cryptography cryptography, FormType type, List<PasswordItem> passwordItems) : base(navigationService, database, cryptography, type, passwordItems)
         {
             Item = new PasswordItem();
         }
 
-        public PasswordFormViewModel(NavigationService navigationService, Firebase firebase, Cryptography cryptography, FormType type, PasswordItem item, List<PasswordItem> passwordItems) : base(navigationService, firebase, cryptography, type, passwordItems)
+        public PasswordFormViewModel(NavigationService navigationService, IDatabase database, Cryptography cryptography, FormType type, PasswordItem item, List<PasswordItem> passwordItems) : base(navigationService, database, cryptography, type, passwordItems)
         {
             Item = item.Clone();
             Item.Decrypt(cryptography.Decrypt);

@@ -16,7 +16,7 @@ namespace Passknight.Services.Firebase
     /// Provides a class for accessing FIrebase features.
     /// Main wrapper around firebase REST Api.
     /// </summary>
-    class Firebase
+    class Firebase : IDatabase
     {
         private Auth authentification;
         private Firestore firestore;

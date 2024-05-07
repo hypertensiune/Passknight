@@ -12,12 +12,12 @@ using Passknight.Services.Firebase;
 namespace Passknight.ViewModels
 {
     /// <summary>
-    /// Dependecies: <see cref="Firebase"/>
+    /// Dependecies: <see cref="IDatabase"/>
     /// </summary>
     class NewVaultViewModel : Core.ViewModel
     {
         private NavigationService _navigationService;
-        private Firebase _firebase;
+        private IDatabase _database;
 
         public ErrorInputField Name { get; set; } = new ErrorInputField();
         public ErrorInputField Password { get; set; } = new ErrorInputField();
@@ -26,10 +26,10 @@ namespace Passknight.ViewModels
         public ICommand ConfirmCommand { get; }
         public ICommand BackCommand { get; }
 
-        public NewVaultViewModel(NavigationService navigationService, Firebase firebase)
+        public NewVaultViewModel(NavigationService navigationService, IDatabase database)
         {
             _navigationService = navigationService;
-            _firebase = firebase;
+            _database = database;
 
             BackCommand = new RelayCommand((object? obj) => _navigationService.NavigateBack());
             ConfirmCommand = new RelayCommand(SubmitNewVault);
@@ -57,10 +57,10 @@ namespace Passknight.ViewModels
                 return;
             }
 
-            var response = await _firebase.CreateNewVault(Name.Input, Password.Input);
+            var response = await _database.CreateNewVault(Name.Input, Password.Input);
             if (response)
             {
-                _navigationService.NavigateTo<VaultViewModel>(_firebase);
+                _navigationService.NavigateTo<VaultViewModel>(_database);
             }
         }
     }
