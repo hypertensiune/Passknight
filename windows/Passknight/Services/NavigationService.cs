@@ -11,7 +11,18 @@ namespace Passknight.Services
     public class NavigationService
     {
         private Stack<Core.ViewModel> _viewModelStack;
-        public Core.ViewModel? CurrentViewModel => _viewModelStack.Peek();
+        public Core.ViewModel? CurrentViewModel
+        {
+            get
+            {
+                if(_viewModelStack.Count == 0)
+                {
+                    return null;
+                }
+
+                return _viewModelStack.Peek();
+            }
+        }
 
         public event Action OnNavigate;
 
