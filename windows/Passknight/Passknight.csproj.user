@@ -7,6 +7,9 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Views\DeleteConfirmView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\Forms\NoteItemForm.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -37,6 +40,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Resources\Styles\TabItems.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\DeleteConfirmView.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\Forms\NoteItemForm.xaml">

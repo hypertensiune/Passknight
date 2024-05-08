@@ -61,7 +61,7 @@ namespace Passknight.ViewModels.FormViewModels
                 var res = await _database.UpdateFieldInVault(_items);
                 if (!res)
                 {
-                    MessageBox.Show("Item couldn't be added", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Msgbox.Show("Error", "Item couldn't be added");
                     _items.Remove(Item);
 
                     return;
@@ -81,7 +81,7 @@ namespace Passknight.ViewModels.FormViewModels
                 var res = await _database.UpdateFieldInVault(_items);
                 if (!res)
                 {
-                    MessageBox.Show("Item couldn't be edited", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Msgbox.Show("Error", "Item couldn't be edited");
                     _items[index] = _originalItem!;
 
                     return;
@@ -102,7 +102,7 @@ namespace Passknight.ViewModels.FormViewModels
             var res = await _database.UpdateFieldInVault<T>(_items);
             if (!res)
             {
-                MessageBox.Show("Item couldn't be deleted", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Msgbox.Show("Error", "Item couldn't be deleted");
                 _items.Add(_originalItem!);
 
                 return;

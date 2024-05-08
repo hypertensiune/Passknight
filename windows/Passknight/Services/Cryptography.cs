@@ -16,24 +16,34 @@ namespace Passknight.Services
     {
         private byte[] key;
 
-        private string ByteToBase64(byte[] data)
+        private static string ByteToBase64(byte[] data)
         {
             return System.Convert.ToBase64String(data);
         }
 
-        private byte[] Base64ToByte(string data)
+        private static byte[] Base64ToByte(string data)
         {
             return System.Convert.FromBase64String(data);
         }
 
-        private byte[] StringToByte(string data)
+        private static byte[] StringToByte(string data)
         {
             return System.Text.Encoding.UTF8.GetBytes(data);
         }
 
-        private string ByteToString(byte[] data)
+        private static string ByteToString(byte[] data)
         {
             return System.Text.Encoding.UTF8.GetString(data);
+        }
+
+        /// <summary>
+        /// Generate a random 32 byte salt.
+        /// </summary>
+        /// <returns>The generated salt as a base64 string.</returns>
+        public static string GenerateSalt()
+        {
+            var salt = RandomNumberGenerator.GetBytes(32);
+            return ByteToBase64(salt);
         }
 
         /// <summary>

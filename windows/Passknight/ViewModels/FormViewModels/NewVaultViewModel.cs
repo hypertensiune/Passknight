@@ -8,6 +8,7 @@ using Passknight.Core;
 using Passknight.Models;
 using Passknight.Services;
 using Passknight.Services.Firebase;
+using Passknight.Services.PKDB;
 
 namespace Passknight.ViewModels
 {
@@ -17,7 +18,10 @@ namespace Passknight.ViewModels
     class NewVaultViewModel : Core.ViewModel
     {
         private NavigationService _navigationService;
-        private IDatabase _database;
+        private IDatabase _firebase;
+        private IDatabase _pkdb;
+
+        public int VaultType { get; set; } = 0;
 
         public ErrorInputField Name { get; set; } = new ErrorInputField();
         public ErrorInputField Password { get; set; } = new ErrorInputField();
@@ -26,10 +30,11 @@ namespace Passknight.ViewModels
         public ICommand ConfirmCommand { get; }
         public ICommand BackCommand { get; }
 
-        public NewVaultViewModel(NavigationService navigationService, IDatabase database)
+        public NewVaultViewModel(NavigationService navigationService, IDatabase firebase, IDatabase pkdb)
         {
             _navigationService = navigationService;
-            _database = database;
+            _firebase = firebase;
+            _pkdb = pkdb;
 
             BackCommand = new RelayCommand((object? obj) => _navigationService.NavigateBack());
             ConfirmCommand = new RelayCommand(SubmitNewVault);
@@ -42,7 +47,7 @@ namespace Passknight.ViewModels
                 Name.SetError();
             }
             
-            if (Password.Input.Length < 15)
+            if (Password.Input.Length < 6)
             {
                 Password.SetError();
             }
@@ -57,11 +62,23 @@ namespace Passknight.ViewModels
                 return;
             }
 
-            var response = await _database.CreateNewVault(Name.Input, Password.Input);
-            if (response)
+            if(VaultType == 0)
             {
-                _navigationService.NavigateTo<VaultViewModel>(_database);
+                var response = await _firebase.CreateNewVault(Name.Input, Password.Input);
+                if (response)
+                {
+                    _navigationService.NavigateTo<VaultViewModel>(_firebase, Password.Input);
+                }
             }
+            else
+            {
+                var response = await _pkdb.CreateNewVault(Name.Input, Password.Input);
+                if (response)
+                {
+                    _navigationService.NavigateTo<VaultViewModel>(_pkdb, Password.Input);
+                }
+            }
+
         }
     }
 }

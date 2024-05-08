@@ -3,6 +3,7 @@ using System.Windows;
 using Passknight.ViewModels;
 using Microsoft.Extensions.Configuration;
 using Passknight.Services.Firebase;
+using Passknight.Services;
 
 namespace Passknight
 {

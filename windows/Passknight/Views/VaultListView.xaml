@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Passknight.Views"
              mc:Ignorable="d" 
+             xmlns:conv="clr-namespace:Passknight.Converters"
              d:DesignHeight="580" d:DesignWidth="400"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              xmlns:svgc="http://sharpvectors.codeplex.com/svgc/">
@@ -14,17 +15,22 @@
             <RowDefinition Height="8*"/>
             <RowDefinition Height="2*"/>
         </Grid.RowDefinitions>
+
+        <Grid.Resources>
+            <conv:CapitalizeConverter x:Key="CapitalizeConverter"/>
+        </Grid.Resources>
+
         <Image Width="240" Grid.Row="0" Source="{StaticResource logo}"/>
         <ScrollViewer Grid.Row="1">
             <StackPanel>
-                <ItemsControl ItemsSource="{Binding Vaults}">
+                <ItemsControl ItemsSource="{Binding FirebaseVaults}" Margin="0,0,0,10">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <ui:Button 
                                 Background="{StaticResource ListItemPrimary}"
                                 Appearance="Secondary" 
                                 CornerRadius="8"
-                                Content="{Binding}"
+                                Content="{Binding Converter={StaticResource CapitalizeConverter}}"
                                 HorizontalAlignment="Stretch"
                                 Cursor="Hand"
                                 Margin="20,5,20,5"
@@ -33,8 +39,35 @@
                                 Foreground="{StaticResource ForegroundColor}"
                                 FontSize="16"
                                 FontWeight="Medium"
-                                Icon="{ui:SymbolIcon LockClosed24}"
-                                Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}},Path=DataContext.UnlockCommand}"
+                                Icon="{ui:SymbolIcon Fire24}"
+                                Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}},Path=DataContext.UnlockFirebaseVaultCommand}"
+                                CommandParameter="{Binding}"
+                                HorizontalContentAlignment="Left">
+                                <ui:Button.MouseOverBackground>
+                                    <SolidColorBrush Color="#121212" Opacity="0.7"/>
+                                </ui:Button.MouseOverBackground>
+                            </ui:Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <ItemsControl ItemsSource="{Binding PKDBVaults}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <ui:Button 
+                                Background="{StaticResource ListItemPrimary}"
+                                Appearance="Secondary" 
+                                CornerRadius="8"
+                                Content="{Binding Converter={StaticResource CapitalizeConverter}}"
+                                HorizontalAlignment="Stretch"
+                                Cursor="Hand"
+                                Margin="20,5,20,5"
+                                Padding="16, 12, 0, 12"
+                                BorderThickness="0"
+                                Foreground="{StaticResource ForegroundColor}"
+                                FontSize="16"
+                                FontWeight="Medium"
+                                Icon="{ui:SymbolIcon Storage24}"
+                                Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}},Path=DataContext.UnlockPKDBVaultCommand}"
                                 CommandParameter="{Binding}"
                                 HorizontalContentAlignment="Left">
                                 <ui:Button.MouseOverBackground>

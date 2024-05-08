@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-
 using Passknight.Core;
 using Passknight.Services;
 
@@ -16,19 +15,26 @@ namespace Passknight.ViewModels
     /// </summary>
     partial class VaultListViewModel : Core.ViewModel
     {
-        public List<string>? Vaults { get; set; }
+        public List<string>? FirebaseVaults { get; set; }
+        public List<string>? PKDBVaults { get; set; }
 
-        private Services.NavigationService _navigationService;
-        private IDatabase _database;
-        public ICommand UnlockCommand { get; }
+        private readonly Services.NavigationService _navigationService;
+        private readonly IDatabase _firebase;
+        private readonly IDatabase _pkdb;
+        public ICommand UnlockFirebaseVaultCommand { get; }
+        public ICommand UnlockPKDBVaultCommand { get; }
         public ICommand NewVaultCommand { get; }
 
-        public VaultListViewModel(Services.NavigationService navigationService, IDatabase database)
+        public VaultListViewModel(Services.NavigationService navigationService, IDatabase firebase)
         {
             _navigationService = navigationService;
-            _database = database;
+            _firebase = firebase;
 
-            UnlockCommand = new RelayCommand(UnlockCommandHandler);
+            _pkdb = new Services.PKDB.Database();
+
+            UnlockFirebaseVaultCommand = new RelayCommand(UnlockFirebaseVaultCommandHandler);
+            UnlockPKDBVaultCommand = new RelayCommand(UnlockPKDBVaultCommandHandler);
+
             NewVaultCommand = new RelayCommand(NewVaultCommandHandler);
 
             GetVaults();
@@ -36,18 +42,26 @@ namespace Passknight.ViewModels
 
         private async void GetVaults()
         {
-            Vaults = await _database.GetVaultNames();
-            OnPropertyChanged(nameof(Vaults));
+            FirebaseVaults = await _firebase.GetVaultNames();
+            OnPropertyChanged(nameof(FirebaseVaults));
+
+            PKDBVaults = await _pkdb.GetVaultNames();
+            OnPropertyChanged(nameof(PKDBVaults));
         }
 
-        private void UnlockCommandHandler(object? param)
+        private void UnlockFirebaseVaultCommandHandler(object? param)
         {
-            _navigationService.NavigateTo<VaultUnlockViewModel>(_database, param!);
+            _navigationService.NavigateTo<VaultUnlockViewModel>(_firebase, param!);
+        }
+
+        private void UnlockPKDBVaultCommandHandler(object? param)
+        {
+            _navigationService.NavigateTo<VaultUnlockViewModel>(_pkdb, param!);
         }
 
         private void NewVaultCommandHandler(object? param)
         {
-            _navigationService.NavigateTo<NewVaultViewModel>(_database);
+            _navigationService.NavigateTo<NewVaultViewModel>(_firebase, _pkdb);
         }
     }
 }

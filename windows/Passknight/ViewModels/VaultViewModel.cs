@@ -16,6 +16,9 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using Passknight.Services.Generator;
+using System.IO;
+using Newtonsoft.Json;
+using System.Reflection.PortableExecutable;
 
 namespace Passknight.ViewModels
 {
@@ -88,14 +91,43 @@ namespace Passknight.ViewModels
         private async Task GetVaultAsync()
         {
             Vault = await _database.GetVault();
+
+            //var stream = new FileStream($"pkdb/local.pkvault", FileMode.OpenOrCreate, FileAccess.Write);
+            //var writer = new BinaryWriter(stream);
+
+            //writer.Write(Vault.Salt);
+            //writer.Write(Vault.PasswordItems.Count);
+            //foreach (var item in Vault.PasswordItems)
+            //{
+            //    writer.Write(item.Name);
+            //    writer.Write(item.Website);
+            //    writer.Write(item.Username);
+            //    writer.Write(item.Password);
+            //}
+
+            //writer.Write(Vault.NoteItems.Count);
+            //foreach (var item in Vault.NoteItems)
+            //{
+            //    writer.Write(item.Name);
+            //    writer.Write(item.Content);
+            //}
+
+            //writer.Write(Vault.GeneratorHistory.Count);
+            //foreach (var item in Vault.GeneratorHistory)
+            //{
+            //    writer.Write(item);
+            //}
+
+            //writer.Flush();
+
             OnPropertyChanged(nameof(Vault));
         }
 
         private void Lock(object? param)
         {
             _database.LockVault();
-            _navigationService.NavigateTo<VaultListViewModel>(_database);
-            _navigationService.InvalidateNavigateBack();
+            _navigationService.NavigateBack();
+            _navigationService.NavigateBack();
         }
 
         private void DeleteVaultCommandHandler(object? param)

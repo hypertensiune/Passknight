@@ -13,8 +13,9 @@ using System.Threading.Tasks;
 namespace Passknight.Services.Firebase
 {
     /// <summary>
-    /// Provides a class for accessing FIrebase features.
-    /// Main wrapper around firebase REST Api.
+    /// Provides a class for accessing Firebase features.
+    /// Main wrapper around firebase REST Api. <br/>
+    /// Implements the <see cref="IDatabase"/> interface.
     /// </summary>
     class Firebase : IDatabase
     {
@@ -73,11 +74,11 @@ namespace Passknight.Services.Firebase
                 firebaseStore.CurrentUnlockedVaultID = ID!;
                 firebaseStore.CurrentUnlockedVaultName = vault;
 
-                var body = """
+                var body = $$"""
                 {
                     "fields": {
                         "salt": {
-                            "stringValue": "salt"
+                            "stringValue": "{{Cryptography.GenerateSalt()}}"
                         },
                         "passwords": {
                             "arrayValue": {}
@@ -117,12 +118,6 @@ namespace Passknight.Services.Firebase
             return true;
         }
 
-        /// <summary>
-        /// Used to update the passwords fields in the currently unlocked vault. <br/>
-        /// <typeparamref name="T"/> is <see cref="PasswordItem"/> => passwords field
-        /// <typeparamref name="T"/> is <see cref="NoteItem"/> => notes field
-        /// <typeparamref name="T"/> is <see cref="string"/> => history field
-        /// </summary>
         public async Task<bool> UpdateFieldInVault<T>(List<T> items)
         {
             if(typeof(T) == typeof(PasswordItem))
@@ -135,7 +130,6 @@ namespace Passknight.Services.Firebase
                 string body = JSONConverter.NoteItems(items as List<NoteItem>);
                 var res = await firestore.UpdateDoc(firebaseStore.CurrentUnlockedVaultID, "notes", body, authentification.ID_TOKEN);
             }
-
 
             return true;
         }

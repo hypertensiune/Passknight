@@ -32,6 +32,9 @@
             <DataTemplate DataType="{x:Type vms:NoteFormViewModel}">
                 <views:NoteItemForm/>
             </DataTemplate>
+            <DataTemplate DataType="{x:Type vms:DeleteConfirmViewModel}">
+                <views:DeleteConfirmView/> 
+            </DataTemplate>
         </Grid.Resources>
         <StackPanel Height="580" Background="{StaticResource BackgroundPrimary}">
             <ui:TitleBar ShowMaximize="False" Width="340" HorizontalAlignment="Right" Height="30"/>
