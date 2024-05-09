@@ -126,8 +126,8 @@ namespace Passknight.ViewModels
         private void Lock(object? param)
         {
             _database.LockVault();
-            _navigationService.NavigateBack();
-            _navigationService.NavigateBack();
+            _navigationService.NavigateTo<VaultListViewModel>();
+            _navigationService.InvalidateNavigateBack();
         }
 
         private void DeleteVaultCommandHandler(object? param)
@@ -138,7 +138,7 @@ namespace Passknight.ViewModels
         private void DeleteVault()
         {
             _database.DeleteVault();
-            _navigationService.NavigateTo<VaultListViewModel>(_database);
+            _navigationService.NavigateTo<VaultListViewModel>();
             _navigationService.InvalidateNavigateBack();
         }
 

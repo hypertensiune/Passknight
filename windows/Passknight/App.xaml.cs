@@ -19,16 +19,8 @@ namespace Passknight
 
         public App()
         {
-            var cfgbuilder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false);
-
-            configuration = cfgbuilder.Build();
-
-            firebase = new Firebase(configuration.GetConnectionString("API_KEY")!);
-
             navigationService = new Services.NavigationService();
-            navigationService.SetDefaultViewModel(new VaultListViewModel(navigationService, firebase));
+            navigationService.SetDefaultViewModel(new VaultListViewModel(navigationService));
         }
 
         protected override void OnStartup(StartupEventArgs e)
