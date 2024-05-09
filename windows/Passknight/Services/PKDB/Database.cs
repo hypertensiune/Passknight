@@ -230,7 +230,7 @@ namespace Passknight.Services.PKDB
                 File.Delete($"pkdb/{_unlockedVault}.pkvault");
 
                 _vaultPasswordHashes.Remove(_unlockedVault);
-                var stream = new FileStream("pkdb/vaults", FileMode.Open, FileAccess.ReadWrite);
+                var stream = new FileStream("pkdb/vaults", FileMode.Create, FileAccess.Write);
 
                 using (var writer = new BinaryWriter(stream))
                 {
@@ -240,8 +240,6 @@ namespace Passknight.Services.PKDB
                         writer.Write(pair.Value);
                     }
                     writer.Flush();
-                    writer.Close();
-                    stream.Dispose();
                 }
 
                 return Task.FromResult(true);

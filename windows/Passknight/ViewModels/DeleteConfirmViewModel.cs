@@ -10,7 +10,7 @@ using System.Windows.Input;
 namespace Passknight.ViewModels
 {
     /// <summary>
-    /// Dependencies: <see cref="Action"/>
+    /// Dependencies: <see cref="Action"/> to execute if confirmed
     /// </summary>
     internal class DeleteConfirmViewModel : Core.ViewModel
     {
@@ -20,12 +20,7 @@ namespace Passknight.ViewModels
         public DeleteConfirmViewModel(NavigationService navigationService, Action action)
         {
             NoCommand = new RelayCommand((object? param) => navigationService.NavigateBack());
-            YesCommand = new RelayCommand((object? param) =>
-            {
-                action();
-                navigationService.NavigateBack();
-                navigationService.NavigateBack();
-            });
+            YesCommand = new RelayCommand((object? param) => action());
         }
     }
 }
