@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Passknight.Services
 {
-    public class NavigationService
+    public class NavigationService : ObservableObject
     {
         private Stack<Core.ViewModel> _viewModelStack;
         public Core.ViewModel? CurrentViewModel
@@ -49,7 +49,9 @@ namespace Passknight.Services
         {
             Core.ViewModel current = _viewModelStack.Pop();
             _viewModelStack.Clear();
-            _viewModelStack.Push(current);  
+            _viewModelStack.Push(current);
+
+            OnPropertyChanged(nameof(CurrentViewModel));
         }
 
         /// <summary>
