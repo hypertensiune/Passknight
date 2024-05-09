@@ -107,6 +107,9 @@ namespace Passknight.ViewModels.FormViewModels
 
                 return;
             }
+
+            _navigationService.NavigateBack();
+            _navigationService.NavigateBack();
         }
     }
 }
