@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Windows;
 using Passknight.ViewModels;
-using Microsoft.Extensions.Configuration;
 using Passknight.Services.Firebase;
 using Passknight.Services;
 
@@ -12,10 +11,7 @@ namespace Passknight
     /// </summary>
     public partial class App : Application
     {
-        private readonly IConfiguration configuration;
-
         private Services.NavigationService navigationService;
-        private Firebase firebase;
 
         public App()
         {

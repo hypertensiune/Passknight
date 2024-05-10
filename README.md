@@ -88,13 +88,9 @@ window.firebaseConfig = firebaseConfig;
 
 ### Windows
 
-Create a file ```appsettings.json``` in the application root directory that should look like this:
+Create a file ```firebase``` in the application root directory and paste the firebase API KEY:
 ```
-{
-  "ConnectionStrings": {
-    "API_KEY": ""
-  }
-}
+[API_KEY]
 ```
 
 **Your config from can be found in <u>**Project settings > General</u>**.**
