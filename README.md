@@ -14,7 +14,7 @@
 
 <br>
 <p align="center">
-  <img  src="imgs/img1.png" width=30%></img>
+  <img  src="imgs/img1.png" width=40%></img>
 </p>
 
 ## Current supported platforms
