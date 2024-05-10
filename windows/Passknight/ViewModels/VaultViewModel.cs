@@ -43,23 +43,17 @@ namespace Passknight.ViewModels
         public ICommand CopyUsernameCommand { get; }
         public ICommand CopyPasswordCommand { get; }
 
-        public ICommand RegeneratePasswordCommand { get; }
-        public ICommand CopyGeneratedPasswordCommand { get; }
-
         public ICommand DeleteVaultCommand { get; }
 
+        public ICommand RegeneratePasswordCommand { get; }
+        public ICommand CopyGeneratedPasswordCommand { get; }
+        public ICommand OpenHistoryCommand { get; }
+
+        public string GeneratedPassword { get; set; }
         public Settings GeneratorSettings { get; } = new Settings();
         private Generator generator = new Generator();
 
-        private string _generatedPassword;
-        public List<string> GeneratedPassword
-        {
-            get
-            {
-                var split = Regex.Matches(_generatedPassword, @"(\d+)|([a-zA-Z]+)|([!@#$%^&*]+)");
-                return split.Select(gr => gr.Value).ToList();
-            }
-        }
+        private readonly object _valueLock = new object();
 
         public VaultViewModel(Services.NavigationService navigationService, IDatabase database, string masterPassword)
         {
@@ -80,46 +74,19 @@ namespace Passknight.ViewModels
             CopyUsernameCommand = new RelayCommand((object? param) => Clipboard.SetText((string)param!));
             CopyPasswordCommand = new RelayCommand((object? param) => Clipboard.SetText((_cryptography.Decrypt((string)param!))));
 
-            GeneratorSettings.OnSettingsChanged += OnGeneratorSettingsChanged;
+            GeneratorSettings.OnSettingsChanged += RegeneratePassword;
 
-            _generatedPassword = generator.GeneratePassword(GeneratorSettings);
+            GeneratedPassword = generator.GeneratePassword(GeneratorSettings);
 
-            RegeneratePasswordCommand = new RelayCommand((object? param) => { });
-            CopyGeneratedPasswordCommand = new RelayCommand((object? param) => { });
+            RegeneratePasswordCommand = new RelayCommand((object? param) => RegeneratePassword());
+            CopyGeneratedPasswordCommand = new RelayCommand((object? param) => Clipboard.SetText((string)param!));
+
+            OpenHistoryCommand = new RelayCommand((object? param) => navigationService.NavigateTo<HistoryViewModel>(Vault.GeneratorHistory));
         }
 
         private async Task GetVaultAsync()
         {
             Vault = await _database.GetVault();
-
-            //var stream = new FileStream($"pkdb/local.pkvault", FileMode.OpenOrCreate, FileAccess.Write);
-            //var writer = new BinaryWriter(stream);
-
-            //writer.Write(Vault.Salt);
-            //writer.Write(Vault.PasswordItems.Count);
-            //foreach (var item in Vault.PasswordItems)
-            //{
-            //    writer.Write(item.Name);
-            //    writer.Write(item.Website);
-            //    writer.Write(item.Username);
-            //    writer.Write(item.Password);
-            //}
-
-            //writer.Write(Vault.NoteItems.Count);
-            //foreach (var item in Vault.NoteItems)
-            //{
-            //    writer.Write(item.Name);
-            //    writer.Write(item.Content);
-            //}
-
-            //writer.Write(Vault.GeneratorHistory.Count);
-            //foreach (var item in Vault.GeneratorHistory)
-            //{
-            //    writer.Write(item);
-            //}
-
-            //writer.Flush();
-
             OnPropertyChanged(nameof(Vault));
         }
 
@@ -162,10 +129,33 @@ namespace Passknight.ViewModels
             _navigationService.NavigateTo<NoteFormViewModel>(_database, _cryptography, FormType.Edit, (NoteItem)param!, Vault.NoteItems);
         }
 
-        private void OnGeneratorSettingsChanged()
+        private void RegeneratePassword()
         {
-            _generatedPassword = generator.GeneratePassword(GeneratorSettings);
+            GeneratedPassword = generator.GeneratePassword(GeneratorSettings);
             OnPropertyChanged(nameof(GeneratedPassword));
+
+            // Save the newly generated password in the vault.
+            // To avoid saving too many passwords if continously dragging the slider add a 1000ms delay after the slider is last moved.
+            // If the slider is moved again re-add the delay.
+            // This is the C# implementation of the timeout method used in TypeScript
+            // https://github.com/hypertensiune/PassKnight/blob/master/extension/src/pages/Vault/Tabs/GeneratorTab/index.tsx
+            //
+            // https://stackoverflow.com/questions/723502/wpf-slider-with-an-event-that-triggers-after-a-user-drags
+            lock (_valueLock)
+            Monitor.PulseAll(_valueLock);
+            Task.Run(() =>
+            {
+                lock (_valueLock)
+                if(!Monitor.Wait(_valueLock, 1000))
+                {
+                    Vault.GeneratorHistory.Add(GeneratedPassword);
+                    if(Vault.GeneratorHistory.Count > 15) 
+                    {
+                        Vault.GeneratorHistory.RemoveAt(0);    
+                    }
+                    _database.UpdateFieldInVault(Vault.GeneratorHistory);
+                }
+            });
         }
     }
 }

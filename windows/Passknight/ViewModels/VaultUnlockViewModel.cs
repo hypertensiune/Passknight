@@ -1,6 +1,5 @@
 ﻿using Passknight.Core;
 using Passknight.Models;
-using Passknight.Services;
 using Passknight.Services.Firebase;
 using System;
 using System.Collections.Generic;

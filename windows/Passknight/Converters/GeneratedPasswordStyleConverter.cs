@@ -11,7 +11,7 @@ using System.Windows.Media;
 
 namespace Passknight.Converters
 {
-    class GeneratorPasswordStyleConverter : IValueConverter
+    class GeneratedPasswordStyleConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

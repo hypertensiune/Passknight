@@ -7,8 +7,8 @@
              xmlns:conv="clr-namespace:Passknight.Converters"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
+             d:DesignHeight="550" d:DesignWidth="400">
+    <Grid Background="{StaticResource BackgroundPrimary}">
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="3*"/>
@@ -31,11 +31,12 @@
             Grid.Row="1"
             BorderBrush="DarkSlateGray"
             BorderThickness="1"
-            CornerRadius="2"
+            CornerRadius="12"
+            ClipToBounds="True"
+            Background="{StaticResource PasswordBackground}"
             Margin="0, 20, 0, 20">
 
-            <Grid
-                Background="#2c041c">
+            <Grid>
 
                 <Grid.RowDefinitions>
                     <RowDefinition/>
@@ -43,10 +44,11 @@
                 </Grid.RowDefinitions>
 
                 <Grid.Resources>
-                    <conv:GeneratorPasswordStyleConverter x:Key="StyleConverter"/>
+                    <conv:GeneratedPasswordStyleConverter x:Key="StyleConverter"/>
+                    <conv:GeneratedPasswordConverter x:Key="PasswordConverter"/>
                 </Grid.Resources>
 
-                <ItemsControl Grid.Row="0" ItemsSource="{Binding GeneratedPassword}">
+                <ItemsControl Grid.Row="0" ItemsSource="{Binding GeneratedPassword, Converter={StaticResource PasswordConverter}}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel Orientation="Horizontal" Margin="10"/>
@@ -90,5 +92,25 @@
             <CheckBox Content="123" IsChecked="{Binding GeneratorSettings.Numbers, Mode=TwoWay}"/>
             <CheckBox Content="#$@" IsChecked="{Binding GeneratorSettings.Symbols, Mode=TwoWay}"/>
         </UniformGrid>
+
+        <ui:Button 
+            Grid.Row="3" 
+            Icon="{ui:SymbolIcon History32}"
+            FontSize="32"
+            Padding="0"
+            Background="Transparent"
+            BorderBrush="Transparent"
+            FontWeight="Bold"
+            Foreground="Black"
+            Command="{Binding OpenHistoryCommand}"
+            Cursor="Hand" 
+            HorizontalAlignment="Center">   
+            <ui:Button.MouseOverBackground>
+                <SolidColorBrush Color="Transparent"/>
+            </ui:Button.MouseOverBackground>
+            <ui:Button.PressedBackground>
+                <SolidColorBrush Color="Transparent"/>
+            </ui:Button.PressedBackground>
+        </ui:Button>
     </Grid>
 </UserControl>

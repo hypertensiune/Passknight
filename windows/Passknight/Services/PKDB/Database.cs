@@ -317,6 +317,8 @@ namespace Passknight.Services.PKDB
                 }
 
                 writer.Flush();
+                stream.Dispose();
+                stream.Close();
                 return Task.FromResult(true);
             } catch
             { 

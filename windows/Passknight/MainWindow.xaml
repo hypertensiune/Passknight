@@ -35,6 +35,9 @@
             <DataTemplate DataType="{x:Type vms:DeleteConfirmViewModel}">
                 <views:DeleteConfirmView/> 
             </DataTemplate>
+            <DataTemplate DataType="{x:Type vms:HistoryViewModel}">
+                <views:HistoryView/>
+            </DataTemplate>
         </Grid.Resources>
         <StackPanel Height="580" Background="{StaticResource BackgroundPrimary}">
             <ui:TitleBar ShowMaximize="False" Width="340" HorizontalAlignment="Right" Height="30"/>

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Passknight.Core;
-using Passknight.Services;
+using Passknight.Models;
 using Passknight.Services.Firebase;
 
 namespace Passknight.ViewModels

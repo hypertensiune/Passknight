@@ -1,12 +1,11 @@
-﻿using Passknight.Models;
-using Passknight.Models.Items;
+﻿using Passknight.Models.Items;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Passknight.Services
+namespace Passknight.Models
 {
     /// <summary>
     /// Interface for managing a database. Provides all the methods to operate on a databse of vaults.

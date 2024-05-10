@@ -16,6 +16,8 @@
             <SolidColorBrush x:Key="BackgroundSecondary" Color="#2e2e2e"/>
             <SolidColorBrush x:Key="ListItemPrimary" Color="#121212"/>
 
+            <SolidColorBrush x:Key="PasswordBackground" Color="#2c041c"/>
+
             <FontFamily x:Key="firaCode">pack://application:,,,/Resources/#Fira Code</FontFamily>
             
             <ResourceDictionary.MergedDictionaries>
