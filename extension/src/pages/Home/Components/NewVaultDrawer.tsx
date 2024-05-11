@@ -14,7 +14,7 @@ export default function NewVaultDrawer({ opened, close, vaults }: { opened: bool
 
     validate: {
       name: (value) => (value.length == 0 ? 'Vault name is required' : vaults?.includes(value) ? 'Vault already exists' : null),
-      password: (value) => (value.length < 6 ? 'Passwords should be at least 15 characters' : null),
+      password: (value) => (value.length < 15 ? 'Passwords should be at least 15 characters' : null),
       confirm: (value, values) => (value !== values.password ? 'Passwords did not match' : null)
     }
   });
