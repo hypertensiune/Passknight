@@ -47,7 +47,7 @@ namespace Passknight.ViewModels
                 Name.SetError();
             }
             
-            if (Password.Input.Length < 6)
+            if (Password.Input.Length < 15)
             {
                 Password.SetError();
             }
