@@ -2,9 +2,13 @@ import { Button, Drawer, PasswordInput, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 
 import { createVault } from "@lib/firebase";
+import useCrypto from "@hooks/useCrypto";
 
 function submitHandler(data: { name: string, password: string, confirm: string }) {
-  createVault(data.name, data.password, () => window.location.reload());
+  createVault(data.name, data.password, () => {
+    useCrypto(data.password);
+    window.location.reload();
+  });
 }
 
 export default function NewVaultDrawer({ opened, close, vaults }: { opened: boolean, close: () => void, vaults: string[] }) {
