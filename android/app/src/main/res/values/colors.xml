@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="BackgroundPrimary">#242424</color>
+    <color name="BackgroundSecondary">#2e2e2e</color>
+    <color name="ListItemPrimary">#121212</color>
+    <color name="PasswordBackground">#2c041c</color>
+    <color name="ForegroundColor">#c9c9c9</color>
+    <color name="Primary">#1871c2</color>
+    <color name="PrimaryHover">#1864ab</color>
+    <color name="InfoRed">#ef9a9a</color>
+</resources>

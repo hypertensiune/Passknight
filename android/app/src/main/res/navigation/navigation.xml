@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@+id/vault_list">
+
+    <fragment
+        android:id="@+id/vault_list"
+        android:name="com.example.passknight.fragments.VaultList"
+        tools:layout="@layout/fragment_vault_list">
+        <action
+            android:id="@+id/vault_list_to_unlock"
+            app:destination="@+id/vault_unlock"/>
+        <action
+            android:id="@+id/vault_list_tc_create"
+            app:destination="@id/vault_create"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/vault_unlock"
+        android:name="com.example.passknight.fragments.VaultUnlock"
+        tools:layout="@layout/fragment_vault_unlock">
+        <action
+            android:id="@+id/vault_unlock_to_view"
+            app:destination="@+id/vault_view"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/vault_create"
+        android:name="com.example.passknight.fragments.VaultCreate"
+        tools:layout="@layout/fragment_vault_create">
+        <action
+            android:id="@+id/vault_create_to_view"
+            app:destination="@+id/vault_view"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/vault_view"
+        android:name="com.example.passknight.fragments.VaultView"
+        tools:layout="@layout/fragment_vault_view"/>
+
+</navigation>
