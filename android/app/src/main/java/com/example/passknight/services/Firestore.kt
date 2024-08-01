@@ -27,21 +27,20 @@ object Firestore {
     const val UNLOCK_OK = 0x10
     const val UNLOCK_FAIL = 0x11
 
-    private var vaults: MutableMap<String, Any>? = null
+    private var currentUnlockedVaultName = ""
+    private var currentUnlockedVaultID = ""
 
     /**
      * @return A list of the all the vaults in the firestore database
      */
     suspend fun getVaults(): List<String>? {
         val res = Firebase.firestore.collection("vaults").document("ids").get().await()
-        vaults = res.data
         return res.data?.keys?.toList()
     }
 
     suspend fun getData(vault: String): MutableMap<String, Any>? {
         try {
-            val vaultId = vaults?.get(vault) as String
-            val res = Firebase.firestore.collection("vaults").document(vaultId).get().await()
+            val res = Firebase.firestore.collection("vaults").document(currentUnlockedVaultID).get().await()
             Log.d("Passknight", "DOC: ${res.data}")
             return res.data
         } catch (e: FirebaseException) {
@@ -55,7 +54,9 @@ object Firestore {
      */
     suspend fun unlockVault(vault: String, password: String): Boolean {
         try {
-            Firebase.auth.signInWithEmailAndPassword("$vault@passknight.vault", password).await()
+            val result = Firebase.auth.signInWithEmailAndPassword("$vault@passknight.vault", password).await()
+            currentUnlockedVaultName = vault
+            currentUnlockedVaultID = result.user?.uid ?: ""
             return true
         } catch (e: FirebaseException) {
             e.printStackTrace()
@@ -87,7 +88,9 @@ object Firestore {
         }
     }
 
-    fun signOut(): Unit {
+    fun signOut() {
+        currentUnlockedVaultName = ""
+        currentUnlockedVaultID = ""
         Firebase.auth.signOut()
     }
 }
