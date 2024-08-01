@@ -3,11 +3,14 @@ package com.example.passknight.viewmodels
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.passknight.R
+import com.example.passknight.fragments.VaultCreateDirections
+import com.example.passknight.fragments.VaultUnlockDirections
 
 import com.example.passknight.services.Firestore
 import kotlinx.coroutines.Dispatchers
@@ -15,45 +18,51 @@ import kotlinx.coroutines.launch
 
 class VaultCreateViewModel(private val navController: NavController) : ViewModel() {
 
-    var name: String = ""
     val nameError: MutableLiveData<String> = MutableLiveData("")
+    var name: String = ""
+        set(value) {
+            nameError.value = ""
+            field = value
+        }
 
-    var masterPassword: String = ""
     val masterPasswordError: MutableLiveData<String> = MutableLiveData("")
+    var masterPassword: String = ""
+        set(value) {
+            masterPasswordError.value = ""
+            field = value
+        }
 
-    var confirmMasterPassword: String = ""
     val confirmMasterPasswordError: MutableLiveData<String> = MutableLiveData("")
+    var confirmMasterPassword: String = ""
+        set(value) {
+            confirmMasterPasswordError.value = ""
+            field = value
+        }
 
-    val creating: MutableLiveData<Boolean> = MutableLiveData(false)
+    val loadingScreen: MutableLiveData<Boolean> = MutableLiveData(false)
+    val loadingMessage = "Creating vault.."
     val toastMessage: MutableLiveData<String> = MutableLiveData("")
-
-    fun onNameChange(s: CharSequence, start: Int, before: Int, count: Int) {
-        nameError.value = ""
-    }
-
-    fun onPasswordChange(s: CharSequence, start: Int, before: Int, count: Int) {
-        masterPasswordError.value = ""
-    }
-
-    fun onConfirmPasswordChange(s: CharSequence, start: Int, before: Int, count: Int) {
-        confirmMasterPasswordError.value = ""
-    }
 
     fun createVault(view: View) {
         // validate data before attempting to create a new vault
         if(validateData()) {
             // enable the progress bar while waiting for the result
-            creating.value = true
+            loadingScreen.value = true
             viewModelScope.launch(Dispatchers.Main) {
                 val result = Firestore.createVault(name, masterPassword)
                 Log.d("Passknight", "Finised creating $result")
                 if(result) {
                     // if creation was successful navigate to the newly created vault
-                    creating.postValue(false)
-                    navController.navigate(R.id.vault_create_to_view)
+                    loadingScreen.postValue(false)
+
+                    // Don't allow back navigation from the vault view
+                    // The user can get back to the vault list view only by pressing a button that signs out of firebase
+                    // https://stackoverflow.com/questions/50514758/how-to-clear-navigation-stack-after-navigating-to-another-fragment-in-android
+                    navController.navigate(VaultCreateDirections.vaultCreateToView())
+                    //navController.navigate(R.id.vault_create_to_view)
                 } else {
                     // otherwise clear the input fields and display an error message
-                    creating.postValue(false)
+                    loadingScreen.postValue(false)
                     toastMessage.postValue("Vault creation failed! Vault name is already used!")
                     name = ""
                     masterPassword = ""
