@@ -15,10 +15,10 @@ class ViewPagerAdapter(
 
     override fun createFragment(position: Int): Fragment {
         return when(position) {
-            0 -> TabPasswords(viewModel)
-            1 -> TabNotes(viewModel)
-            2 -> TabGenerator(viewModel)
-            else -> TabPasswords(viewModel)
+            0 -> TabPasswords()
+            1 -> TabNotes()
+            2 -> TabGenerator()
+            else -> TabPasswords()
         }
     }
 

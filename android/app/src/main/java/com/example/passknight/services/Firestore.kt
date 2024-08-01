@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.example.passknight.models.NoteItem
 import com.example.passknight.models.PasswordItem
+import com.example.passknight.models.Vault
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseException
@@ -37,13 +38,15 @@ object Firestore {
         return res.data?.keys?.toList()
     }
 
-    suspend fun getData(vault: String) {
+    suspend fun getData(vault: String): MutableMap<String, Any>? {
         try {
             val vaultId = vaults?.get(vault) as String
             val res = Firebase.firestore.collection("vaults").document(vaultId).get().await()
             Log.d("Passknight", "DOC: ${res.data}")
+            return res.data
         } catch (e: FirebaseException) {
             e.printStackTrace()
+            return null
         }
     }
 

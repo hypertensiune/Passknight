@@ -1,12 +1,13 @@
-package com.example.passknight
+package com.example.passknight.adapters
 
 import android.content.Context
-import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
-import androidx.databinding.ViewDataBindingKtx
 import androidx.recyclerview.widget.RecyclerView
 
+/**
+ * @param data Data for the recycler view to display
+ * @param onItemClick Function to execute when the view holder itme is clicked
+ */
 abstract class PkRecyclerViewAdapter<T, V : ViewDataBinding>(
     context: Context,
     private val data: List<T>?,
