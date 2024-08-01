@@ -1,13 +1,8 @@
-package com.example.passknight
+package com.example.passknight.adapters
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView.OnItemClickListener
-import androidx.navigation.findNavController
-import androidx.recyclerview.widget.RecyclerView
 import com.example.passknight.databinding.VaultListItemBinding
 
 class VaultListAdapter(
@@ -15,6 +10,7 @@ class VaultListAdapter(
     private val vaults: List<String>?,
     private val onItemClick: (Any) -> Unit
 ): PkRecyclerViewAdapter<String, VaultListItemBinding>(context, vaults, onItemClick) {
+
 
     override fun onCreateViewHolder(
         parent: ViewGroup,

@@ -6,16 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.passknight.R
-import com.example.passknight.VaultListAdapter
+import com.example.passknight.adapters.VaultListAdapter
 import com.example.passknight.databinding.FragmentVaultListBinding
 import com.example.passknight.viewmodels.VaultListViewModel
-import com.google.api.Distribution.BucketOptions.Linear
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class VaultList : Fragment() {
 
