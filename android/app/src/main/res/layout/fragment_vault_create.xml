@@ -15,43 +15,35 @@
         android:layout_height="match_parent"
         android:background="@color/BackgroundPrimary">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <TableLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="@{viewModel.creating ? View.VISIBLE : View.GONE}">
+            android:gravity="center"
+            android:visibility="@{viewModel.loadingScreen ? View.VISIBLE : View.GONE}">
 
             <TextView
-                android:id="@+id/textView4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Creating vault.."
-                android:textSize="22sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.498"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.423" />
+                android:gravity="center"
+                android:text="@{viewModel.loadingMessage}"
+                tools:text="Loading message.."
+                android:layout_marginBottom="20dp"
+                android:textSize="22sp" />
 
             <com.google.android.material.progressindicator.CircularProgressIndicator
                 android:id="@+id/circularProgressIndicator"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="216dp"
-                android:indeterminate="true"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.498"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView4"
-                app:layout_constraintVertical_bias="0.162" />
+                android:layout_gravity="center"
+                android:indeterminate="true" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </TableLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="@{viewModel.creating ? View.GONE : View.VISIBLE}">
+            tools:visibility="gone"
+            android:visibility="@{viewModel.loadingScreen ? View.GONE : View.VISIBLE}">
 
             <TextView
                 android:id="@+id/textView2"
@@ -87,7 +79,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@={viewModel.name}"
-                    android:onTextChanged="@{viewModel.onNameChange}"
                     android:textColor="@color/white"
                     app:endIconTint="@color/white" />
 
@@ -126,7 +117,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
-                    android:onTextChanged="@{viewModel.onPasswordChange}"
                     android:text="@={viewModel.masterPassword}"
                     android:textColor="@color/white"
                     app:endIconTint="@color/white" />
@@ -155,7 +145,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
-                    android:onTextChanged="@{viewModel.onConfirmPasswordChange}"
                     android:text="@={viewModel.confirmMasterPassword}"
                     android:textColor="@color/white"
                     app:endIconTint="@color/white" />

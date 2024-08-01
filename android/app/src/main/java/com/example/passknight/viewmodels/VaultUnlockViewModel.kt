@@ -18,12 +18,15 @@ class VaultUnlockViewModel(
     private val navController: NavController
 ): ViewModel() {
 
-    var errorText: MutableLiveData<String> = MutableLiveData("")
+    val errorText: MutableLiveData<String> = MutableLiveData("")
     var password: String = ""
         set(value) {
             errorText.value = ""
             field = value
         }
+
+    val loadingScreen: MutableLiveData<Boolean> = MutableLiveData(false)
+    val loadingMessage = "Unlocking vault.."
 
     fun onUnlockClick(view: View) {
         if(password.isEmpty()) {
@@ -31,9 +34,11 @@ class VaultUnlockViewModel(
             return
         }
 
+        loadingScreen.value = true
         viewModelScope.launch(Dispatchers.Main) {
             val result = Firestore.unlockVault(vault, password)
             if(!result) {
+                loadingScreen.postValue(false)
                 errorText.postValue("Invalid master password")
                 return@launch
             }
