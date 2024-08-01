@@ -15,29 +15,41 @@
         android:layout_height="match_parent"
         android:background="@color/BackgroundPrimary">
 
-        <TableLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
             android:visibility="@{viewModel.loadingScreen ? View.VISIBLE : View.GONE}">
 
+            <ImageView
+                android:id="@+id/logoLoading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="80dp"
+                android:scaleX="1.2"
+                android:scaleY="1.2"
+                android:src="@drawable/logo" />
+
             <TextView
+                android:id="@+id/loadingMessage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:text="@{viewModel.loadingMessage}"
-                tools:text="Unlocking vault.."
-                android:layout_marginBottom="20dp"
+                tools:text="Loading message.."
+                android:paddingBottom="55dp"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"
                 android:textSize="22sp" />
 
             <com.google.android.material.progressindicator.CircularProgressIndicator
                 android:id="@+id/circularProgressIndicator"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_centerHorizontal="true"
+                android:layout_alignBottom="@+id/loadingMessage"
                 android:indeterminate="true" />
 
-        </TableLayout>
+        </RelativeLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
