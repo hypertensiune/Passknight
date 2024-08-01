@@ -23,7 +23,9 @@
         tools:layout="@layout/fragment_vault_unlock">
         <action
             android:id="@+id/vault_unlock_to_view"
-            app:destination="@+id/vault_view"/>
+            app:destination="@+id/vault_view"
+            app:popUpTo="@+id/navigation"
+            app:popUpToInclusive="true"/>
     </fragment>
 
     <fragment
@@ -32,7 +34,9 @@
         tools:layout="@layout/fragment_vault_create">
         <action
             android:id="@+id/vault_create_to_view"
-            app:destination="@+id/vault_view"/>
+            app:destination="@+id/vault_view"
+            app:popUpTo="@+id/navigation"
+            app:popUpToInclusive="true"/>
     </fragment>
 
     <fragment
