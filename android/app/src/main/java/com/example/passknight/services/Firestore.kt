@@ -9,6 +9,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
 import com.google.firebase.initialize
@@ -82,6 +83,22 @@ object Firestore {
 
             return true
 
+        } catch (e: FirebaseException) {
+            e.printStackTrace()
+            return false
+        }
+    }
+
+    suspend fun <T> addItemToVault(item: T): Boolean {
+        try {
+            if(item is PasswordItem) {
+                Firebase.firestore.collection("vaults").document(currentUnlockedVaultID).update("passwords", FieldValue.arrayUnion(item)).await()
+            } else {
+                Firebase.firestore.collection("vaults").document(currentUnlockedVaultID).update("notes", FieldValue.arrayUnion(item)).await()
+            }
+
+            Log.d("Passknight", "add successful")
+            return true
         } catch (e: FirebaseException) {
             e.printStackTrace()
             return false
