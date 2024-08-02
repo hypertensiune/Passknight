@@ -11,7 +11,7 @@ import com.example.passknight.databinding.FragmentTabGeneratorBinding
 import com.example.passknight.viewmodels.VaultViewModel
 
 
-class TabGenerator(private val viewModel: VaultViewModel) : Fragment() {
+class TabGenerator : Fragment() {
 
     private lateinit var binding: FragmentTabGeneratorBinding
 
@@ -22,7 +22,7 @@ class TabGenerator(private val viewModel: VaultViewModel) : Fragment() {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_tab_generator, container, false)
 
-        binding.viewModel = viewModel
+        //binding.viewModel = viewModel
 
         return binding.root
     }

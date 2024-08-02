@@ -1,6 +1,7 @@
 package com.example.passknight.viewmodels
 
 import android.util.Log
+import android.view.View
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -22,5 +23,15 @@ class VaultViewModel(private val navController: NavController) : ViewModel() {
             val data = Firestore.getData("android")
             vault.postValue(Vault("vaultName", data))
         }
+    }
+
+    fun onNewPasswordItemClick(view: View) {
+        val p = vault.value?.passwords?.value
+        p?.add(PasswordItem("name", "website", "username", "1234"))
+        vault.value?.passwords?.value = p
+    }
+
+    fun onNewNoteItemClick(view: View) {
+
     }
 }
