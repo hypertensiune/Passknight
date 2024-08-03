@@ -51,12 +51,9 @@ class VaultViewModel(private val navController: NavController) : ViewModel() {
                 // Navigate back to the passwords tab
                 navController.popBackStack()
             } else {
-                // Disable the loading screen and display a message
-                // notifying the user there was an error
                 loadingScreen.postValue(false)
                 toastMessage.postValue("There was an error adding the new password item to firebase!")
 
-                // Clear all data
                 passwordItem.name = ""
                 passwordItem.website = ""
                 passwordItem.username = ""

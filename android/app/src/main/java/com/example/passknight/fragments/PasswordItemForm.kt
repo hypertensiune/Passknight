@@ -12,7 +12,7 @@ import com.example.passknight.R
 import com.example.passknight.databinding.FragmentPasswordItemFormBinding
 import com.example.passknight.viewmodels.VaultViewModel
 
-class PasswordForm : Fragment() {
+class PasswordItemForm : Fragment() {
 
     private lateinit var binding: FragmentPasswordItemFormBinding
 
