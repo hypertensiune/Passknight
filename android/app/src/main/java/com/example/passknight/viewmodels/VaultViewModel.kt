@@ -1,13 +1,12 @@
 package com.example.passknight.viewmodels
 
-import android.provider.ContactsContract.CommonDataKinds.Note
-import android.util.Log
 import android.view.View
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.passknight.R
+import com.example.passknight.fragments.VaultViewDirections
 import com.example.passknight.models.Item
 import com.example.passknight.models.NoteItem
 import com.example.passknight.models.PasswordItem
@@ -137,5 +136,17 @@ class VaultViewModel(private val navController: NavController) : ViewModel() {
                 toastMessage.postValue("There was an error updating the item in firebase!")
             }
         }
+    }
+
+    fun deleteVault() {
+
+    }
+
+    fun lockVault() {
+        Firestore.signOut()
+
+        // Don't allow back navigation
+        // https://stackoverflow.com/questions/50514758/how-to-clear-navigation-stack-after-navigating-to-another-fragment-in-android
+        navController.navigate(VaultViewDirections.vaultViewToVaultList())
     }
 }

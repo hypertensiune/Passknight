@@ -49,6 +49,9 @@
         <action
             android:id="@+id/vault_view_to_note_form"
             app:destination="@id/note_form"/>
+        <action
+            android:id="@+id/vault_view_to_vault_list"
+            app:destination="@+id/vault_list"/>
 
     </fragment>
 

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_lock"
+        android:title="Lock vault"
+        android:icon="@drawable/baseline_logout_24"/>
+    <item android:id="@+id/menu_delete"
+        android:title="Delete vault"
+        android:icon="@drawable/baseline_delete_forever_24" />
+</menu>
