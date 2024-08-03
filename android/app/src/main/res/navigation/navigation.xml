@@ -46,12 +46,20 @@
         <action
             android:id="@+id/vault_view_to_password_form"
             app:destination="@id/password_form"/>
+        <action
+            android:id="@+id/vault_view_to_note_form"
+            app:destination="@id/note_form"/>
 
     </fragment>
 
     <fragment
         android:id="@+id/password_form"
-        android:name="com.example.passknight.fragments.PasswordForm"
+        android:name="com.example.passknight.fragments.PasswordItemForm"
         tools:layout="@layout/fragment_password_item_form"/>
+
+    <fragment
+        android:id="@+id/note_form"
+        android:name="com.example.passknight.fragments.NoteItemForm"
+        tools:layout="@layout/fragment_note_item_form"/>
 
 </navigation>
