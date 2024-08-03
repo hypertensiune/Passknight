@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         findViewById<MaterialButton>(R.id.unlock_btn).setOnClickListener {
-            biometricsProvider.prompt()
+            biometricsProvider.prompt { onBiometricSuccess() }
             startActivity(Intent(this, AppActivity::class.java))
         }
 
@@ -37,10 +37,13 @@ class MainActivity : AppCompatActivity() {
             "Enter your lock screen lock to access",
             "Please unlock to proceed",
             Authenticators.DEVICE_CREDENTIAL or Authenticators.BIOMETRIC_WEAK
-        ) {
-            startActivity(Intent(this, AppActivity::class.java))
-        }
+        )
 
-        biometricsProvider.prompt()
+        biometricsProvider.prompt { onBiometricSuccess() }
+
+    }
+
+    private fun onBiometricSuccess() {
+        startActivity(Intent(this, AppActivity::class.java))
     }
 }

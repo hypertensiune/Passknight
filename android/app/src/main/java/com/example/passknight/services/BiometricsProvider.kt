@@ -7,17 +7,19 @@ import java.util.concurrent.Executor
 import android.content.Context
 import androidx.fragment.app.FragmentActivity
 
-class BiometricsProvider {
+class BiometricsProvider(
+    private val context: Context,
+    private val activity: FragmentActivity,
+    title: String,
+    subtitle: String,
+    authenticators: Int,
+) {
 
-    private var executor: Executor
-    private var biometricPrompt: BiometricPrompt
+    private var executor: Executor = ContextCompat.getMainExecutor(context)
+    private lateinit var biometricPrompt: BiometricPrompt
     private var promptInfo: BiometricPrompt.PromptInfo
 
-    constructor(context: Context, activity: FragmentActivity, title: String, subtitle: String, authenticators: Int, onSuccessCallback: () -> Unit) {
-        executor = ContextCompat.getMainExecutor(context)
-
-        biometricPrompt = BiometricPrompt(activity, executor, AuthenticationListener(context, onSuccessCallback))
-
+    init {
         promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle(title)
             .setSubtitle(subtitle)
@@ -43,7 +45,9 @@ class BiometricsProvider {
         }
     }
 
-    fun prompt() {
+    fun prompt(onSuccessCallback: () -> Unit) {
+        biometricPrompt = BiometricPrompt(activity, executor, AuthenticationListener(context, onSuccessCallback))
         biometricPrompt.authenticate(promptInfo)
     }
+
 }
