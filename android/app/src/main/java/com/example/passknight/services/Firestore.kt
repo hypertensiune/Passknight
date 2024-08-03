@@ -13,6 +13,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
 import com.google.firebase.initialize
+import kotlinx.coroutines.tasks.asDeferred
 import kotlinx.coroutines.tasks.await
 import java.net.HttpURLConnection
 import java.net.URL
@@ -98,6 +99,28 @@ object Firestore {
             }
 
             Log.d("Passknight", "add successful")
+            return true
+        } catch (e: FirebaseException) {
+            e.printStackTrace()
+            return false
+        }
+    }
+
+    suspend fun <T> editItemInVault(oldItem: T, newItem: T): Boolean {
+        try {
+            if(oldItem is PasswordItem) {
+                // First add the new item (modified) and only then remove the old one
+                // Do the operations in this order to avoid the following situation: removal of the old
+                // item is successful but adding the new item fails (because of internet connection loss, for example).
+                // If this happens the item is completely lost
+                // In this case if there is a problem with the second operation there will just be the
+                // 2 verions of the same item in the database (and the old one can be manually removed)
+                Firebase.firestore.collection("vaults").document(currentUnlockedVaultID).update("passwords", FieldValue.arrayUnion(newItem)).await()
+                Firebase.firestore.collection("vaults").document(currentUnlockedVaultID).update("passwords", FieldValue.arrayRemove(oldItem)).await()
+            } else {
+                Firebase.firestore.collection("vaults").document(currentUnlockedVaultID).update("notes", FieldValue.arrayUnion(newItem)).await()
+                Firebase.firestore.collection("vaults").document(currentUnlockedVaultID).update("notes", FieldValue.arrayRemove(oldItem)).await()
+            }
             return true
         } catch (e: FirebaseException) {
             e.printStackTrace()

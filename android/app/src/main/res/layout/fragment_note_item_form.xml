@@ -5,6 +5,7 @@
 
     <data>
         <import type="android.view.View"/>
+        <import type="com.example.passknight.viewmodels.VaultViewModel"/>
         <variable
             name="viewModel"
             type="com.example.passknight.viewmodels.VaultViewModel" />
@@ -121,10 +122,25 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.button.MaterialButton
+                android:visibility="@{viewModel.itemEditing ? View.VISIBLE : View.GONE}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="94dp"
-                android:onClick="@{viewModel::addNewNoteItem}"
+                android:onClick="@{() -> viewModel.editItem(VaultViewModel.ITEM_NOTE)}"
+                android:text="Edit note"
+                app:cornerRadius="5dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintVertical_bias="0.83"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.button.MaterialButton
+                android:visibility="@{viewModel.itemEditing ? View.GONE : View.VISIBLE}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="94dp"
+                android:onClick="@{() -> viewModel.addNewItem(VaultViewModel.ITEM_NOTE)}"
                 android:text="Add note"
                 app:cornerRadius="5dp"
                 app:layout_constraintBottom_toBottomOf="parent"

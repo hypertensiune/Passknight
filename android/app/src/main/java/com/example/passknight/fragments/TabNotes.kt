@@ -35,7 +35,7 @@ class TabNotes : Fragment() {
         viewModel.vault.observe(viewLifecycleOwner) {vault ->
             vault.notes.observe(viewLifecycleOwner) {notes ->
                 val adapter = NoteListAdapter(requireContext(), notes) {
-
+                    viewModel.openNoteItemForm(it)
                 }
                 binding.noteListRecyclerView.adapter = adapter
             }

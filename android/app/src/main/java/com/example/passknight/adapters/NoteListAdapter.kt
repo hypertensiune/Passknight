@@ -11,7 +11,7 @@ import com.example.passknight.models.NoteItem
 class NoteListAdapter(
     context: Context,
     passwords: List<NoteItem>?,
-    private val onItemClick: (Any) -> Unit
+    private val onItemClick: (NoteItem) -> Unit
 ) : PkRecyclerViewAdapter<NoteItem, NoteListItemBinding>(context, passwords, onItemClick) {
 
     override fun onCreateViewHolder(
@@ -20,8 +20,12 @@ class NoteListAdapter(
     ): ViewHolder<NoteItem, NoteListItemBinding> {
         binding = NoteListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
 
-        return ViewHolder(binding, onItemClick) { item, binding ->
+        return ViewHolder(binding) { item, binding ->
             binding.name = item.name
+
+            binding.root.setOnClickListener {
+                onItemClick(item)
+            }
         }
     }
 }

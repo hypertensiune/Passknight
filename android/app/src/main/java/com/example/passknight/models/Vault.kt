@@ -5,12 +5,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.passknight.adapters.PasswordListAdapter
 
+interface Item {
+    fun clear()
+}
+
 data class PasswordItem(
     var name: String,
     var website: String,
     var username: String,
     var password: String
-) {
+) : Item {
     companion object {
         fun from(map: Map<String, Any>) = PasswordItem(
             map["name"] as String,
@@ -21,12 +25,19 @@ data class PasswordItem(
 
         fun empty(): PasswordItem = PasswordItem("", "", "", "")
     }
+
+    override fun clear() {
+        name = ""
+        website = ""
+        username = ""
+        password = ""
+    }
 }
 
 data class NoteItem(
     var name: String,
     var content: String
-) {
+) : Item {
     companion object {
         fun from(map: Map<String, Any>) = NoteItem(
             map["name"] as String,
@@ -34,6 +45,11 @@ data class NoteItem(
         )
 
         fun empty(): NoteItem = NoteItem("", "")
+    }
+
+    override fun clear() {
+        name = ""
+        content = ""
     }
 }
 
@@ -72,5 +88,39 @@ class Vault (
             n?.add(item)
             notes.value = n
         }
+    }
+
+    fun <T> editItem(oldItem: T, newItem: T) {
+        if(oldItem is PasswordItem) {
+            editPasswordItem(oldItem as PasswordItem, newItem as PasswordItem)
+        } else {
+            editNoteItem(oldItem as NoteItem, newItem as NoteItem)
+        }
+    }
+
+    private fun editPasswordItem(oldItem: PasswordItem, newItem: PasswordItem) {
+        val p = passwords.value
+        val i = p?.indexOf(oldItem)
+        if(i == null || i < 0) {
+            return
+        }
+
+        p.removeAt(i)
+        p.add(i, newItem)
+
+        passwords.value = p
+    }
+
+    private fun editNoteItem(oldItem: NoteItem, newItem: NoteItem) {
+        val n = notes.value
+        val i = n?.indexOf(oldItem)
+        if(i == null || i < 0) {
+            return
+        }
+
+        n.removeAt(i)
+        n.add(i, newItem)
+
+        notes.value = n
     }
 }

@@ -39,7 +39,7 @@ class TabPasswords : Fragment() {
             vault.passwords.observe(viewLifecycleOwner) {passwords ->
                 Log.d("Passknight", "Passwords observed")
                 val adapter = PasswordListAdapter(requireContext(), passwords) {
-
+                    viewModel.openPasswordItemForm(it)
                 }
                 binding.passwordListRecyclerView.adapter = adapter
             }

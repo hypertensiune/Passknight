@@ -18,8 +18,9 @@ class VaultListAdapter(
     ): ViewHolder<String, VaultListItemBinding> {
         binding = VaultListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
 
-        return ViewHolder(binding, onItemClick) { element, binding ->
+        return ViewHolder(binding) { element, binding ->
             binding.vault = element
+
             binding.root.setOnClickListener {
                 onItemClick(element)
             }

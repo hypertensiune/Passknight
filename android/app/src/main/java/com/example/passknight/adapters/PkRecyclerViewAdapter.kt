@@ -11,14 +11,13 @@ import androidx.recyclerview.widget.RecyclerView
 abstract class PkRecyclerViewAdapter<T, V : ViewDataBinding>(
     context: Context,
     private val data: List<T>?,
-    private val onItemClick: (Any) -> Unit
+    private val onItemClick: (T) -> Unit
 ) : RecyclerView.Adapter<PkRecyclerViewAdapter.ViewHolder<T, V>>() {
 
     protected lateinit var binding: V
 
     class ViewHolder<T, V : ViewDataBinding>(
         private val binding: V,
-        private val onItemClick: (Any) -> Unit,
         private val _bind: (T, V) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(element: T) = _bind(element, binding)
