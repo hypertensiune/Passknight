@@ -12,6 +12,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
 import androidx.navigation.findNavController
 import com.example.passknight.R
 import com.example.passknight.ViewPagerAdapter
@@ -27,6 +28,18 @@ class VaultView : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        // Clear the view model store to allow creation of a new VaultViewModel.
+        // If it is not cleared the ViewModelProvider will get the previous instance of the vm and
+        // so the previous vault that was unlocked will be displayed.
+        // This issue appears after locking a vault and unlocking another
+        //
+        // By clearing it here a new problem is created. After navigating to an item form and
+        // coming back (by manually navigating back or by creating a new item) this fragment along
+        // with the view model will be created again (along with it the vault has to be refetched
+        // from firebase
+        requireActivity().viewModelStore.clear()
+
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_vault_view, container, false)
 
         // https://stackoverflow.com/questions/53184320/how-to-pass-custom-parameters-to-a-viewmodel-using-factory
