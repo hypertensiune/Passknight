@@ -10,7 +10,9 @@ import com.example.passknight.models.PasswordItem
 class PasswordListAdapter(
     context: Context,
     passwords: List<PasswordItem>?,
-    private val onItemClick: (PasswordItem) -> Unit
+    private val onItemClick: (PasswordItem) -> Unit,
+    private val onUsernameCopyClick: (String) -> Unit,
+    private val onPasswordCopyClick: (String) -> Unit
 ) : PkRecyclerViewAdapter<PasswordItem, PasswordListItemBinding>(context, passwords, onItemClick) {
 
     override fun onCreateViewHolder(
@@ -23,6 +25,14 @@ class PasswordListAdapter(
             binding.name = item.name
             binding.username = item.username
             binding.website = item.website
+
+            binding.copyPasswordBtn.setOnClickListener {
+                onPasswordCopyClick(item.password)
+            }
+
+            binding.copyUsernameBtn.setOnClickListener {
+                onUsernameCopyClick(item.username)
+            }
 
             binding.root.setOnClickListener {
                 onItemClick(item)

@@ -5,6 +5,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -38,10 +40,24 @@ class TabPasswords : Fragment() {
             Log.d("Passknight", "Vault observed")
             vault.passwords.observe(viewLifecycleOwner) {passwords ->
                 Log.d("Passknight", "Passwords observed")
-                val adapter = PasswordListAdapter(requireContext(), passwords) {
-                    viewModel.openPasswordItemForm(it)
-                }
+                val adapter = PasswordListAdapter(requireContext(), passwords,
+                    {
+                        viewModel.openPasswordItemForm(it)
+                    },
+                    {
+                        viewModel.copyUsername(it)
+                    },
+                    {
+                        viewModel.copyPassword(it)
+                    }
+                )
                 binding.passwordListRecyclerView.adapter = adapter
+            }
+        }
+
+        viewModel.clipboardMessage.observe(viewLifecycleOwner) {
+            if(it.isNotEmpty()) {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
             }
         }
 

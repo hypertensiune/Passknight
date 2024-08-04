@@ -1,6 +1,14 @@
 package com.example.passknight.viewmodels
 
+import android.content.ClipData
+import android.content.ClipDescription
+import android.content.ClipboardManager
+import android.content.Context
+import android.os.Build
+import android.service.autofill.AutofillService
+import android.util.Log
 import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -14,13 +22,18 @@ import com.example.passknight.models.PasswordItem
 import com.example.passknight.models.Vault
 import com.example.passknight.services.Firestore
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class VaultViewModel(private val navController: NavController) : ViewModel() {
+class VaultViewModel(
+    private val navController: NavController,
+    private val clipboardManager: ClipboardManager?
+) : ViewModel() {
 
     companion object {
         const val ITEM_PASSWORD = 0
         const val ITEM_NOTE = 1
+        const val CLIPBOARD_TIMEOUT: Long = 5000
     }
 
     val vault: MutableLiveData<Vault> = MutableLiveData(Vault(null, null))
@@ -36,6 +49,7 @@ class VaultViewModel(private val navController: NavController) : ViewModel() {
     val formMessage: MutableLiveData<String> = MutableLiveData("")
 
     val toastMessage: MutableLiveData<String> = MutableLiveData("")
+    val clipboardMessage: MutableLiveData<String> = MutableLiveData("")
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -136,6 +150,46 @@ class VaultViewModel(private val navController: NavController) : ViewModel() {
                 navController.popBackStack()
             } else {
                 toastMessage.postValue("There was an error updating the item in firebase!")
+            }
+        }
+    }
+
+    /**
+     * Copies the username to the clipboard.
+     * Clipboard is cleared after [CLIPBOARD_TIMEOUT] ms
+     */
+    fun copyUsername(username: String) {
+        clipboardManager?.let {
+            it.setPrimaryClip(ClipData.newPlainText("Username", username))
+            clipboardMessage.value = "Username copied to clipboard"
+
+            viewModelScope.launch(Dispatchers.IO) {
+                delay(CLIPBOARD_TIMEOUT)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    clipboardManager.clearPrimaryClip()
+                } else {
+                    clipboardManager.setPrimaryClip(ClipData.newPlainText("", ""))
+                }
+            }
+        }
+    }
+
+    /**
+     * Copies the password to the clipboard.
+     * Clipboard is cleared after [CLIPBOARD_TIMEOUT] ms
+     */
+    fun copyPassword(password: String) {
+        clipboardManager?.let {
+            it.setPrimaryClip(ClipData.newPlainText("Password", password))
+            clipboardMessage.value = "Password copied to clipboard"
+
+            viewModelScope.launch(Dispatchers.IO) {
+                delay(CLIPBOARD_TIMEOUT)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    clipboardManager.clearPrimaryClip()
+                } else {
+                    clipboardManager.setPrimaryClip(ClipData.newPlainText("", ""))
+                }
             }
         }
     }

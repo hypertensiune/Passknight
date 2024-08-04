@@ -1,5 +1,6 @@
 package com.example.passknight.fragments
 
+import android.content.ClipboardManager
 import android.icu.util.VersionInfo
 import android.os.Build
 import android.os.Bundle
@@ -8,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
@@ -46,7 +48,7 @@ class VaultView : Fragment() {
         // Use custom factory to create the VaultViewModel with the required parameters
         val factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return VaultViewModel(container!!.findNavController()) as T
+                return VaultViewModel(container!!.findNavController(), ContextCompat.getSystemService(requireContext(), ClipboardManager::class.java)) as T
             }
         }
 
