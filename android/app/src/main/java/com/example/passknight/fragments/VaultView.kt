@@ -39,8 +39,12 @@ class VaultView : Fragment() {
         // By clearing it here a new problem is created. After navigating to an item form and
         // coming back (by manually navigating back or by creating a new item) this fragment along
         // with the view model will be created again (along with it the vault has to be refetched
-        // from firebase
-        requireActivity().viewModelStore.clear()
+        // from firebase.
+        //
+        // Moved it down to popupMenu itemClickListener to handle the vault lock case
+        // and the VaultDelete fragment and view model will now handle the clearing when deleting
+        // a vault
+        //requireActivity().viewModelStore.clear()
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_vault_view, container, false)
 
@@ -84,6 +88,7 @@ class VaultView : Fragment() {
         popupMenu.setOnMenuItemClickListener {
             if(it.itemId == R.id.menu_lock) {
                 viewModel.lockVault()
+                requireActivity().viewModelStore.clear()
             } else if(it.itemId == R.id.menu_delete) {
                 viewModel.deleteVault()
             }

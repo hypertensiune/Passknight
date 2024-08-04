@@ -44,6 +44,12 @@ class VaultDelete : Fragment() {
             }
         }
 
+        // Clear the viewModelStore so a new view model can be created
+        // For more info see [VaultView::onCreateView]
+        viewModel.clearFlag.observe(viewLifecycleOwner) {
+            requireActivity().viewModelStore.clear()
+        }
+
         return binding.root
     }
 }

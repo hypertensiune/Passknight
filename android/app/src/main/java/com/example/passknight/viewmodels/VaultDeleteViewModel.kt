@@ -35,6 +35,7 @@ class VaultDeleteViewModel(
 
     val loadingScreen: MutableLiveData<Boolean> = MutableLiveData(false)
     val toastMessage: MutableLiveData<String> = MutableLiveData("")
+    val clearFlag: MutableLiveData<Boolean> = MutableLiveData(false)
 
     /**
      * Try to delete the [vault]
@@ -61,6 +62,9 @@ class VaultDeleteViewModel(
                     if(!res) {
                         toastMessage.postValue("There was an error deleting this vault!")
                     }
+
+                    // Notify the fragment to clear the view model from the viewModelStoreOwner
+                    clearFlag.postValue(true)
 
                     // Don't allow back navigation from the vault view
                     // https://stackoverflow.com/questions/50514758/how-to-clear-navigation-stack-after-navigating-to-another-fragment-in-android
