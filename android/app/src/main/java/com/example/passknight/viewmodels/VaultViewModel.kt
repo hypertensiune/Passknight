@@ -1,6 +1,7 @@
 package com.example.passknight.viewmodels
 
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -22,7 +23,7 @@ class VaultViewModel(private val navController: NavController) : ViewModel() {
         const val ITEM_NOTE = 1
     }
 
-    val vault: MutableLiveData<Vault> = MutableLiveData(Vault("android", null))
+    val vault: MutableLiveData<Vault> = MutableLiveData(Vault(null, null))
 
     var passwordItem = PasswordItem.empty()
     private var originalPasswordItem: PasswordItem? = null
@@ -31,14 +32,15 @@ class VaultViewModel(private val navController: NavController) : ViewModel() {
 
     var itemEditing = false
 
-    val loadingScreen: MutableLiveData<Boolean> = MutableLiveData(false)
-    val loadingMessage: MutableLiveData<String> = MutableLiveData("")
+    val formScreen: MutableLiveData<Boolean> = MutableLiveData(false)
+    val formMessage: MutableLiveData<String> = MutableLiveData("")
+
     val toastMessage: MutableLiveData<String> = MutableLiveData("")
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            val data = Firestore.getData("android")
-            vault.postValue(Vault("vaultName", data))
+            val vaultData = Firestore.getVault()
+            vault.postValue(Vault(vaultData?.first, vaultData?.second))
         }
     }
 
@@ -90,12 +92,12 @@ class VaultViewModel(private val navController: NavController) : ViewModel() {
 
     fun addNewItem(itemFlag: Int) {
         // enable the progress bar while waiting for the result
-        loadingScreen.value = true
-        loadingMessage.value = "Adding new item.."
+        formScreen.value = true
+        formMessage.value = "Adding new item.."
 
         viewModelScope.launch(Dispatchers.Main) {
             val result = Firestore.addItemToVault(getItem(itemFlag))
-            loadingScreen.postValue(false)
+            formScreen.postValue(false)
 
             if(result) {
                 // If firebase successfully added the new item add it in the vault as well to display
@@ -122,12 +124,12 @@ class VaultViewModel(private val navController: NavController) : ViewModel() {
             return
         }
 
-        loadingScreen.value = true
-        loadingMessage.value = "Editing item.."
+        formScreen.value = true
+        formMessage.value = "Editing item.."
 
         viewModelScope.launch(Dispatchers.Main) {
             val result = Firestore.editItemInVault(original, item)
-            loadingScreen.postValue(false)
+            formScreen.postValue(false)
 
             if(result) {
                 vault.value?.editItem(original, item)
@@ -139,7 +141,7 @@ class VaultViewModel(private val navController: NavController) : ViewModel() {
     }
 
     fun deleteVault() {
-
+        navController.navigate(R.id.vault_view_to_vault_delete, bundleOf("vault" to vault.value?.name))
     }
 
     fun lockVault() {

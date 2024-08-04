@@ -50,6 +50,9 @@
             android:id="@+id/vault_view_to_note_form"
             app:destination="@id/note_form"/>
         <action
+            android:id="@+id/vault_view_to_vault_delete"
+            app:destination="@+id/vault_delete"/>
+        <action
             android:id="@+id/vault_view_to_vault_list"
             app:destination="@+id/vault_list"/>
 
@@ -64,5 +67,15 @@
         android:id="@+id/note_form"
         android:name="com.example.passknight.fragments.NoteItemForm"
         tools:layout="@layout/fragment_note_item_form"/>
+
+    <fragment
+        android:id="@+id/vault_delete"
+        android:name="com.example.passknight.fragments.VaultDelete"
+        tools:layout="@layout/fragment_vault_delete">
+        <action
+            android:id="@+id/vault_delete_to_vault_list"
+            app:destination="@+id/vault_list"/>
+
+    </fragment>
 
 </navigation>

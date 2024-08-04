@@ -7,6 +7,7 @@ import com.example.passknight.models.PasswordItem
 import com.example.passknight.models.Vault
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseError
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FieldValue
@@ -35,16 +36,21 @@ object Firestore {
     /**
      * @return A list of the all the vaults in the firestore database
      */
-    suspend fun getVaults(): List<String>? {
+    suspend fun getVaultNames(): List<String>? {
         val res = Firebase.firestore.collection("vaults").document("ids").get().await()
         return res.data?.keys?.toList()
     }
 
-    suspend fun getData(vault: String): MutableMap<String, Any>? {
+    /**
+     * Gets the currently unlocked vault data content
+     *
+     * @return A pair containing the name of the vault and its content
+     */
+    suspend fun getVault(): Pair<String, MutableMap<String, Any>?>? {
         try {
             val res = Firebase.firestore.collection("vaults").document(currentUnlockedVaultID).get().await()
             Log.d("Passknight", "DOC: ${res.data}")
-            return res.data
+            return Pair(currentUnlockedVaultName, res.data)
         } catch (e: FirebaseException) {
             e.printStackTrace()
             return null
@@ -121,6 +127,27 @@ object Firestore {
                 Firebase.firestore.collection("vaults").document(currentUnlockedVaultID).update("notes", FieldValue.arrayUnion(newItem)).await()
                 Firebase.firestore.collection("vaults").document(currentUnlockedVaultID).update("notes", FieldValue.arrayRemove(oldItem)).await()
             }
+            return true
+        } catch (e: FirebaseException) {
+            e.printStackTrace()
+            return false
+        }
+    }
+
+    suspend fun deleteVault(): Boolean {
+        // Return if there is no user signed in
+        if(Firebase.auth.currentUser == null) {
+            return false
+        }
+
+        try {
+            Firebase.firestore.collection("vaults").document("ids").update(currentUnlockedVaultName, FieldValue.delete()).await()
+            Firebase.firestore.collection("vaults").document(currentUnlockedVaultID).delete()
+            Firebase.auth.currentUser?.delete()
+
+            currentUnlockedVaultName = ""
+            currentUnlockedVaultID = ""
+
             return true
         } catch (e: FirebaseException) {
             e.printStackTrace()
