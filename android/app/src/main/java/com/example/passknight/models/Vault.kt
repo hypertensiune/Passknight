@@ -54,7 +54,7 @@ data class NoteItem(
 }
 
 class Vault (
-    private val name: String,
+    val name: String?,
     data: Map<String, Any>?
 ) {
     var passwords: MutableLiveData<MutableList<PasswordItem>>

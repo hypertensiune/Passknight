@@ -29,7 +29,7 @@ class VaultListViewModel(private val navController: NavController): ViewModel() 
 
     // https://stackoverflow.com/questions/47941537/notify-observer-when-item-is-added-to-list-of-livedata
     private suspend fun getVaults() {
-        vaults.postValue(Firestore.getVaults())
+        vaults.postValue(Firestore.getVaultNames())
         loadingScreen.postValue(false)
     }
 
