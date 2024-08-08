@@ -61,6 +61,8 @@ class PkAutofillService : AutofillService() {
         // Start a new activity to unlock a vault and choose a password item to fill
         val intent = Intent(this, MainActivity::class.java).apply {
             putExtra("AutofillService", true)
+            putExtra("usernameAutofillId", usernameAutofillId)
+            putExtra("passwordAutofillId", passwordAutofillId)
         }
         val intentSender = PendingIntent.getActivity(this, 1001, intent, PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE).intentSender
 
@@ -84,7 +86,7 @@ class PkAutofillService : AutofillService() {
         val dataset = Dataset.Builder().apply {
             usernameAutofillId?.let { setValue(usernameAutofillId!!, AutofillValue.forText("Username"), presentation, inlinePresentation) }
             passwordAutofillId?.let { setValue(passwordAutofillId!!, AutofillValue.forText("1234"), presentation, inlinePresentation) }
-            setAuthentication(intentSender)
+            //setAuthentication(intentSender)
         }.build()
 
         fillResponse.addDataset(dataset)
