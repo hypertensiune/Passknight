@@ -3,7 +3,9 @@ package com.example.passknight
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.service.autofill.Dataset
 import android.util.Log
+import android.view.autofill.AutofillManager.EXTRA_AUTHENTICATION_RESULT
 import androidx.biometric.BiometricManager.Authenticators
 import com.example.passknight.services.BiometricsProvider
 import com.example.passknight.services.Firestore
@@ -27,6 +29,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         findViewById<MaterialButton>(R.id.unlock_btn).setOnClickListener {
+//            if(intent.getBooleanExtra("AutofillService", false)) {
+//                val replyIntent = Intent().apply {
+//
+//                }
+//            }
             biometricsProvider.prompt { onBiometricSuccess() }
             startActivity(Intent(this, AppActivity::class.java))
         }
