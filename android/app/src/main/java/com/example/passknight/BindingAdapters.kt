@@ -8,6 +8,9 @@ import android.util.Log
 import android.widget.ImageView
 import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
+import androidx.databinding.InverseBindingAdapter
+import androidx.databinding.InverseBindingListener
+import com.google.android.material.slider.Slider
 import com.google.android.material.textfield.TextInputLayout
 import java.lang.Exception
 import java.net.URL
@@ -54,5 +57,17 @@ fun setWebsiteIcon(view: ImageView, website: String?) {
                 }
             }
         }
+    }
+}
+
+// https://stackoverflow.com/questions/62026687/how-to-create-binding-adapter-for-material-slider-view/62118131#62118131
+// https://stackoverflow.com/a/62118131
+@InverseBindingAdapter(attribute = "android:value")
+fun getSliderValue(slider: Slider) = slider.value
+
+@BindingAdapter("android:valueAttrChanged")
+fun setSliderListeners(slider: Slider, attrChange: InverseBindingListener) {
+    slider.addOnChangeListener { _, _, _ ->
+        attrChange.onChange()
     }
 }

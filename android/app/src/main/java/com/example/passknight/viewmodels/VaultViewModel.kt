@@ -16,6 +16,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.passknight.R
 import com.example.passknight.fragments.VaultViewDirections
+import com.example.passknight.models.Generator
 import com.example.passknight.models.Item
 import com.example.passknight.models.NoteItem
 import com.example.passknight.models.PasswordItem
@@ -50,6 +51,8 @@ class VaultViewModel(
 
     val toastMessage: MutableLiveData<String> = MutableLiveData("")
     val clipboardMessage: MutableLiveData<String> = MutableLiveData("")
+
+    val generator = Generator()
 
     init {
         viewModelScope.launch(Dispatchers.IO) {

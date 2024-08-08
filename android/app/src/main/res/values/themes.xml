@@ -6,6 +6,7 @@
         <item name="android:statusBarColor">@color/BackgroundPrimary</item>
 
         <item name="popupMenuStyle">@style/PopupMenu</item>
+        <item name="sliderStyle">@style/Widget.Material3.Slider.Legacy</item>
     </style>
 
     <style name="Theme.Passknight" parent="Base.Theme.Passknight" />
