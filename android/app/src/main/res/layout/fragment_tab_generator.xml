@@ -21,39 +21,25 @@
             android:layout_marginHorizontal="20dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:stepSize="1"
             android:valueFrom="5"
             android:valueTo="128"
-            android:value="@={viewModel.generator.settings.length}"
-            android:stepSize="1"
+            android:value="@={viewModel.generator.length}"
             app:layout_constraintTop_toTopOf="parent"
             tools:layout_editor_absoluteX="0dp" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textInputLayout3"
-            style="?attr/textInputFilledStyle"
+        <TextView
+            android:id="@+id/passwordTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            app:boxStrokeColor="@color/Primary"
-            app:cursorColor="@color/Primary"
-            app:hintTextColor="@color/Primary"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_margin="20dp"
+            android:background="@color/PasswordBackground"
+            android:fontFamily="@font/fira_code"
+            android:lines="5"
+            android:padding="20dp"
+            app:generatedPassword="@{viewModel.generator.generatedPassword}"
             app:layout_constraintTop_toBottomOf="@+id/inputSlider"
-            app:layout_constraintVertical_bias="0.05"
-            tools:layout_editor_absoluteX="20dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/PasswordBackground"
-                android:inputType="textMultiLine"
-                android:maxLines="5"
-                android:minLines="3"
-                android:textColor="@color/white"
-                app:endIconTint="@color/white" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
+            tools:layout_editor_absoluteX="20dp" />
 
         <CheckBox
             android:id="@+id/checkBox"
@@ -61,11 +47,11 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:text="abc"
-            android:checked="@={viewModel.generator.settings.lowercase}"
+            android:checked="@={viewModel.generator.lowercase}"
             android:textColor="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textInputLayout3"
+            app:layout_constraintTop_toBottomOf="@+id/passwordTextView"
             app:layout_constraintVertical_bias="0.042" />
 
         <CheckBox
@@ -74,11 +60,11 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="40dp"
             android:text="ABC"
-            android:checked="@={viewModel.generator.settings.uppercase}"
+            android:checked="true"
             android:textColor="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/checkBox"
-            app:layout_constraintTop_toBottomOf="@+id/textInputLayout3"
+            app:layout_constraintTop_toBottomOf="@+id/passwordTextView"
             app:layout_constraintVertical_bias="0.042" />
 
         <CheckBox
@@ -87,13 +73,13 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="40dp"
             android:text="123"
-            android:checked="@={viewModel.generator.settings.numbers}"
+            android:checked="true"
             android:textColor="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/checkBox4"
             app:layout_constraintHorizontal_bias="0.227"
             app:layout_constraintStart_toEndOf="@+id/checkBox2"
-            app:layout_constraintTop_toBottomOf="@+id/textInputLayout3"
+            app:layout_constraintTop_toBottomOf="@+id/passwordTextView"
             app:layout_constraintVertical_bias="0.042" />
 
         <CheckBox
@@ -102,11 +88,11 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"
             android:text="#$@"
-            android:checked="@={viewModel.generator.settings.symbols}"
+            android:checked="true"
             android:textColor="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textInputLayout3"
+            app:layout_constraintTop_toBottomOf="@+id/passwordTextView"
             app:layout_constraintVertical_bias="0.042" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
