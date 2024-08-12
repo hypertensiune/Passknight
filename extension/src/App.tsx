@@ -5,7 +5,6 @@ import { MantineProvider } from '@mantine/core';
 import '@mantine/core/styles.css'
 
 import { subscribeForVaultsInfo } from '@lib/firebase';
-import useCrypto from '@hooks/useCrypto';
 
 import Home from './pages/Home'
 import Vault from './pages/Vault';
@@ -13,16 +12,17 @@ import Vault from './pages/Vault';
 import logo from '@assets/logo.svg';
 
 import './App.scss'
+import { CryptoProvider } from '@lib/crypto';
 
 function App() {
   const navigate = useNavigate();
 
   const [vaults, setVaults] = useState([]);
-  
+
   useEffect(() => {
     subscribeForVaultsInfo((data: any) => {
       if (data[1]) {
-        useCrypto(undefined);
+        CryptoProvider.loadProviderPersistance();
         navigate(`/v/${data[2]}`);
       } else {
         setVaults(data[0])

@@ -3,13 +3,16 @@ import { NavigateFunction, useNavigate } from "react-router-dom";
 
 import { Button, Drawer, PasswordInput } from "@mantine/core";
 
-import { unlockVault } from "@lib/firebase";
-import useCrypto from "@hooks/useCrypto";
+import { unlockVault, getVaultPsk } from "@lib/firebase";
+import { CryptoProvider } from "@lib/crypto";
 
 async function unlockHandler(vault: string, password: string, navigate: NavigateFunction, error: () => void) {
-  const success = await unlockVault(vault, password);
+  const masterPasswordHash = await CryptoProvider.getMasterPasswordHashString(`${vault}@passknight.vault`, password);
+  
+  const success = await unlockVault(vault, masterPasswordHash);
   if (success) {
-    useCrypto(password);
+    const psk = await getVaultPsk();
+    await CryptoProvider.loadProviderPsk(`${vault}@passknight.vault`, password, psk);
     navigate(`/v/${vault}`);
   }
   else {

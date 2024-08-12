@@ -4,9 +4,9 @@ import { Button, Drawer, PasswordInput, TextInput, Textarea } from "@mantine/cor
 import { useForm } from "@mantine/form";
 
 import { deleteItemFromVault, editItemInVault } from "@lib/firebase";
-import useCrypto from "@hooks/useCrypto";
 import ConfirmDelete from "./ConfirmDelete";
 import { useDisclosure } from "@mantine/hooks";
+import { CryptoProvider } from "@lib/crypto";
 
 async function submitChange(oldItem: PasswordItem | NoteItem, newItem: PasswordItem | NoteItem, changeItem: (item: PasswordItem | NoteItem) => void) {
   const res = await editItemInVault(oldItem, newItem);
@@ -26,7 +26,7 @@ export default function EditForm({ opened, close, item, changeItem, deleteItem }
 
   const isPassword = 'password' in item;
 
-  const crypto = useCrypto(null);
+  const crypto = CryptoProvider.getProvider()!!;
 
   const passForm = useForm({
     initialValues: { name: item.name, website: (item as PasswordItem).website, username: (item as PasswordItem).username, password: '' }

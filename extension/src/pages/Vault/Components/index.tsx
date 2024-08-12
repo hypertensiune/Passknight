@@ -1,18 +1,17 @@
 import { Tooltip } from '@mantine/core';
 
-import useCrypto from '../../../hooks/useCrypto';
-
 import AddForm from './AddForm';
 import EditForm from './EditForm';
 
 import './index.scss'
 import { clipboardDeleteCommand } from '@lib/extension';
+import { CryptoProvider } from '@lib/crypto';
 
 export { AddForm, EditForm }
 
 async function copy(text: string, decrypt: boolean) {
   if (decrypt) {
-    const cryptoObject = useCrypto(null);
+    const cryptoObject = CryptoProvider.getProvider()!!;
     text = await cryptoObject.decrypt(text) || "";
   }
 

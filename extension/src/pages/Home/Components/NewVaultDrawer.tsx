@@ -2,16 +2,23 @@ import { Button, Drawer, PasswordInput, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 
 import { createVault } from "@lib/firebase";
-import useCrypto from "@hooks/useCrypto";
+import { CryptoProvider } from "@lib/crypto";
+import { NavigateFunction, useNavigate } from "react-router-dom";
 
-function submitHandler(data: { name: string, password: string, confirm: string }) {
-  createVault(data.name, data.password, () => {
-    useCrypto(data.password);
-    window.location.reload();
-  });
+async function submitHandler(data: { name: string, password: string, confirm: string }, navigate: NavigateFunction) {
+
+  const keys = await CryptoProvider.createProvider(`${data.name}@passknight.vault`, data.password)
+  console.log(keys);
+  const result = await createVault(data.name, keys.masterPasswordHash, keys.protectedSymmetricKey)
+  
+  if(result) {
+    navigate(`/v/${data.name}`);
+  }
 }
 
 export default function NewVaultDrawer({ opened, close, vaults }: { opened: boolean, close: () => void, vaults: string[] }) {
+
+  const navigate = useNavigate();
 
   const form = useForm({
     initialValues: { password: '', confirm: '', name: '' },
@@ -25,7 +32,7 @@ export default function NewVaultDrawer({ opened, close, vaults }: { opened: bool
 
   return (
     <Drawer opened={opened} onClose={close} title="" position='bottom' size="100%">
-      <form onSubmit={form.onSubmit(submitHandler)}>
+      <form onSubmit={form.onSubmit(data => submitHandler(data, navigate))}>
         <h2 style={{ textAlign: 'center' }}>Vault setup</h2>
         <div className="form">
           <section>
