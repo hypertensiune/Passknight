@@ -1,16 +1,16 @@
-interface PasswordItem {
+type PasswordItem = {
   name: string,
   website: string,
   username: string,
   password: string,
 }
 
-interface NoteItem {
+type NoteItem = {
   name: string,
   content: string
 }
 
-interface VaultContent {
+type VaultContent = {
   passwords: PasswordItem[],
   notes: NoteItem[],
   history: string[]

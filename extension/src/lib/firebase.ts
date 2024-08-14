@@ -1,14 +1,38 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, setDoc, doc, getDoc, updateDoc, arrayRemove, deleteDoc, deleteField, arrayUnion } from "firebase/firestore";
-import { User, UserCredential, browserSessionPersistence, createUserWithEmailAndPassword, deleteUser, getAuth, onAuthStateChanged, setPersistence, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import {
+  getFirestore,
+  setDoc,
+  doc,
+  getDoc,
+  updateDoc,
+  deleteDoc,
+  deleteField,
+  getDocs,
+  query,
+  collection
+} from "firebase/firestore";
+
+import {
+  User,
+  UserCredential,
+  browserSessionPersistence, 
+  createUserWithEmailAndPassword, 
+  deleteUser, getAuth, 
+  onAuthStateChanged, 
+  setPersistence, 
+  signInWithEmailAndPassword, 
+  signOut
+} from 'firebase/auth';
 
 import { clearPersistence, loadPersistence, savePersistence } from "./extension";
+
+import * as Converters from "./itemConverters.js";
 
 import firebaseConfig from "./firebaseConfig.js";
 import { CryptoProvider } from "./crypto.js";
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore();  
+const db = getFirestore();
 const auth = getAuth(app);
 
 let vaultsInfo: Map<string, string> = new Map();
@@ -30,19 +54,19 @@ declare global {
 (async () => {
   await loadPersistence(`firebase:authUser:${firebaseConfig.apiKey}:[DEFAULT]`);
 
-  onAuthStateChanged(auth, async (user) => {  
+  onAuthStateChanged(auth, async (user) => {
     // get all the names of the available vaults
     const res = await getDoc(doc(db, "vaults", "ids"));
     const resObj = res.data() as Object;
 
     window.UID = user?.uid || "";
-    
+
     vaultsInfo = new Map(Object.entries(resObj));
-  
+
     const data = Object.keys(resObj);
-  
+
     data.sort();
-  
+
     let options: any[] = [false];
 
     // if we are already logged in and there is no unlocked vault
@@ -67,21 +91,28 @@ export function isVaultUnlocked(): boolean {
 
 export async function createVault(name: string, password: string, symmetricKey: string): Promise<boolean> {
   const auth = getAuth(app);
-    
+
   try {
     const user = await createUserWithEmailAndPassword(auth, `${name}@passknight.vault`, password);
-      
+
+    // await setDoc(doc(db, "vaults", "ids"), { [name.toLowerCase()]: user.user.uid }, { merge: true });
+    // await setDoc(doc(db, "vaults", user.user.uid), { "psk": symmetricKey, "passwords": [], "notes": [], "history": [] });
+
     await setDoc(doc(db, "vaults", "ids"), { [name.toLowerCase()]: user.user.uid }, { merge: true });
-    await setDoc(doc(db, "vaults", user.user.uid), { "psk": symmetricKey, "passwords": [], "notes": [], "history": [] });
-  
+
+    await setDoc(doc(db, user.user.uid, "psk"), { "psk": symmetricKey });
+    await setDoc(doc(db, user.user.uid, "passwords"), {});
+    await setDoc(doc(db, user.user.uid, "notes"), {});
+
     currentUser = user.user;
     unlockedVaultID = user.user.uid;
+
     const data = window.sessionStorage.getItem(`firebase:authUser:${firebaseConfig.apiKey}:[DEFAULT]`);
     savePersistence(data);
 
     return true
 
-  } catch(exception) {
+  } catch (exception) {
     return false
   }
 }
@@ -90,10 +121,10 @@ export async function createVault(name: string, password: string, symmetricKey: 
  * Delete the currently unlocked vault.
  */
 export async function deleteVault(vault: string) {
-  if(currentUser != null) {
+  if (currentUser != null) {
     await deleteDoc(doc(db, "vaults", unlockedVaultID!));
     await deleteUser(currentUser);
-    await updateDoc(doc(db, "vaults", "ids"), {[vault]: deleteField()});
+    await updateDoc(doc(db, "vaults", "ids"), { [vault]: deleteField() });
   }
 }
 
@@ -112,7 +143,7 @@ export async function unlockVault(vault: string, password: string) {
       }
     });
 
-  if(success) {
+  if (success) {
     unlockedVaultID = vaultsInfo?.get(vault);
     const data = window.sessionStorage.getItem(`firebase:authUser:${firebaseConfig.apiKey}:[DEFAULT]`);
     savePersistence(data);
@@ -133,8 +164,26 @@ export async function getVaultContent(): Promise<VaultContent> {
   if (unlockedVaultID === undefined) {
     return { passwords: [], notes: [], history: [] };
   }
-  const data = (await getDoc(doc(db, "vaults", unlockedVaultID))).data();
-  return data as VaultContent;
+  // const data = (await getDoc(doc(db, "vaults", unlockedVaultID))).data();
+  // return data as VaultContent;
+
+  const data = await getDocs(query(collection(db, unlockedVaultID)));
+  
+  let passwords: PasswordItem[] = [], notes: NoteItem[] = [];
+  
+  data.forEach(doc => {
+    const docdata = doc.data();
+    switch(doc.id) {
+      case "passwords": 
+        passwords = Object.keys(docdata).map(key => Converters.FirebaseToPasswordItem(key, docdata[key]));
+        break;
+      case "notes": 
+        notes = Object.keys(docdata).map(key => Converters.FirebaseToNoteItem(key, docdata[key]));
+        break;
+    }
+  });
+  console.log(passwords);
+  return { passwords: passwords, notes: notes, history: [] };
 }
 
 export async function getVaultPsk(): Promise<string> {
@@ -142,7 +191,7 @@ export async function getVaultPsk(): Promise<string> {
     return "";
   }
 
-  const data = (await getDoc(doc(db, "vaults", unlockedVaultID))).data();
+  const data = (await getDoc(doc(db, unlockedVaultID, "psk"))).data();
   return data?.psk;
 }
 
@@ -160,13 +209,12 @@ export async function addItemToVault(item: PasswordItem | NoteItem): Promise<boo
   if (isPasswordItem(item)) {
     const encrypted = await crypto.encrypt(item.password);
     item.password = encrypted!;
-    await updateDoc(doc(db, "vaults", unlockedVaultID), { passwords: arrayUnion(item) });
+    await updateDoc(doc(db, unlockedVaultID, "passwords"), Converters.PasswordItemToFirebase(item));
   }
   else {
     const encrypted = await crypto.encrypt(item.content);
     item.content = encrypted!;
-
-    await updateDoc(doc(db, "vaults", unlockedVaultID), { notes: arrayUnion(item) });
+    await updateDoc(doc(db, "vaults", unlockedVaultID), Converters.NoteItemToFirebase(item));
   }
 
   return true;
@@ -177,23 +225,17 @@ export async function editItemInVault(oldItem: PasswordItem | NoteItem, newItem:
     return false;
   }
 
-  const crypto = CryptoProvider.getProvider()!!;
-
   if (isPasswordItem(newItem) && isPasswordItem(oldItem)) {
-    await updateDoc(doc(db, "vaults", unlockedVaultID), { passwords: arrayRemove(oldItem) });
-
-    const encrypted = await crypto.encrypt(newItem.password);
-    newItem.password = encrypted!;
-
-    await updateDoc(doc(db, "vaults", unlockedVaultID), { passwords: arrayUnion(newItem) });
+    addItemToVault(newItem);
+    if(newItem.name != oldItem.name) {
+      deleteItemFromVault(oldItem);
+    }
   }
   else if (!isPasswordItem(newItem) && !isPasswordItem(oldItem)) {
-    await updateDoc(doc(db, "vaults", unlockedVaultID), { notes: arrayRemove(oldItem) });
-
-    const encrypted = await crypto.encrypt(newItem.content);
-    newItem.content = encrypted!;
-
-    await updateDoc(doc(db, "vaults", unlockedVaultID), { notes: arrayUnion(newItem) });
+    addItemToVault(newItem);
+    if(newItem.name != oldItem.name) {
+      deleteItemFromVault(oldItem);
+    }
   }
 
   return true;
@@ -205,10 +247,10 @@ export async function deleteItemFromVault(item: PasswordItem | NoteItem): Promis
   }
 
   if (isPasswordItem(item)) {
-    await updateDoc(doc(db, "vaults", unlockedVaultID), { passwords: arrayRemove(item) });
+    await updateDoc(doc(db, unlockedVaultID, "passwords"), { [item.name]: deleteField() });
   }
   else {
-    await updateDoc(doc(db, "vaults", unlockedVaultID), { notes: arrayRemove(item) });
+    await updateDoc(doc(db, unlockedVaultID, "notes"), { [item.name]: deleteField() });
   }
 
   return true;
@@ -218,8 +260,11 @@ export async function setGeneratorHistory(passwords: string[]) {
   if (unlockedVaultID === undefined) {
     return false;
   }
+  if(passwords.length > 0) {
+    return false;
+  }
 
-  await updateDoc(doc(db, "vaults", unlockedVaultID), { history: passwords });
+  await updateDoc(doc(db, unlockedVaultID, "notes"), { history: passwords });
 
   return true;
 }
