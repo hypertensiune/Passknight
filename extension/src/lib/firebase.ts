@@ -29,7 +29,6 @@ import { clearPersistence, loadPersistence, savePersistence } from "./extension"
 import * as Converters from "./itemConverters.js";
 
 import firebaseConfig from "./firebaseConfig.js";
-import { CryptoProvider } from "./crypto.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore();
@@ -204,16 +203,10 @@ export async function addItemToVault(item: PasswordItem | NoteItem): Promise<boo
     return false;
   }
 
-  const crypto = CryptoProvider.getProvider()!!;
-
   if (isPasswordItem(item)) {
-    const encrypted = await crypto.encrypt(item.password);
-    item.password = encrypted!;
     await updateDoc(doc(db, unlockedVaultID, "passwords"), Converters.PasswordItemToFirebase(item));
   }
   else {
-    const encrypted = await crypto.encrypt(item.content);
-    item.content = encrypted!;
     await updateDoc(doc(db, "vaults", unlockedVaultID), Converters.NoteItemToFirebase(item));
   }
 

@@ -9,6 +9,16 @@ import { useDisclosure } from "@mantine/hooks";
 import { CryptoProvider } from "@lib/crypto";
 
 async function submitChange(oldItem: PasswordItem | NoteItem, newItem: PasswordItem | NoteItem, changeItem: (item: PasswordItem | NoteItem) => void) {
+  const crypto = CryptoProvider.getProvider()!!;
+  
+  if('password' in newItem) {
+    const enc = await crypto.encrypt((newItem as PasswordItem).password);
+    (newItem as PasswordItem).password = enc!;
+  } else {
+    const enc = await crypto.encrypt((newItem as NoteItem).content);
+    (newItem as NoteItem).content = enc!;
+  }
+  
   const res = await editItemInVault(oldItem, newItem);
   if (res) {
     changeItem(newItem);
