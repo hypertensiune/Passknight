@@ -1,14 +1,6 @@
-﻿using Passknight.Core;
-using Passknight.Models;
+﻿using Passknight.Models;
 using Passknight.Models.Items;
 using Passknight.Stores;
-using System;
-using System.Collections.Generic;
-using System.IO.Packaging;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Passknight.Services.Firebase
 {
@@ -66,7 +58,7 @@ namespace Passknight.Services.Firebase
             return new Vault(firebaseStore.CurrentUnlockedVaultName, content);
         }
 
-        public async Task<bool> CreateNewVault(string vault, string password)
+        public async Task<bool> CreateNewVault(string vault, string password, string psk)
         {
             var (response, ID) = await authentification.CreateUserWithEmailAndPassword(Email(vault), password);
             if(response)
@@ -77,8 +69,8 @@ namespace Passknight.Services.Firebase
                 var body = $$"""
                 {
                     "fields": {
-                        "salt": {
-                            "stringValue": "{{Cryptography.GenerateSalt()}}"
+                        "psk": {
+                            "stringValue": "{{psk}}"
                         },
                         "passwords": {
                             "arrayValue": {}

@@ -15,7 +15,7 @@ namespace Passknight.Models
         public List<PasswordItem> PasswordItems => _content.PasswordItems;
         public List<NoteItem> NoteItems => _content.NoteItems;
         public List<string> GeneratorHistory => _content.GeneratorHistory;
-        public string Salt => _content.Salt;
+        public string Psk => _content.Psk;
 
         public Vault(string name, VaultContent content)
         {

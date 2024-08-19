@@ -31,10 +31,10 @@ namespace Passknight.Models
         public Task<Vault> GetVault();
 
         /// <summary>
-        /// Creates a new vault with the given vault name and password
+        /// Creates a new vault with the given vault name and password and stores the symmetric key
         /// </summary>
         /// <returns>True on success, false otherwise.</returns>
-        public Task<bool> CreateNewVault(string vault, string password);
+        public Task<bool> CreateNewVault(string vault, string password, string psk);
 
         /// <summary>
         /// Delets a vault. <br/>

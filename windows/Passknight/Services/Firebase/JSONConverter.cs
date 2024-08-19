@@ -78,9 +78,9 @@ namespace Passknight.Services.Firebase
                 }
             }
 
-            string Salt = (string)json.SelectToken("fields.salt.stringValue")!;
+            string Psk = (string)json.SelectToken("fields.psk.stringValue")!;
 
-            return new VaultContent(PasswordList, NoteList, GeneratorHistory, Salt);
+            return new VaultContent(PasswordList, NoteList, GeneratorHistory, Psk);
         }
 
         /// <summary>

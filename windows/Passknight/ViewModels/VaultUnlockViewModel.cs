@@ -1,5 +1,6 @@
 ﻿using Passknight.Core;
 using Passknight.Models;
+using Passknight.Services.Cryptography;
 using Passknight.Services.Firebase;
 using System;
 using System.Collections.Generic;
@@ -46,7 +47,9 @@ namespace Passknight.ViewModels
 
         private async void OnUnlockVaultCommand(object? param)
         {
-            var response = await _database.UnlockVault(_vault, Password.Input);
+            var masterPasswordHash = Cryptoutils.GetMasterPasswordHash($"{_vault}@passknight.vault", Password.Input);
+
+            var response = await _database.UnlockVault(_vault, masterPasswordHash);
             if (response)
             {
                 _navigationService.NavigateTo<VaultViewModel>(_database, Password.Input);

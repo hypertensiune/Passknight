@@ -19,6 +19,7 @@ using Passknight.Services.Generator;
 using System.IO;
 using Newtonsoft.Json;
 using System.Reflection.PortableExecutable;
+using Passknight.Services.Cryptography;
 
 namespace Passknight.ViewModels
 {
@@ -30,7 +31,7 @@ namespace Passknight.ViewModels
         private readonly NavigationService _navigationService;
         private readonly IDatabase _database;
 
-        private readonly Cryptography _cryptography = new Cryptography();
+        private Cryptography _cryptography;
 
         public Vault Vault { get; private set; }
 
@@ -55,12 +56,12 @@ namespace Passknight.ViewModels
 
         private readonly object _valueLock = new object();
 
-        public VaultViewModel(Services.NavigationService navigationService, IDatabase database, string masterPassword)
+        public VaultViewModel(Services.NavigationService navigationService, IDatabase database, string password)
         {
             _navigationService = navigationService;
             _database = database;
 
-            GetVaultAsync().Then(() => _cryptography.Initialize(masterPassword, Vault.Salt));
+            _ = GetVaultAsync().Then(() => _cryptography = new Cryptography($"{Vault.Name}@passknight.vault", password, Vault.Psk));
 
             LockVaultCommand = new RelayCommand(Lock);
             DeleteVaultCommand = new RelayCommand(DeleteVaultCommandHandler);

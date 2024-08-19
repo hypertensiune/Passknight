@@ -7,6 +7,7 @@ using System.Windows.Input;
 using Passknight.Core;
 using Passknight.Models;
 using Passknight.Services;
+using Passknight.Services.Cryptography;
 using Passknight.Services.Firebase;
 using Passknight.Services.PKDB;
 
@@ -62,9 +63,11 @@ namespace Passknight.ViewModels
                 return;
             }
 
+            var (masterPasswordHash, protectedSymmetricKey) = Cryptoutils.Create($"{Name.Input}@passknight.vault", Password.Input);
+
             if(VaultType == 0)
             {
-                var response = await _firebase.CreateNewVault(Name.Input, Password.Input);
+                var response = await _firebase.CreateNewVault(Name.Input, masterPasswordHash, protectedSymmetricKey);
                 if (response)
                 {
                     _navigationService.NavigateTo<VaultViewModel>(_firebase, Password.Input);
@@ -72,7 +75,7 @@ namespace Passknight.ViewModels
             }
             else
             {
-                var response = await _pkdb.CreateNewVault(Name.Input, Password.Input);
+                var response = await _pkdb.CreateNewVault(Name.Input, masterPasswordHash, protectedSymmetricKey);
                 if (response)
                 {
                     _navigationService.NavigateTo<VaultViewModel>(_pkdb, Password.Input);

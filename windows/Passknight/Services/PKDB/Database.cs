@@ -87,7 +87,7 @@ namespace Passknight.Services.PKDB
             return Task.FromResult(false);
         }
 
-        public Task<bool> CreateNewVault(string name, string password)
+        public Task<bool> CreateNewVault(string name, string password, string psk)
         {
             if(_vaultPasswordHashes.ContainsKey(name))
             {
@@ -118,7 +118,7 @@ namespace Passknight.Services.PKDB
                 var file = File.Create($"pkdb/{name}.pkvault");
                 using (var writer = new BinaryWriter(file))
                 {
-                    writer.Write(Cryptography.GenerateSalt());
+                    writer.Write(psk);
                     writer.Write(0);
                     writer.Write(0);
                     writer.Write(0);
