@@ -1,6 +1,7 @@
 ﻿using Passknight.Models;
 using Passknight.Models.Items;
 using Passknight.Services;
+using Passknight.Services.Cryptography;
 using Passknight.Services.Firebase;
 using Passknight.ViewModels.FormViewModels;
 using System;

@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Net.Http.Json;
+using System.Web;
 
 namespace Passknight.Services.Firebase
 {
@@ -22,11 +23,11 @@ namespace Passknight.Services.Firebase
     { 
         private readonly HttpClient httpClient = new HttpClient();
 
-        private const string BASE_URI = "https://firestore.googleapis.com/v1/projects/passknight-cd291/databases/(default)/documents/vaults";
+        private const string BASE_URI = "https://firestore.googleapis.com/v1/projects/passknight-cd291/databases/(default)/documents";
 
-        public async Task<string> GetDoc(string doc, string? ID_TOKEN = null)
+        public async Task<string> GetDoc(string collection, string doc, string? ID_TOKEN = null)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{BASE_URI}/{doc}");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{BASE_URI}/{collection}/{doc}");
             if(ID_TOKEN is not null)
             {
                 request.Headers.Add("Authorization", "Bearer " + ID_TOKEN);
@@ -38,9 +39,9 @@ namespace Passknight.Services.Firebase
             return body;
         }
 
-        public async Task<string> SetDoc(string doc, string data, string ID_TOKEN)
+        public async Task<string> SetDoc(string collection, string doc, string data, string ID_TOKEN)
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, $"{BASE_URI}?documentId={doc}");
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{BASE_URI}/{collection}?documentId={doc}");
             request.Headers.Add("Authorization", "Bearer " + ID_TOKEN);
             request.Content = new StringContent(data);
 
@@ -50,9 +51,9 @@ namespace Passknight.Services.Firebase
             return body;
         }
 
-        public async Task<string> UpdateDoc(string doc, string field, string data, string ID_TOKEN)
+        public async Task<string> UpdateDoc(string collection, string doc, string field, string data, string ID_TOKEN)
         {
-            var request = new HttpRequestMessage(HttpMethod.Patch, $"{BASE_URI}/{doc}?updateMask.fieldPaths={field}");
+            var request = new HttpRequestMessage(HttpMethod.Patch, $"{BASE_URI}/{collection}/{doc}?updateMask.fieldPaths=`{field}`");
             request.Headers.Add("Authorization", "Bearer " + ID_TOKEN);
             request.Content = new StringContent(data);
 
@@ -62,9 +63,9 @@ namespace Passknight.Services.Firebase
             return body;
         }
 
-        public async Task<string> DeleteDoc(string doc, string ID_TOKEN)
+        public async Task<string> DeleteDoc(string collection, string doc, string ID_TOKEN)
         {
-            var request = new HttpRequestMessage(HttpMethod.Delete, $"{BASE_URI}/{doc}");
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"{BASE_URI}/{collection}/{doc}");
             request.Headers.Add("Authorization", "Bearer " + ID_TOKEN);
 
             var response = await httpClient.SendAsync(request);

@@ -2,6 +2,7 @@
 using Passknight.Models;
 using Passknight.Models.Items;
 using Passknight.Services;
+using Passknight.Services.Cryptography;
 using Passknight.Services.Firebase;
 using System;
 using System.Collections.Generic;
@@ -58,7 +59,7 @@ namespace Passknight.ViewModels.FormViewModels
                 Item.Encrypt(_cryptography.Encrypt);
                 _items.Add(Item);
 
-                var res = await _database.UpdateFieldInVault(_items);
+                var res = await _database.AddItemInVault(Item);
                 if (!res)
                 {
                     Msgbox.Show("Error", "Item couldn't be added");
@@ -78,7 +79,7 @@ namespace Passknight.ViewModels.FormViewModels
                 Item.Encrypt(_cryptography.Encrypt);
                 _items[index] = Item;
 
-                var res = await _database.UpdateFieldInVault(_items);
+                var res = await _database.EditItemInVault(_originalItem!, Item);
                 if (!res)
                 {
                     Msgbox.Show("Error", "Item couldn't be edited");
@@ -99,7 +100,7 @@ namespace Passknight.ViewModels.FormViewModels
         private async void Delete()
         {
             _items.Remove(_originalItem!);
-            var res = await _database.UpdateFieldInVault<T>(_items);
+            var res = await _database.DeleteItemFromVault<T>(_originalItem!);
             if (!res)
             {
                 Msgbox.Show("Error", "Item couldn't be deleted");

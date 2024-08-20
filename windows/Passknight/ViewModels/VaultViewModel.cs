@@ -154,7 +154,7 @@ namespace Passknight.ViewModels
                     {
                         Vault.GeneratorHistory.RemoveAt(0);    
                     }
-                    _database.UpdateFieldInVault(Vault.GeneratorHistory);
+                    _database.SetGeneratorHistory(Vault.GeneratorHistory);
                 }
             });
         }

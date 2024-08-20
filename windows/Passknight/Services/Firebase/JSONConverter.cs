@@ -32,20 +32,19 @@ namespace Passknight.Services.Firebase
             return vaults;
         }
 
-        public static VaultContent VaultContent(string jsonString)
+        public static VaultContent CreateVaultContent(string jsonPasswords, string jsonNotes, string jsonHistory, string jsonPsk)
         {
-            var json = JObject.Parse(jsonString);
+            var passwords = JObject.Parse(jsonPasswords).SelectToken("fields");
 
             List<PasswordItem> PasswordList = new List<PasswordItem>();
-            var passwords = json.SelectToken("fields.passwords.arrayValue.values");
             if (passwords != null)
             {
-                foreach (var item in passwords)
+                foreach (JProperty item in passwords)
                 {
-                    var fields = item.SelectToken("mapValue.fields")!;
+                    var fields = item.SelectToken("$..mapValue.fields")!;
                     PasswordList.Add(new PasswordItem()
                     {
-                        Name = (string)fields.SelectToken("name.stringValue")!,
+                        Name = item.Name,
                         Password = (string)fields.SelectToken("password.stringValue")!,
                         Username = (string)fields.SelectToken("username.stringValue")!,
                         Website = (string)fields.SelectToken("website.stringValue")!
@@ -53,13 +52,14 @@ namespace Passknight.Services.Firebase
                 }
             }
 
+            var notes = JObject.Parse(jsonNotes).SelectToken("fields");
+
             List<NoteItem> NoteList = new List<NoteItem>();
-            var notes = json.SelectToken("fields.notes.arrayValue.values");
             if (notes != null)
             {
                 foreach (var item in notes)
                 {
-                    var fields = item.SelectToken("mapValue.fields")!;
+                    var fields = item.SelectToken("$..mapValue.fields")!;
                     NoteList.Add(new NoteItem()
                     {
                         Name = (string)fields.SelectToken("name.stringValue")!,
@@ -68,43 +68,33 @@ namespace Passknight.Services.Firebase
                 }
             }
 
+            var history = JObject.Parse(jsonHistory).SelectToken("fields.history.arrayValue.values");
+
             List<string> GeneratorHistory = new List<string>();
-            var history = json.SelectToken("fields.history.arrayValue.values");
             if (history != null)
             {
                 foreach (var item in history)
                 {
-                    GeneratorHistory.Add((string)item["stringValue"]!);
+                    GeneratorHistory.Add((string)item.SelectToken("stringValue")!);
                 }
             }
 
-            string Psk = (string)json.SelectToken("fields.psk.stringValue")!;
+            string Psk = (string)JObject.Parse(jsonPsk).SelectToken("fields.psk.stringValue")!;
 
             return new VaultContent(PasswordList, NoteList, GeneratorHistory, Psk);
         }
 
         /// <summary>
-        /// Encode the list of <see cref="PasswordItem"/> in JSON representation expected by firebase update doc API.
+        /// Encode the list of <see cref=PasswordItem"/> in JSON representation expected by firebase update doc API.
         /// </summary>
-        public static string PasswordItems(List<PasswordItem> items)
+        public static string EncodePasswordItem(PasswordItem item)
         {
-            string res = """
-                {
-                    "fields": {
-                        "passwords": {
-                            "arrayValue": {
-                                "values": [
-                """;
-            
-            foreach (var item in items)
+            string res = $$"""
             {
-                res += $$"""
-                    {
+                "fields": {
+                    "{{item.Name}}": {
                         "mapValue": {
                             "fields": {
-                                "name": {
-                                    "stringValue": "{{item.Name}}"
-                                },
                                 "website": {
                                     "stringValue": "{{item.Website}}"
                                 },
@@ -116,17 +106,10 @@ namespace Passknight.Services.Firebase
                                 }
                             }
                         }
-                    },
-                    """;
-            }
-
-            res += """
-                                ]
-                            }
-                        }
                     }
                 }
-                """;
+            }
+            """;
 
             return res;
         }
@@ -134,41 +117,45 @@ namespace Passknight.Services.Firebase
         /// <summary>
         /// Encode the list of <see cref="NoteItem"/> in JSON representation expected by firebase update doc API.
         /// </summary>
-        public static string NoteItems(List<NoteItem> items)
+        public static string EncodeNoteItem(NoteItem item)
         {
-            string res = """
-                {
-                    "fields": {
-                        "notes": {
-                            "arrayValue": {
-                                "values": [
-                """;
-
-            foreach (var item in items)
+            string res = $$"""
             {
-                res += $$"""
-                    {
+                "fields": {
+                    "{{item.Name}}": {
                         "mapValue": {
                             "fields": {
-                                "name": {
-                                    "stringValue": "{{item.Name}}"
-                                },
                                 "content": {
                                     "stringValue": "{{item.Content}}"
                                 }
                             }
                         }
-                    },
-                    """;
+                    }
+                }
             }
+            """;
 
-            res += """
-                                ]
-                            }
+            return res;
+        }
+
+        public static string EncodeHistory(List<string> history)
+        {
+            var arr = history.Select(h => $"{{\"stringValue\": \"{h}\"}}").ToList();
+            var values = String.Join(", ", arr);
+
+            string res = $$"""
+            {
+                "fields": {
+                    "history": {
+                        "arrayValue": {
+                            "values": [
+                                {{values}}    
+                            ]
                         }
                     }
                 }
-                """;
+            }
+            """;
 
             return res;
         }

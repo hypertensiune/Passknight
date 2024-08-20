@@ -44,11 +44,25 @@ namespace Passknight.Models
         public Task<bool> DeleteVault();
 
         /// <summary>
-        /// Used to update the passwords fields in the currently unlocked vault. <br/>
+        /// Adds a new item in the vault. If an item with the same name is already in the database it is overwritten.
+        /// To edit an item use <see cref="EditItemInVault{T}(T, T)"/>. <br/>
         /// <typeparamref name="T"/> is <see cref="PasswordItem"/> => passwords field <br/>
         /// <typeparamref name="T"/> is <see cref="NoteItem"/> => notes field <br/>
-        /// <typeparamref name="T"/> is <see cref="string"/> => history field <br/>
         /// </summary>
-        public Task<bool> UpdateFieldInVault<T>(List<T> items);
+        public Task<bool> AddItemInVault<T>(T item) where T: notnull;
+
+        /// <summary>
+        /// <typeparamref name="T"/> is <see cref="PasswordItem"/> => passwords field <br/>
+        /// <typeparamref name="T"/> is <see cref="NoteItem"/> => notes field <br/>
+        /// </summary>
+        public Task<bool> EditItemInVault<T>(T oldItem, T newItem) where T : notnull;
+
+        /// <summary>
+        /// <typeparamref name="T"/> is <see cref="PasswordItem"/> => passwords field <br/>
+        /// <typeparamref name="T"/> is <see cref="NoteItem"/> => notes field <br/>
+        /// </summary>
+        public Task<bool> DeleteItemFromVault<T>(T item) where T : notnull;
+        
+        public Task<bool> SetGeneratorHistory(List<string> history);
     }
 }
