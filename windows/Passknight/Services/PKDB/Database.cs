@@ -66,6 +66,9 @@ namespace Passknight.Services.PKDB
                     }
                 }
 
+                reader.Close();
+                stream.Close();
+
                 return Task.FromResult(list);
 
             } catch(FileNotFoundException)
@@ -95,6 +98,14 @@ namespace Passknight.Services.PKDB
                 return Task.FromResult(false);
             }
 
+            // A PKDB vault is structured like this:
+            // The first bytes represent a string that is the protected symmetric key for that vault.
+            // An int32 follows that represents the number of password items in the vault and the actual
+            // items follow (The password item's properties are in this order: name, website, username, password).
+            // After the password items another int32 follows that represents the number of note items in the vault
+            // and the actual items follow (The note item's properties are in this order: name, content).
+            // Another int32 represents the number of generated passwords stored in history and those strings are next.
+            
             try
             {
                 var stream = new FileStream("pkdb/vaults", FileMode.Open, FileAccess.ReadWrite);
@@ -118,10 +129,10 @@ namespace Passknight.Services.PKDB
                 var file = File.Create($"pkdb/{name}.pkvault");
                 using (var writer = new BinaryWriter(file))
                 {
-                    writer.Write(psk);
-                    writer.Write(0);
-                    writer.Write(0);
-                    writer.Write(0);
+                    writer.Write(psk);  // the protected symmetric key
+                    writer.Write(0);    // the number of password items
+                    writer.Write(0);    // the number of note items
+                    writer.Write(0);    // the number of generated passwords in history
                     writer.Flush();
                     writer.Close();
                     file.Dispose();
@@ -150,7 +161,7 @@ namespace Passknight.Services.PKDB
             List<NoteItem> noteItems = new List<NoteItem>();
             List<string> history = new List<string>();
 
-            string salt = "";
+            string psk = "";
 
             try
             {
@@ -159,7 +170,7 @@ namespace Passknight.Services.PKDB
 
                 try
                 {
-                    salt = reader.ReadString();
+                    psk = reader.ReadString();
 
                     // Save the current position as the starting point for the password items
                     offsetData.passwordItems = stream.Position;
@@ -218,7 +229,7 @@ namespace Passknight.Services.PKDB
                 Msgbox.Show("Error!", "Missing vault!");
             }
 
-            VaultContent content = new VaultContent(passwordItems, noteItems, history, salt);
+            VaultContent content = new VaultContent(passwordItems, noteItems, history, psk);
 
             return Task.FromResult(new Vault(_unlockedVault, content));
         }
@@ -250,7 +261,7 @@ namespace Passknight.Services.PKDB
             }
         }
 
-        public Task<bool> UpdateFieldInVault<T>(List<T> items)
+        public Task<bool> AddItemInVault<T>(T item) where T : notnull
         {
             try
             {
@@ -264,64 +275,235 @@ namespace Passknight.Services.PKDB
                     stream.Seek(offsetData.noteItems, SeekOrigin.Begin);
                     var bytes = reader.ReadBytes((int)(stream.Length - stream.Position));
 
-                    // Start writing the new password items at their offset
-                    stream.Seek(offsetData.passwordItems, SeekOrigin.Begin);
-                    writer.Write(items.Count);
-                    foreach (var item in items)
-                    {
-                        writer.Write((item as PasswordItem).Name);
-                        writer.Write((item as PasswordItem).Website);
-                        writer.Write((item as PasswordItem).Username);
-                        writer.Write((item as PasswordItem).Password);
-                    }
+                    // Move to the end of the password items and add the new item there
+                    stream.Seek(offsetData.noteItems, SeekOrigin.Begin);
+                    writer.Write((item as PasswordItem)!.Name);
+                    writer.Write((item as PasswordItem)!.Website);
+                    writer.Write((item as PasswordItem)!.Username);
+                    writer.Write((item as PasswordItem)!.Password);
 
                     // The other offsets need to be updated to account for the change
                     long offset = stream.Position - offsetData.noteItems;
                     offsetData.noteItems += offset;
                     offsetData.history += offset;
 
+                    // Write the bytes that were after the password items and flush
                     writer.Write(bytes);
                     writer.Flush();
-                }
-                if (typeof(T) == typeof(NoteItem))
+
+                    // If everything was fine go back and update the number of password items
+                    stream.Seek(offsetData.passwordItems, SeekOrigin.Begin);
+                    var n = reader.ReadInt32();
+                    bytes = reader.ReadBytes((int)(stream.Length - stream.Position));
+
+                    stream.Seek(offsetData.passwordItems, SeekOrigin.Begin);
+                    writer.Write(n + 1);
+                    writer.Write(bytes);   
+
+                    writer.Flush();
+
+                } else
                 {
                     // Read the bytes that follow after the note items.
                     stream.Seek(offsetData.history, SeekOrigin.Begin);
                     var bytes = reader.ReadBytes((int)(stream.Length - stream.Position));
 
-                    // Start writing the new note items at their offset
-                    stream.Seek(offsetData.noteItems, SeekOrigin.Begin);
-                    writer.Write(items.Count);
-                    foreach (var item in items)
-                    {
-                        writer.Write((item as NoteItem).Name);
-                        writer.Write((item as NoteItem).Content);
-                    }
+                    // Move to the end of the note items and add the new item there
+                    stream.Seek(offsetData.history, SeekOrigin.Begin);
+                    writer.Write((item as NoteItem)!.Name);
+                    writer.Write((item as NoteItem)!.Content);
 
-                    // The other offset needs to be updated to account for the change
-                    long offset = stream.Position - offsetData.noteItems;
+                    // The other offsets need to be updated to account for the change
+                    long offset = stream.Position - offsetData.history;
                     offsetData.history += offset;
 
+                    // Write the bytes that were after the note items and flush
                     writer.Write(bytes);
                     writer.Flush();
+
+                    // If everything was fine go back and update the number of note items
+                    stream.Seek(offsetData.noteItems, SeekOrigin.Begin);
+                    var n = reader.ReadInt32();
+                    bytes = reader.ReadBytes((int)(stream.Length - stream.Position));
+
+                    stream.Seek(offsetData.noteItems, SeekOrigin.Begin);
+                    writer.Write(n + 1);
+                    writer.Write(bytes);
+
+                    writer.Flush();
                 }
-                if (typeof(T) == typeof(string))
+
+                writer.Close();
+                reader.Close();
+                stream.Close();
+
+                return Task.FromResult(true);
+            } catch
+            {
+                Msgbox.Show("Error", "There was a problem adding the item in vault!");
+                return Task.FromResult(false);
+            }
+        }
+
+        public async Task<bool> EditItemInVault<T>(T oldItem, T newItem) where T : notnull
+        {
+            bool res = await AddItemInVault(newItem);
+            bool res2 = await DeleteItemFromVault(oldItem);
+
+            return res && res2;
+        }
+
+        public Task<bool> DeleteItemFromVault<T>(T item) where T : notnull
+        {
+            try
+            {
+                var stream = new FileStream($"pkdb/{_unlockedVault}.pkvault", FileMode.Open, FileAccess.ReadWrite);
+                var writer = new BinaryWriter(stream);
+                var reader = new BinaryReader(stream);
+
+                long deletePosition = -1;
+
+                if (typeof(T) == typeof(PasswordItem))
                 {
-                    // Start writing the new history items at their offset
-                    stream.Seek(offsetData.history, SeekOrigin.Begin);
-                    writer.Write(items.Count);
-                    foreach (var item in items)
+                    // Read all the password items to find which item to delete
+                    stream.Seek(offsetData.passwordItems, SeekOrigin.Begin);
+
+                    var numberOfPasswordItems = reader.ReadInt32();
+                    for (int i = 0; i < numberOfPasswordItems; i++)
                     {
-                        writer.Write(item as string);
+                        var startPosition = stream.Position;
+                        var name = reader.ReadString();
+                        var website = reader.ReadString();
+                        var username = reader.ReadString();
+                        var password = reader.ReadString();
+
+                        var it = item as PasswordItem;
+                        
+                        if (it.Name == name && it.Website == website && it.Username == username && it.Password == password)
+                        {
+                            deletePosition = startPosition;
+                            break;
+                        }
+                    }
+
+                    if(deletePosition != -1)
+                    {
+                        // The other offsets need to be updated to account for the change
+                        long offset = stream.Position - deletePosition;
+                        offsetData.noteItems -= offset;
+                        offsetData.history -= offset;
+
+                        // Read the bytes that follow after this password item
+                        var bytes = reader.ReadBytes((int)(stream.Length - stream.Position));
+
+                        // Seek to the start of the this password item and write the bytes that were after
+                        // This is were the bytes are actually deleted by overlapping the bytes that
+                        // were after the item that we want to delete with the bytes starting where that same
+                        // item starts
+                        stream.Seek(deletePosition, SeekOrigin.Begin);
+                        writer.Write(bytes);
+                        writer.Flush();
+
+                        // Trim the length of the stream to avoid duplicated bytes
+                        stream.SetLength(stream.Position);
+
+                        //If everything was fine go back and update the number of password items
+                        stream.Seek(offsetData.passwordItems, SeekOrigin.Begin);
+                        var n = reader.ReadInt32();
+                        bytes = reader.ReadBytes((int)(stream.Length - stream.Position));
+
+                        stream.Seek(offsetData.passwordItems, SeekOrigin.Begin);
+                        writer.Write(n - 1);
+                        writer.Write(bytes);
+
+                        writer.Flush();
+                    }
+                }
+                else
+                {
+                    // Read all the note items to find which item to delete
+                    stream.Seek(offsetData.noteItems, SeekOrigin.Begin);
+
+                    var numberOfNoteItems = reader.ReadInt32();
+                    for (int i = 0; i < numberOfNoteItems; i++)
+                    {
+                        var startPosition = stream.Position;
+                        var name = reader.ReadString();
+                        var content = reader.ReadString();
+
+                        var it = item as NoteItem;
+
+                        if (it.Name == name && it.Content == content)
+                        {
+                            deletePosition = startPosition;
+                            break;
+                        }
+                    }
+
+                    if (deletePosition != -1)
+                    {
+                        // The other offsets need to be updated to account for the change
+                        long offset = stream.Position - deletePosition;
+                        offsetData.history -= offset;
+
+                        // Read the bytes that follow after this note item
+                        var bytes = reader.ReadBytes((int)(stream.Length - stream.Position));
+
+                        // Seek to the start of the this note item and write the bytes that were after
+                        // This is were the bytes are actually deleted by overlapping the bytes that
+                        // were after the item that we want to delete with the bytes starting where that same
+                        // item starts
+                        stream.Seek(deletePosition, SeekOrigin.Begin);
+                        writer.Write(bytes);
+                        writer.Flush();
+
+                        // Trim the length of the stream to avoid duplicated bytes
+                        stream.SetLength(stream.Position);
+
+                        //If everything was fine go back and update the number of note items
+                        stream.Seek(offsetData.noteItems, SeekOrigin.Begin);
+                        var n = reader.ReadInt32();
+                        bytes = reader.ReadBytes((int)(stream.Length - stream.Position));
+
+                        stream.Seek(offsetData.noteItems, SeekOrigin.Begin);
+                        writer.Write(n - 1);
+                        writer.Write(bytes);
+
+                        writer.Flush();
                     }
                 }
 
-                writer.Flush();
-                stream.Dispose();
+                writer.Close();
+                reader.Close();
                 stream.Close();
+
+                return Task.FromResult(true);
+            }
+            catch
+            {
+                Msgbox.Show("Error", "There was a problem deleting the item in vault!");
+                return Task.FromResult(false);
+            }
+        }
+
+        public Task<bool> SetGeneratorHistory(List<string> history)
+        {
+            try
+            {
+                var stream = new FileStream($"pkdb/{_unlockedVault}.pkvault", FileMode.Open, FileAccess.ReadWrite);
+                var writer = new BinaryWriter(stream);
+
+                // Start writing the new history items at their offset
+                stream.Seek(offsetData.history, SeekOrigin.Begin);
+                writer.Write(history.Count);
+                foreach (var item in history)
+                {
+                    writer.Write(item);
+                }
+
                 return Task.FromResult(true);
             } catch
-            { 
+            {
                 return Task.FromResult(false);
             }
         }
