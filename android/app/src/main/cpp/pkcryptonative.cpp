@@ -21,7 +21,7 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_example_passknight_services_Cry
     uint8_t* salt_bytes = (uint8_t*)env->GetByteArrayElements(salt, NULL);
     jsize salt_size = env->GetArrayLength(salt);
 
-    uint8_t derived_key[key_length];
+    uint8_t* derived_key = new uint8_t[key_length];
     PKCS5_PBKDF2_HMAC((const char*)key_bytes, key_size, salt_bytes, salt_size, (int)iterations, EVP_sha256(), (int)key_length, derived_key);
 
     jbyteArray result = env->NewByteArray((int)key_length);
@@ -29,6 +29,8 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_example_passknight_services_Cry
 
     env->ReleaseByteArrayElements(key, (jbyte*)key_bytes, JNI_ABORT);
     env->ReleaseByteArrayElements(salt, (jbyte*)salt_bytes, JNI_ABORT);
+
+    delete[] derived_key;
 
     return result;
 }
@@ -41,7 +43,7 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_example_passknight_services_Cry
     uint8_t* salt_bytes = (uint8_t*)env->GetByteArrayElements(salt, NULL);
     jsize salt_size = env->GetArrayLength(salt);
 
-    uint8_t out_key[key_length];
+    uint8_t* out_key = new uint8_t[key_length];
     HKDF(out_key, key_length, EVP_sha512(), ikm_bytes, ikm_size, salt_bytes, salt_size, NULL, 0);
 
     jbyteArray result = env->NewByteArray((int)key_length);
@@ -49,6 +51,8 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_example_passknight_services_Cry
 
     env->ReleaseByteArrayElements(ikm, (jbyte*)ikm_bytes, JNI_ABORT);
     env->ReleaseByteArrayElements(salt, (jbyte*)salt_bytes, JNI_ABORT);
+
+    delete[] out_key;
 
     return result;
 }
