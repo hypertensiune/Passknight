@@ -1,11 +1,14 @@
 package com.example.passknight.services
 
+import android.content.Context
 import android.util.Base64
+import android.util.Log
+import android.widget.Toast
 import java.security.SecureRandom
 
-class Cryptography(email: String, password: String, protectedSymmetricKey: String) {
+class Cryptography(private val context: Context, email: String, password: String, protectedSymmetricKey: String) {
 
-    private var symmetricKey: ByteArray
+    private var symmetricKey: ByteArray? = null
 
     class Utils {
 
@@ -102,7 +105,11 @@ class Cryptography(email: String, password: String, protectedSymmetricKey: Strin
         val symmetricKey = ByteArray(psk.size + 16)
         val size = Utils.aesdecrypt(stretchedMasterKey, psk, iv, symmetricKey)
 
-        this.symmetricKey = symmetricKey.sliceArray(0..<size)
+        if(size < 0) {
+            Log.e("Passknight", "Error during symmetric key decrpytion! $size")
+        } else {
+            this.symmetricKey = symmetricKey.sliceArray(0..<size)
+        }
     }
 
     /**
@@ -110,13 +117,24 @@ class Cryptography(email: String, password: String, protectedSymmetricKey: Strin
      * @return The encrypted string encoded as base64
      */
     fun encrypt(input: String): String {
+        if(symmetricKey == null) {
+            Log.e("Passknight", "Symmetric key null")
+            return ""
+        }
+
         val inputBytes = input.toByteArray()
 
         val iv = ByteArray(16)
         SecureRandom.getInstanceStrong().nextBytes(iv)
 
         val encrypted = ByteArray(inputBytes.size + 16)
-        val size = Utils.aesencrypt(symmetricKey, inputBytes, iv, encrypted)
+        val size = Utils.aesencrypt(symmetricKey!!, inputBytes, iv, encrypted)
+
+        if(size < 0) {
+            Log.e("Passknight", "Error during encryption! $size")
+            Toast.makeText(context, "Error during encryption! $size", Toast.LENGTH_LONG).show()
+            return ""
+        }
 
         return Base64.encodeToString(iv + encrypted.sliceArray(0..<size), Base64.NO_WRAP)
     }
@@ -126,13 +144,24 @@ class Cryptography(email: String, password: String, protectedSymmetricKey: Strin
      * @return UTF-8 decrypted string
      */
     fun decrypt(input: String): String {
+        if(symmetricKey == null) {
+            Log.e("Passknight", "Symmetric key null")
+            return ""
+        }
+
         val decoded = Base64.decode(input, Base64.NO_WRAP)
 
         val iv = decoded.slice(0..15).toByteArray()
         val bytes = decoded.slice(16..<decoded.size).toByteArray()
 
         val decrypted = ByteArray(bytes.size + 16)
-        val size = Utils.aesdecrypt(symmetricKey, bytes, iv, decrypted)
+        val size = Utils.aesdecrypt(symmetricKey!!, bytes, iv, decrypted)
+
+        if(size < 0) {
+            Log.e("Passknight", "Error during decryption! $size")
+            Toast.makeText(context, "Error during decryption! $size", Toast.LENGTH_LONG).show()
+            return ""
+        }
 
         return String(decrypted, 0, size, Charsets.UTF_8)
     }

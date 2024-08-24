@@ -71,17 +71,17 @@ extern "C" JNIEXPORT jint JNICALL Java_com_example_passknight_services_Cryptogra
         return -1;
 
     if(EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key_bytes, iv_bytes) != 1)
-        return -1;
+        return -2;
 
     uint8_t* encrypted = new uint8_t[input_size + BLOCK_SIZE];
     int len, encrypted_len;
 
     if(EVP_EncryptUpdate(ctx, encrypted, &len, input_bytes, (int)input_size) != 1)
-        return -1;
+        return -3;
     encrypted_len = len;
 
     if(EVP_EncryptFinal_ex(ctx, encrypted + len, &len) != 1)
-        return -1;
+        return -4;
     encrypted_len += len;
 
     EVP_CIPHER_CTX_free(ctx);
