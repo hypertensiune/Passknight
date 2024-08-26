@@ -49,7 +49,7 @@ class VaultDeleteViewModel(
 
         viewModelScope.launch(Dispatchers.Main) {
             val result = Firestore.unlockVault(vault, masterPassword)
-            if(!result) {
+            if(result == null) {
                 loadingScreen.postValue(false)
                 masterPasswordError.postValue("Invalid master password!")
                 return@launch

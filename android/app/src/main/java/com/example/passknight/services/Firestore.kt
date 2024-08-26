@@ -1,23 +1,15 @@
 package com.example.passknight.services
 
-import android.content.Context
-import android.util.Log
 import com.example.passknight.models.NoteItem
 import com.example.passknight.models.PasswordItem
 import com.example.passknight.models.Vault
 import com.google.firebase.Firebase
-import com.google.firebase.FirebaseApp
-import com.google.firebase.FirebaseError
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
-import com.google.firebase.initialize
-import kotlinx.coroutines.tasks.asDeferred
 import kotlinx.coroutines.tasks.await
-import java.net.HttpURLConnection
-import java.net.URL
 
 /**
  * Wrapper object around the Firebase firestore API.
@@ -33,6 +25,8 @@ object Firestore {
     private var currentUnlockedVaultName = ""
     private var currentUnlockedVaultID = ""
 
+    private fun email(vault: String) = "${vault.lowercase()}@passknight.vault"
+
     /**
      * @return A list of the all the vaults in the firestore database
      */
@@ -42,15 +36,30 @@ object Firestore {
     }
 
     /**
-     * Gets the currently unlocked vault data content
-     *
-     * @return A pair containing the name of the vault and its content
+     * Creates a new vault. If creation is successful this will be the currently unlocked vault
+     * @return The protected symmetric key associated with this vault if creation was successful, otherwise null
      */
-    suspend fun getVault(): Pair<String, MutableMap<String, Any>?>? {
+    suspend fun createVault(vault: String, password: String): String? {
         try {
-            val res = Firebase.firestore.collection("vaults").document(currentUnlockedVaultID).get().await()
-            Log.d("Passknight", "DOC: ${res.data}")
-            return Pair(currentUnlockedVaultName, res.data)
+            val cryptoPair = Cryptography.Utils.create(email(vault), password)
+
+            val result = Firebase.auth.createUserWithEmailAndPassword(email(vault), cryptoPair.first).await()
+            val uid = result.user!!.uid
+
+            Firebase.firestore.collection(uid).document("psk").set(hashMapOf("psk" to cryptoPair.second))
+            Firebase.firestore.collection(uid).document("passwords").set("")
+            Firebase.firestore.collection(uid).document("notes").set("")
+            Firebase.firestore.collection(uid).document("history").set(hashMapOf("history" to emptyList<String>()))
+
+            Firebase.firestore.collection("vaults").document("ids").set(hashMapOf(
+                vault.lowercase() to uid
+            ), SetOptions.merge()).await()
+
+            currentUnlockedVaultName = vault
+            currentUnlockedVaultID = uid
+
+            return cryptoPair.second
+
         } catch (e: FirebaseException) {
             e.printStackTrace()
             return null
@@ -58,53 +67,52 @@ object Firestore {
     }
 
     /**
-     * @return true if unlocking the vault was successful, false if there was a problem unlocking the vault
+     * @return The protected symmetric key associated with this vault if unlocking was successful, otherwise null
      */
-    suspend fun unlockVault(vault: String, password: String): Boolean {
+    suspend fun unlockVault(vault: String, password: String): String? {
         try {
-            val result = Firebase.auth.signInWithEmailAndPassword("$vault@passknight.vault", password).await()
+            val result = Firebase.auth.signInWithEmailAndPassword(email(vault), password).await()
+
             currentUnlockedVaultName = vault
-            currentUnlockedVaultID = result.user?.uid ?: ""
-            return true
+            currentUnlockedVaultID = result.user?.uid!!
+
+            return Firebase.firestore.collection(currentUnlockedVaultID).document("psk").get().await().data?.get("psk")!! as String
         } catch (e: FirebaseException) {
             e.printStackTrace()
-            return false
+            return null
         }
     }
 
-    suspend fun createVault(vault: String, password: String): Boolean {
+    /**
+     * Gets the currently unlocked vault data content
+     *
+     * @return A pair containing the name of the vault and its content
+     */
+    suspend fun getVault(): Vault? {
         try {
-            val result = Firebase.auth.createUserWithEmailAndPassword("${vault.lowercase()}@passknight.vault", password).await()
+            val psk = Firebase.firestore.collection(currentUnlockedVaultID).document("psk").get().await()
+            val passwords = Firebase.firestore.collection(currentUnlockedVaultID).document("passwords").get().await()
+            val notes = Firebase.firestore.collection(currentUnlockedVaultID).document("notes").get().await()
+            val history = Firebase.firestore.collection(currentUnlockedVaultID).document("history").get().await()
 
-            val uid = result.user!!.uid
-            Firebase.firestore.collection("vaults").document(uid).set(hashMapOf(
-                "salt" to "salt",
-                "passwords" to emptyList<PasswordItem>(),
-                "notes" to emptyList<NoteItem>(),
-                "history" to emptyList<String>()
-            )).await()
-
-            Firebase.firestore.collection("vaults").document("ids").set(hashMapOf(
-                vault.lowercase() to uid
-            ), SetOptions.merge()).await()
-
-            return true
-
+            return Vault(currentUnlockedVaultName, psk.data, passwords.data, notes.data, history.data)
         } catch (e: FirebaseException) {
             e.printStackTrace()
-            return false
+            return null
         }
     }
 
     suspend fun <T> addItemToVault(item: T): Boolean {
         try {
             if(item is PasswordItem) {
-                Firebase.firestore.collection("vaults").document(currentUnlockedVaultID).update("passwords", FieldValue.arrayUnion(item)).await()
-            } else {
-                Firebase.firestore.collection("vaults").document(currentUnlockedVaultID).update("notes", FieldValue.arrayUnion(item)).await()
+                Firebase.firestore.collection(currentUnlockedVaultID).document("passwords").update(item.name, mapOf(
+                    "website" to item.website,
+                    "username" to item.username,
+                    "password" to item.password
+                )).await()
+            } else if(item is NoteItem) {
+                Firebase.firestore.collection(currentUnlockedVaultID).document("notes").update(item.name, item.content).await()
             }
-
-            Log.d("Passknight", "add successful")
             return true
         } catch (e: FirebaseException) {
             e.printStackTrace()
@@ -114,19 +122,44 @@ object Firestore {
 
     suspend fun <T> editItemInVault(oldItem: T, newItem: T): Boolean {
         try {
-            if(oldItem is PasswordItem) {
-                // First add the new item (modified) and only then remove the old one
-                // Do the operations in this order to avoid the following situation: removal of the old
-                // item is successful but adding the new item fails (because of internet connection loss, for example).
-                // If this happens the item is completely lost
-                // In this case if there is a problem with the second operation there will just be the
-                // 2 verions of the same item in the database (and the old one can be manually removed)
-                Firebase.firestore.collection("vaults").document(currentUnlockedVaultID).update("passwords", FieldValue.arrayUnion(newItem)).await()
-                Firebase.firestore.collection("vaults").document(currentUnlockedVaultID).update("passwords", FieldValue.arrayRemove(oldItem)).await()
-            } else {
-                Firebase.firestore.collection("vaults").document(currentUnlockedVaultID).update("notes", FieldValue.arrayUnion(newItem)).await()
-                Firebase.firestore.collection("vaults").document(currentUnlockedVaultID).update("notes", FieldValue.arrayRemove(oldItem)).await()
+            // First add the new item (modified) and only then remove the old one
+            // Do the operations in this order to avoid the following situation: removal of the old
+            // item is successful but adding the new item fails (because of internet connection loss, for example).
+            // If this happens the item is completely lost
+            // In this case if there is a problem with the second operation there will just be the
+            // 2 verions of the same item in the database (and the old one can be manually removed)
+
+            addItemToVault(newItem)
+
+            if((oldItem is PasswordItem && newItem is PasswordItem && oldItem.name != newItem.name) ||
+                (oldItem is NoteItem && newItem is NoteItem && oldItem.name != newItem.name)) {
+                deleteItemInVault(oldItem)
             }
+
+            return true
+        } catch (e: FirebaseException) {
+            e.printStackTrace()
+            return false
+        }
+    }
+
+    suspend fun <T> deleteItemInVault(item: T): Boolean {
+        try {
+            if(item is PasswordItem) {
+                Firebase.firestore.collection(currentUnlockedVaultID).document("passwords").update(item.name, FieldValue.delete()).await()
+            } else if(item is NoteItem) {
+                Firebase.firestore.collection(currentUnlockedVaultID).document("notes").update(item.name, FieldValue.delete()).await()
+            }
+            return true
+        } catch (e: FirebaseException) {
+            e.printStackTrace()
+            return false
+        }
+    }
+
+    suspend fun addHistoryItem(item: String): Boolean {
+        try {
+            Firebase.firestore.collection(currentUnlockedVaultID).document("history").update("history", FieldValue.arrayUnion(item)).await()
             return true
         } catch (e: FirebaseException) {
             e.printStackTrace()
@@ -142,8 +175,10 @@ object Firestore {
 
         try {
             Firebase.firestore.collection("vaults").document("ids").update(currentUnlockedVaultName, FieldValue.delete()).await()
-            Firebase.firestore.collection("vaults").document(currentUnlockedVaultID).delete()
-            Firebase.auth.currentUser?.delete()
+            Firebase.firestore.collection(currentUnlockedVaultID).document("psk").delete()
+            Firebase.firestore.collection(currentUnlockedVaultID).document("passwords").delete()
+            Firebase.firestore.collection(currentUnlockedVaultID).document("notes").delete()
+            Firebase.firestore.collection(currentUnlockedVaultID).document("history").delete()
 
             currentUnlockedVaultName = ""
             currentUnlockedVaultID = ""

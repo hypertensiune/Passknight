@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.passknight.R
@@ -21,14 +22,17 @@ import com.example.passknight.models.Item
 import com.example.passknight.models.NoteItem
 import com.example.passknight.models.PasswordItem
 import com.example.passknight.models.Vault
+import com.example.passknight.services.Cryptography
 import com.example.passknight.services.Firestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class VaultViewModel(
     private val navController: NavController,
-    private val clipboardManager: ClipboardManager?
+    private val clipboardManager: ClipboardManager?,
+    private val cryptography: Cryptography
 ) : ViewModel() {
 
     companion object {
@@ -37,7 +41,7 @@ class VaultViewModel(
         const val CLIPBOARD_TIMEOUT: Long = 5000
     }
 
-    val vault: MutableLiveData<Vault> = MutableLiveData(Vault(null, null))
+    val vault: MutableLiveData<Vault> = MutableLiveData(Vault(null, null, null, null, null))
 
     var passwordItem = PasswordItem.empty()
     private var originalPasswordItem: PasswordItem? = null
@@ -55,9 +59,22 @@ class VaultViewModel(
     val generator = Generator()
 
     init {
+        viewModelScope.launch(Dispatchers.Main) {
+            generator.generatedPassword.asFlow().collect {
+                val result = Firestore.addHistoryItem(it)
+                if(result) {
+                    vault.value?.addHistoryItem(it)
+                }
+            }
+        }
+
         viewModelScope.launch(Dispatchers.IO) {
-            val vaultData = Firestore.getVault()
-            vault.postValue(Vault(vaultData?.first, vaultData?.second))
+            val firestoreVault = Firestore.getVault()
+            if(firestoreVault != null) {
+                vault.postValue(firestoreVault)
+            } else {
+                toastMessage.postValue("Error when fetching the vault from firebase!")
+            }
         }
     }
 
@@ -73,37 +90,45 @@ class VaultViewModel(
      */
     private fun getOriginalItem(itemFlag: Int): Item? = if (itemFlag == ITEM_PASSWORD) originalPasswordItem else originalNoteItem
 
-    fun openPasswordItemForm(view: View) {
+    /**
+     * Open the password item form for adding new item
+     */
+    fun openPasswordItemForm() {
         itemEditing = false
         passwordItem = PasswordItem.empty()
         navController.navigate(R.id.vault_view_to_password_form)
     }
 
     /**
-     * Open the password form for editing
+     * Open the password item form for editing
      * @param password The password to edit
      */
     fun openPasswordItemForm(password: PasswordItem) {
         itemEditing = true
-        originalPasswordItem = password
         passwordItem = password.copy()
+        passwordItem.decrypt(cryptography::decrypt)
+        originalPasswordItem = password
         navController.navigate(R.id.vault_view_to_password_form)
     }
 
-    fun openNoteItemForm(view: View) {
+    /**
+     * Open the note item form for adding new item
+     */
+    fun openNoteItemForm() {
         itemEditing = false
         noteItem = NoteItem.empty()
         navController.navigate(R.id.vault_view_to_note_form)
     }
 
     /**
-     * Open the note form for editing
+     * Open the note item form for editing
      * @param note The note to edit
      */
     fun openNoteItemForm(note: NoteItem) {
         itemEditing = true
-        originalNoteItem = note
         noteItem = note.copy()
+        noteItem.decrypt(cryptography::decrypt)
+        originalNoteItem = note
         navController.navigate(R.id.vault_view_to_note_form)
     }
 
@@ -113,13 +138,16 @@ class VaultViewModel(
         formMessage.value = "Adding new item.."
 
         viewModelScope.launch(Dispatchers.Main) {
-            val result = Firestore.addItemToVault(getItem(itemFlag))
+            val item = getItem(itemFlag)
+            item.encrypt(cryptography::encrypt)
+
+            val result = Firestore.addItemToVault(item)
             formScreen.postValue(false)
 
             if(result) {
                 // If firebase successfully added the new item add it in the vault as well to display
                 // Do this to avoid fetching all the data from firebase again after adding
-                vault.value?.addItem(getItem(itemFlag))
+                vault.value?.addItem(item)
 
                 // Navigate back to the passwords tab
                 navController.popBackStack()
@@ -133,13 +161,7 @@ class VaultViewModel(
     fun editItem(itemFlag: Int) {
         val original = getOriginalItem(itemFlag)
         val item = getItem(itemFlag)
-
-        // Don't do anything if there was no changes to the item
-        if(item == original) {
-            toastMessage.postValue("No changes were made!")
-            navController.popBackStack()
-            return
-        }
+        item.encrypt(cryptography::encrypt)
 
         formScreen.value = true
         formMessage.value = "Editing item.."
@@ -153,6 +175,26 @@ class VaultViewModel(
                 navController.popBackStack()
             } else {
                 toastMessage.postValue("There was an error updating the item in firebase!")
+            }
+        }
+    }
+
+    fun deleteItem(itemFlag: Int) {
+        val originalItem = getOriginalItem(itemFlag)
+
+        formScreen.value = true
+        formMessage.value = "Deleting item item.."
+
+        viewModelScope.launch(Dispatchers.Main) {
+            val result = Firestore.deleteItemInVault(originalItem)
+            formScreen.postValue(false)
+
+            if(result) {
+                vault.value?.deleteItem(originalItem)
+                navController.popBackStack()
+                toastMessage.postValue("Item deleted!")
+            } else {
+                toastMessage.postValue("There was an error deleting the item in firebase!")
             }
         }
     }

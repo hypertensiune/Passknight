@@ -11,6 +11,7 @@ import androidx.navigation.NavController
 import com.example.passknight.R
 import com.example.passknight.fragments.VaultCreateDirections
 import com.example.passknight.fragments.VaultUnlockDirections
+import com.example.passknight.services.Cryptography
 
 import com.example.passknight.services.Firestore
 import kotlinx.coroutines.Dispatchers
@@ -49,16 +50,16 @@ class VaultCreateViewModel(private val navController: NavController) : ViewModel
             // enable the progress bar while waiting for the result
             loadingScreen.value = true
             viewModelScope.launch(Dispatchers.Main) {
-                val result = Firestore.createVault(name, masterPassword)
-                Log.d("Passknight", "Finised creating $result")
-                if(result) {
+                val masterPasswordHash = Cryptography.Utils.getMasterPasswordHash("$name@passknight.vault", masterPassword)
+                val result = Firestore.createVault(name, masterPasswordHash)
+                if(result != null) {
                     // if creation was successful navigate to the newly created vault
                     loadingScreen.postValue(false)
 
                     // Don't allow back navigation from the vault view
                     // The user can get back to the vault list view only by pressing a button that signs out of firebase
                     // https://stackoverflow.com/questions/50514758/how-to-clear-navigation-stack-after-navigating-to-another-fragment-in-android
-                    navController.navigate(VaultCreateDirections.vaultCreateToView())
+                    navController.navigate(VaultCreateDirections.vaultCreateToView("$name@passknight.vault", masterPassword, result))
                     //navController.navigate(R.id.vault_create_to_view)
                 } else {
                     // otherwise clear the input fields and display an error message

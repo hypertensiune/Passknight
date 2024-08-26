@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -16,15 +17,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.navArgs
 import com.example.passknight.R
 import com.example.passknight.ViewPagerAdapter
 import com.example.passknight.databinding.FragmentVaultViewBinding
+import com.example.passknight.services.Cryptography
+import com.example.passknight.services.Firestore
 import com.example.passknight.viewmodels.VaultViewModel
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.firebase.Firebase
 
 class VaultView : Fragment() {
 
     private lateinit var binding: FragmentVaultViewBinding
+
+    private val args: VaultViewArgs by navArgs<VaultViewArgs>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,7 +59,11 @@ class VaultView : Fragment() {
         // Use custom factory to create the VaultViewModel with the required parameters
         val factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return VaultViewModel(container!!.findNavController(), ContextCompat.getSystemService(requireContext(), ClipboardManager::class.java)) as T
+                return VaultViewModel(
+                    container!!.findNavController(),
+                    ContextCompat.getSystemService(requireContext(), ClipboardManager::class.java),
+                    Cryptography(requireContext(), args.email, args.password, args.psk)
+                ) as T
             }
         }
 
@@ -70,6 +81,12 @@ class VaultView : Fragment() {
                 else -> tab.text = "Passwords"
             }
         }.attach()
+
+        viewModel.toastMessage.observe(viewLifecycleOwner) {
+            if(it.isNotEmpty()) {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            }
+        }
 
         binding.menuButton.setOnClickListener { showPopupMenu(it, viewModel) }
 
@@ -93,7 +110,6 @@ class VaultView : Fragment() {
                 viewModel.deleteVault()
             }
 
-            // why does it need to return something?
             true
         }
 
