@@ -30,7 +30,6 @@ class PasswordItemForm : Fragment() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
-
         binding.itemMenuButton.setOnClickListener { showPopupMenu(it, viewModel) }
 
         return binding.root
