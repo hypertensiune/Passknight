@@ -1,7 +1,5 @@
 package com.example.passknight.fragments
 
-import android.content.ClipboardManager
-import android.icu.util.VersionInfo
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,23 +7,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import android.widget.Toast
-import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStore
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.passknight.R
 import com.example.passknight.ViewPagerAdapter
 import com.example.passknight.databinding.FragmentVaultViewBinding
+import com.example.passknight.services.Clipboard
 import com.example.passknight.services.Cryptography
-import com.example.passknight.services.Firestore
 import com.example.passknight.viewmodels.VaultViewModel
 import com.google.android.material.tabs.TabLayoutMediator
-import com.google.firebase.Firebase
 
 class VaultView : Fragment() {
 
@@ -61,7 +55,7 @@ class VaultView : Fragment() {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return VaultViewModel(
                     container!!.findNavController(),
-                    ContextCompat.getSystemService(requireContext(), ClipboardManager::class.java),
+                    Clipboard(requireContext()),
                     Cryptography(requireContext(), args.email, args.password, args.psk)
                 ) as T
             }
