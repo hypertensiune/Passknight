@@ -11,27 +11,31 @@ class Vault (
 ) {
     val passwords: MutableLiveData<MutableList<PasswordItem>>
     val notes: MutableLiveData<MutableList<NoteItem>>
-    val generatorHistory: MutableLiveData<MutableList<String>> = MutableLiveData(mutableListOf())
+    val generatorHistory: MutableLiveData<MutableList<String>>
 
     init {
         if(psk == null || passwords == null || notes == null) {
             this.passwords = MutableLiveData(mutableListOf())
             this.notes = MutableLiveData(mutableListOf())
+            this.generatorHistory = MutableLiveData(mutableListOf())
         } else {
             // Transform the array list of hashmap returned by firestore to an arraylist of PasswordItem or NoteItem
-            val p = passwords!!.map { PasswordItem.from(it.key, it.value as Map<String, String>) }.toMutableList()
+            val p = passwords.map { PasswordItem.from(it.key, it.value as Map<String, String>) }.toMutableList()
             this.passwords = MutableLiveData(p)
 
-            val n = notes!!.map { NoteItem(it.key, it.value as String) }.toMutableList()
+            val n = notes.map { NoteItem(it.key, it.value as String) }.toMutableList()
             this.notes = MutableLiveData(n)
 
-//            this.generatorHistory = MutableLiveData(history)
+            this.generatorHistory = MutableLiveData(history?.get("history")!! as ArrayList<String>)
         }
     }
 
     fun addHistoryItem(item: String) {
         val h = generatorHistory.value
         h?.add(item)
+        if(h?.size!! > 15) {
+            h.removeFirst()
+        }
         generatorHistory.value = h
     }
 

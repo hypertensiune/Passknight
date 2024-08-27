@@ -58,6 +58,9 @@
         <action
             android:id="@+id/vault_view_to_vault_list"
             app:destination="@+id/vault_list"/>
+        <action
+            android:id="@+id/vault_view_to_history"
+            app:destination="@+id/generator_history"/>
 
     </fragment>
 
@@ -80,5 +83,10 @@
             app:destination="@+id/vault_list"/>
 
     </fragment>
+
+    <fragment
+        android:id="@+id/generator_history"
+        android:name="com.example.passknight.fragments.GeneratorHistory"
+        tools:layout="@layout/fragment_generator_history"/>
 
 </navigation>

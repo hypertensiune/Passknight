@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
+import androidx.core.os.persistableBundleOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
@@ -25,6 +26,7 @@ import com.example.passknight.models.Vault
 import com.example.passknight.services.Cryptography
 import com.example.passknight.services.Firestore
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -58,12 +60,20 @@ class VaultViewModel(
 
     val generator = Generator()
 
+    private var job: Job? = null
+
     init {
         viewModelScope.launch(Dispatchers.Main) {
             generator.generatedPassword.asFlow().collect {
-                val result = Firestore.addHistoryItem(it)
-                if(result) {
+                // If a job was launched cancel it and launch a new one
+                // with a 1500 ms delay so we don't spam firestore
+                // with too many request to update the passwords history
+                // if it updates too ofter (moving the length slider around continuously)
+                job?.cancel()
+                job = viewModelScope.launch {
+                    delay(1500)
                     vault.value?.addHistoryItem(it)
+                    Firestore.updateHistoryItems(vault.value?.generatorHistory?.value!!)
                 }
             }
         }
@@ -130,6 +140,10 @@ class VaultViewModel(
         noteItem.decrypt(cryptography::decrypt)
         originalNoteItem = note
         navController.navigate(R.id.vault_view_to_note_form)
+    }
+
+    fun openHistory() {
+        navController.navigate(R.id.vault_view_to_history)
     }
 
     fun addNewItem(itemFlag: Int) {

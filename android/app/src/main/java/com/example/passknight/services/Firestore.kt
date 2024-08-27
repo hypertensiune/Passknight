@@ -157,9 +157,9 @@ object Firestore {
         }
     }
 
-    suspend fun addHistoryItem(item: String): Boolean {
+    suspend fun updateHistoryItems(items: List<String>): Boolean {
         try {
-            Firebase.firestore.collection(currentUnlockedVaultID).document("history").update("history", FieldValue.arrayUnion(item)).await()
+            Firebase.firestore.collection(currentUnlockedVaultID).document("history").update("history", items).await()
             return true
         } catch (e: FirebaseException) {
             e.printStackTrace()
