@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="timeouts">
+        <item>Never</item>
+        <item>10 seconds</item>
+        <item>20 seconds</item>
+        <item>30 seconds</item>
+        <item>1 minute</item>
+        <item>2 minutes</item>
+        <item>3 minutes</item>
+    </string-array>
+    <string-array name="timeoutsValues">
+        <item>-1</item>
+        <item>10000</item>
+        <item>20000</item>
+        <item>30000</item>
+        <item>60000</item>
+        <item>120000</item>
+        <item>180000</item>
+    </string-array>
+    <string-array name="clipboardDeleteIterations">
+        <item>0</item>
+        <item>10</item>
+        <item>30</item>
+        <item>50</item>
+        <item>80</item>
+        <item>100</item>
+        <item>200</item>
+    </string-array>
+</resources>

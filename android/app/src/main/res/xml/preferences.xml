@@ -1,6 +1,22 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <ListPreference
+        android:key="clipboardTimeout"
+        app:title="Clipboard clear after"
+        android:entries="@array/timeouts"
+        android:entryValues="@array/timeoutsValues"
+        android:defaultValue="1"
+        android:summary="%s"/>
+
+    <ListPreference
+        android:key="clipboardIterations"
+        app:title="Clipboard deep clear iterations"
+        android:entries="@array/clipboardDeleteIterations"
+        android:entryValues="@array/clipboardDeleteIterations"
+        android:defaultValue="0"
+        android:summary="%s"/>
+
     <PreferenceCategory
         app:title="Firebase">
 
