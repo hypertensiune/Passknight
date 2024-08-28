@@ -1,0 +1,21 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        app:title="Firebase">
+
+        <EditTextPreference
+            android:key="projectId"
+            app:title="Project id"/>
+
+        <EditTextPreference
+            android:key="apikey"
+            app:title="Api key"/>
+
+        <EditTextPreference
+            android:key="storageBucket"
+            app:title="Storage bucket"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

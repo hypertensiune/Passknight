@@ -2,8 +2,6 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 
-    id("com.google.gms.google-services")
-
     id("androidx.navigation.safeargs.kotlin")
 
     kotlin("kapt")
@@ -88,4 +86,6 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx:25.0.0")
 
     implementation("androidx.biometric:biometric:1.1.0")
+
+    implementation("androidx.preference:preference-ktx:1.2.0")
 }

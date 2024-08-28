@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.passknight.R
 import com.example.passknight.services.Firestore
+import com.example.passknight.services.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -40,5 +41,9 @@ class VaultListViewModel(private val navController: NavController): ViewModel() 
 
     fun onVaultCreateClick(view: View) {
         navController.navigate(R.id.vault_list_tc_create)
+    }
+
+    fun openSettings() {
+        navController.navigate(R.id.vault_list_to_settings)
     }
 }

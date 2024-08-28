@@ -33,7 +33,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class VaultViewModel(
-    private val navController: NavController,
+    val navController: NavController,
     private val clipboard: Clipboard,
     private val cryptography: Cryptography
 ) : ViewModel() {

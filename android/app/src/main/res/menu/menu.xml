@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_settings"
+        android:title="App settings"
+        android:icon="@drawable/baseline_settings_24"/>
     <item android:id="@+id/menu_lock"
         android:title="Lock vault"
         android:icon="@drawable/baseline_logout_24"/>

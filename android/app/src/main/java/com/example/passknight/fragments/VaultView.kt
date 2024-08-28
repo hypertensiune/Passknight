@@ -97,11 +97,14 @@ class VaultView : Fragment() {
         }
 
         popupMenu.setOnMenuItemClickListener {
-            if(it.itemId == R.id.menu_lock) {
-                viewModel.lockVault()
-                requireActivity().viewModelStore.clear()
-            } else if(it.itemId == R.id.menu_delete) {
-                viewModel.deleteVault()
+            when(it.itemId) {
+                R.id.menu_lock -> {
+                    viewModel.lockVault()
+                    requireActivity().viewModelStore.clear()
+                }
+                R.id.menu_delete -> viewModel.deleteVault()
+                R.id.menu_settings -> viewModel.navController.navigate(R.id.vault_view_to_settings)
+
             }
 
             true

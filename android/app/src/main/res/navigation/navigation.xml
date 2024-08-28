@@ -2,8 +2,7 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/navigation"
-    app:startDestination="@+id/vault_list">
+    android:id="@+id/navigation">
 
     <fragment
         android:id="@+id/vault_list"
@@ -15,6 +14,9 @@
         <action
             android:id="@+id/vault_list_tc_create"
             app:destination="@id/vault_create"/>
+        <action
+            android:id="@+id/vault_list_to_settings"
+            app:destination="@id/settings"/>
     </fragment>
 
     <fragment
@@ -46,6 +48,9 @@
         <argument android:name="email" app:argType="string"/>
         <argument android:name="password" app:argType="string"/>
         <argument android:name="psk" app:argType="string"/>
+        <action
+            android:id="@+id/vault_view_to_settings"
+            app:destination="@id/settings"/>
         <action
             android:id="@+id/vault_view_to_password_form"
             app:destination="@id/password_form"/>
@@ -88,5 +93,9 @@
         android:id="@+id/generator_history"
         android:name="com.example.passknight.fragments.GeneratorHistory"
         tools:layout="@layout/fragment_generator_history"/>
+
+    <fragment
+        android:id="@+id/settings"
+        android:name="com.example.passknight.fragments.SettingsFragment" />
 
 </navigation>

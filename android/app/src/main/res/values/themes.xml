@@ -7,6 +7,9 @@
 
         <item name="popupMenuStyle">@style/PopupMenu</item>
         <item name="sliderStyle">@style/Widget.Material3.Slider.Legacy</item>
+
+        <item name="alertDialogTheme">@style/ThemeOverlay.Material3.MaterialAlertDialog</item>
+        <item name="dialogCornerRadius">28dp</item>
     </style>
 
     <style name="Theme.Passknight" parent="Base.Theme.Passknight" />

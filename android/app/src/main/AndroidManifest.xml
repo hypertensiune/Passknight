@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".PkApplication"
         android:allowBackup="true"
         android:appComponentFactory="@string/app_name"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -44,6 +45,11 @@
                 android:name="android.autofill"
                 android:resource="@xml/service_configuration" />
         </service>
+
+        <provider android:authorities="${applicationId}.firebaseinitprovider"
+            android:name="com.google.firebase.provider.FirebaseInitProvider"
+            android:exported="false"
+            tools:node="remove"/>
 
     </application>
 

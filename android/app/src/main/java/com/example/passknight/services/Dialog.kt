@@ -7,8 +7,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class Dialog(
     private val message: String,
-    private val positiveButtonText: String,
-    private val negativeButtonText: String,
+    private val positiveButtonText: String?,
+    private val negativeButtonText: String?,
     private val positiveAction: () -> Unit,
     private val negativeAction: () -> Unit
 ) : DialogFragment() {
