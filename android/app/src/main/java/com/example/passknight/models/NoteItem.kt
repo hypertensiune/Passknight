@@ -1,7 +1,7 @@
 package com.example.passknight.models
 
 data class NoteItem(
-    var name: String,
+    override var name: String,
     var content: String
 ) : Item {
     companion object {

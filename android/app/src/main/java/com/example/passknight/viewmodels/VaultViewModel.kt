@@ -5,6 +5,7 @@ import android.content.ClipDescription
 import android.content.ClipboardManager
 import android.content.Context
 import android.os.Build
+import android.provider.ContactsContract.CommonDataKinds.Note
 import android.service.autofill.AutofillService
 import android.util.Log
 import android.view.View
@@ -50,10 +51,19 @@ class VaultViewModel(
     var noteItem = NoteItem.empty()
     private var originalNoteItem: NoteItem? = null
 
+    var itemName: String = ""
+        set(value) {
+            passwordItem.name = value
+            noteItem.name = value
+            formInputError.value = ""
+            field = value
+        }
+
     var itemEditing = false
 
     val formScreen: MutableLiveData<Boolean> = MutableLiveData(false)
     val formMessage: MutableLiveData<String> = MutableLiveData("")
+    val formInputError: MutableLiveData<String> = MutableLiveData("")
 
     val toastMessage: MutableLiveData<String> = MutableLiveData("")
     val clipboardMessage: MutableLiveData<String> = MutableLiveData("")
@@ -104,6 +114,7 @@ class VaultViewModel(
      * Open the password item form for adding new item
      */
     fun openPasswordItemForm() {
+        itemName = ""
         itemEditing = false
         passwordItem = PasswordItem.empty()
         navController.navigate(R.id.vault_view_to_password_form)
@@ -118,6 +129,7 @@ class VaultViewModel(
         passwordItem = password.copy()
         passwordItem.decrypt(cryptography::decrypt)
         originalPasswordItem = password
+        itemName = password.name
         navController.navigate(R.id.vault_view_to_password_form)
     }
 
@@ -125,6 +137,7 @@ class VaultViewModel(
      * Open the note item form for adding new item
      */
     fun openNoteItemForm() {
+        itemName = ""
         itemEditing = false
         noteItem = NoteItem.empty()
         navController.navigate(R.id.vault_view_to_note_form)
@@ -139,6 +152,7 @@ class VaultViewModel(
         noteItem = note.copy()
         noteItem.decrypt(cryptography::decrypt)
         originalNoteItem = note
+        itemName = note.name
         navController.navigate(R.id.vault_view_to_note_form)
     }
 
@@ -146,13 +160,38 @@ class VaultViewModel(
         navController.navigate(R.id.vault_view_to_history)
     }
 
+    private fun checkItemNameIsValid(item: Item): Boolean {
+        item.name = item.name.filterNot { it.isWhitespace() }
+        if(item.name.isEmpty()) {
+            formInputError.value = "Name must to be empty"
+            return false
+        }
+
+        if(item is PasswordItem && vault.value?.passwords?.value?.any { it.name == item.name } == true) {
+            formInputError.value = "There is already an item with this name"
+            return false
+        }
+
+        if(item is NoteItem && vault.value?.notes?.value?.any { it.name == item.name } == true) {
+            formInputError.value = "There is already an item with this name"
+            return false
+        }
+
+        return true
+    }
+
     fun addNewItem(itemFlag: Int) {
+        val item = getItem(itemFlag)
+
+        if(!checkItemNameIsValid(item)) {
+            return
+        }
+
         // enable the progress bar while waiting for the result
         formScreen.value = true
         formMessage.value = "Adding new item.."
 
         viewModelScope.launch(Dispatchers.Main) {
-            val item = getItem(itemFlag)
             item.encrypt(cryptography::encrypt)
 
             val result = Firestore.addItemToVault(item)
@@ -175,6 +214,11 @@ class VaultViewModel(
     fun editItem(itemFlag: Int) {
         val original = getOriginalItem(itemFlag)
         val item = getItem(itemFlag)
+
+        if(!checkItemNameIsValid(item)) {
+            return
+        }
+
         item.encrypt(cryptography::encrypt)
 
         formScreen.value = true

@@ -25,30 +25,36 @@ object Firestore {
     private var currentUnlockedVaultName = ""
     private var currentUnlockedVaultID = ""
 
-    private fun email(vault: String) = "${vault.lowercase()}@passknight.vault"
+
+
+    // Also removes all whitespaces from the vault name
+    private fun email(vault: String) = "${vault.lowercase().filterNot { it.isWhitespace() }}@passknight.vault"
 
     /**
      * @return A list of the all the vaults in the firestore database
      */
     suspend fun getVaultNames(): List<String>? {
-        val res = Firebase.firestore.collection("vaults").document("ids").get().await()
-        return res.data?.keys?.toList()
+        try {
+            val res = Firebase.firestore.collection("vaults").document("ids").get().await()
+            return res.data?.keys?.toList()
+        } catch (e: FirebaseException) {
+            e.printStackTrace()
+            return emptyList()
+        }
     }
 
     /**
      * Creates a new vault. If creation is successful this will be the currently unlocked vault
      * @return The protected symmetric key associated with this vault if creation was successful, otherwise null
      */
-    suspend fun createVault(vault: String, password: String): String? {
+    suspend fun createVault(vault: String, password: String, psk: String): Boolean {
         try {
-            val cryptoPair = Cryptography.Utils.create(email(vault), password)
-
-            val result = Firebase.auth.createUserWithEmailAndPassword(email(vault), cryptoPair.first).await()
+            val result = Firebase.auth.createUserWithEmailAndPassword(email(vault), password).await()
             val uid = result.user!!.uid
 
-            Firebase.firestore.collection(uid).document("psk").set(hashMapOf("psk" to cryptoPair.second))
-            Firebase.firestore.collection(uid).document("passwords").set("")
-            Firebase.firestore.collection(uid).document("notes").set("")
+            Firebase.firestore.collection(uid).document("psk").set(hashMapOf("psk" to psk))
+            Firebase.firestore.collection(uid).document("passwords").set(emptyMap<String, Any>())
+            Firebase.firestore.collection(uid).document("notes").set(emptyMap<String, Any>())
             Firebase.firestore.collection(uid).document("history").set(hashMapOf("history" to emptyList<String>()))
 
             Firebase.firestore.collection("vaults").document("ids").set(hashMapOf(
@@ -58,11 +64,11 @@ object Firestore {
             currentUnlockedVaultName = vault
             currentUnlockedVaultID = uid
 
-            return cryptoPair.second
+            return true
 
         } catch (e: FirebaseException) {
             e.printStackTrace()
-            return null
+            return false
         }
     }
 
@@ -174,6 +180,8 @@ object Firestore {
         }
 
         try {
+            Firebase.auth.currentUser!!.delete()
+
             Firebase.firestore.collection("vaults").document("ids").update(currentUnlockedVaultName, FieldValue.delete()).await()
             Firebase.firestore.collection(currentUnlockedVaultID).document("psk").delete()
             Firebase.firestore.collection(currentUnlockedVaultID).document("passwords").delete()

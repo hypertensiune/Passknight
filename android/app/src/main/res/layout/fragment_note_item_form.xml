@@ -90,6 +90,8 @@
                 app:boxStrokeColor="@color/Primary"
                 app:cursorColor="@color/Primary"
                 app:hintTextColor="@color/Primary"
+                app:errorText="@{viewModel.formInputError}"
+                app:errorEnabled="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.261"

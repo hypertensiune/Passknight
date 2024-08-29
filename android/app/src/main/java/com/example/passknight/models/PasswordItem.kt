@@ -1,7 +1,7 @@
 package com.example.passknight.models
 
 data class PasswordItem(
-    var name: String,
+    override var name: String,
     var website: String,
     var username: String,
     var password: String

@@ -10,6 +10,7 @@ import com.example.passknight.AppActivity
 import com.example.passknight.fragments.VaultDeleteDirections
 import com.example.passknight.fragments.VaultUnlockDirections
 import com.example.passknight.services.BiometricsProvider
+import com.example.passknight.services.Cryptography
 import com.example.passknight.services.Firestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -48,7 +49,8 @@ class VaultDeleteViewModel(
         loadingScreen.value = true
 
         viewModelScope.launch(Dispatchers.Main) {
-            val result = Firestore.unlockVault(vault, masterPassword)
+            val masterPasswordHash = Cryptography.Utils.getMasterPasswordHash("$vault@passknight.vault", masterPassword)
+            val result = Firestore.unlockVault(vault, masterPasswordHash)
             if(result == null) {
                 loadingScreen.postValue(false)
                 masterPasswordError.postValue("Invalid master password!")
@@ -56,21 +58,25 @@ class VaultDeleteViewModel(
             }
 
             // Ask for one more confirmation with the biometric prompt before finally deleting the vault
-            biometricsProvider.prompt {
-                viewModelScope.launch(Dispatchers.Main) {
-                    val res = Firestore.deleteVault()
-                    if(!res) {
-                        toastMessage.postValue("There was an error deleting this vault!")
+            biometricsProvider.prompt(
+                {
+                    viewModelScope.launch(Dispatchers.Main) {
+                        val res = Firestore.deleteVault()
+                        if(!res) {
+                            toastMessage.postValue("There was an error deleting this vault!")
+                        }
+
+                        // Notify the fragment to clear the view model from the viewModelStoreOwner
+                        clearFlag.postValue(true)
+
+                        // Don't allow back navigation from the vault view
+                        // https://stackoverflow.com/questions/50514758/how-to-clear-navigation-stack-after-navigating-to-another-fragment-in-android
+                        navController.navigate(VaultDeleteDirections.vaultDeleteToVaultList())
                     }
-
-                    // Notify the fragment to clear the view model from the viewModelStoreOwner
-                    clearFlag.postValue(true)
-
-                    // Don't allow back navigation from the vault view
-                    // https://stackoverflow.com/questions/50514758/how-to-clear-navigation-stack-after-navigating-to-another-fragment-in-android
-                    navController.navigate(VaultDeleteDirections.vaultDeleteToVaultList())
-                }
-            }
+                },
+                {
+                    loadingScreen.postValue(false)
+                })
         }
     }
 

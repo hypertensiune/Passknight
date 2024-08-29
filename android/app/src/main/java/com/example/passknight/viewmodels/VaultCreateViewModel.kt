@@ -50,16 +50,15 @@ class VaultCreateViewModel(private val navController: NavController) : ViewModel
             // enable the progress bar while waiting for the result
             loadingScreen.value = true
             viewModelScope.launch(Dispatchers.Main) {
-                val masterPasswordHash = Cryptography.Utils.getMasterPasswordHash("$name@passknight.vault", masterPassword)
-                val result = Firestore.createVault(name, masterPasswordHash)
-                if(result != null) {
+                val cryptoPair = Cryptography.Utils.create("$name@passknight.vault", masterPassword)
+                val result = Firestore.createVault(name, cryptoPair.first, cryptoPair.second)
+                if(result) {
                     // if creation was successful navigate to the newly created vault
                     loadingScreen.postValue(false)
-
                     // Don't allow back navigation from the vault view
                     // The user can get back to the vault list view only by pressing a button that signs out of firebase
                     // https://stackoverflow.com/questions/50514758/how-to-clear-navigation-stack-after-navigating-to-another-fragment-in-android
-                    navController.navigate(VaultCreateDirections.vaultCreateToView("$name@passknight.vault", masterPassword, result))
+                    navController.navigate(VaultCreateDirections.vaultCreateToView("$name@passknight.vault", masterPassword, cryptoPair.second))
                     //navController.navigate(R.id.vault_create_to_view)
                 } else {
                     // otherwise clear the input fields and display an error message
