@@ -9,8 +9,8 @@ class Dialog(
     private val message: String,
     private val positiveButtonText: String?,
     private val negativeButtonText: String?,
-    private val positiveAction: () -> Unit,
-    private val negativeAction: () -> Unit
+    private val positiveAction: () -> Unit = {},
+    private val negativeAction: () -> Unit = {}
 ) : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
