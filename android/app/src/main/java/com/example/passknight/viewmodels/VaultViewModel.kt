@@ -75,15 +75,17 @@ class VaultViewModel(
     init {
         viewModelScope.launch(Dispatchers.Main) {
             generator.generatedPassword.asFlow().collect {
-                // If a job was launched cancel it and launch a new one
-                // with a 1500 ms delay so we don't spam firestore
-                // with too many request to update the passwords history
-                // if it updates too ofter (moving the length slider around continuously)
-                job?.cancel()
-                job = viewModelScope.launch {
-                    delay(1500)
-                    vault.value?.addHistoryItem(it)
-                    Firestore.updateHistoryItems(vault.value?.generatorHistory?.value!!)
+                if(it.isNotEmpty()) {
+                    // If a job was launched cancel it and launch a new one
+                    // with a 1500 ms delay so we don't spam firestore
+                    // with too many request to update the passwords history
+                    // if it updates too ofter (moving the length slider around continuously)
+                    job?.cancel()
+                    job = viewModelScope.launch {
+                        delay(1500)
+                        vault.value?.addHistoryItem(it)
+                        Firestore.updateHistoryItems(vault.value?.generatorHistory?.value!!)
+                    }
                 }
             }
         }

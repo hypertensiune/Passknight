@@ -44,6 +44,10 @@ class Clipboard(context: Context) {
 
             callback()
 
+            if(clipboardTimeout.toInt() == -1) {
+                return@let
+            }
+
             coroutineScope {
                 launch(Dispatchers.IO) {
                     delay(clipboardTimeout)

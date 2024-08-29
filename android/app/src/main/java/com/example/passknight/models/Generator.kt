@@ -58,6 +58,11 @@ class Generator() {
         var positions = ""
         var characters = ""
 
+        if(!lowercase && !uppercase && !symbols && !numbers) {
+            generatedPassword.value = ""
+            return
+        }
+
         if(lowercase) {
             characters += CharSets.lowercase
             positions += 'l'

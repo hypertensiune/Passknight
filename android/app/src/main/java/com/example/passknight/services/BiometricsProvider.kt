@@ -27,26 +27,28 @@ class BiometricsProvider(
             .build()
     }
 
-    class AuthenticationListener(private val context: Context, private val onSuccessCallback: () -> Unit) : BiometricPrompt.AuthenticationCallback() {
+    class AuthenticationListener(private val context: Context, private val onSuccessCallback: () -> Unit, private val onFailError: () -> Unit = {}) : BiometricPrompt.AuthenticationCallback() {
         override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
             super.onAuthenticationError(errorCode, errString)
             Toast.makeText(context, "Authentication error: $errString", Toast.LENGTH_SHORT).show()
+            onFailError()
         }
 
         override fun onAuthenticationFailed() {
             super.onAuthenticationFailed()
             Toast.makeText(context, "Authentication failed", Toast.LENGTH_SHORT).show()
+            onFailError()
         }
 
         override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
             super.onAuthenticationSucceeded(result)
-            Toast.makeText(context, "Authentication succeeded!", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(context, "Authentication succeeded!", Toast.LENGTH_SHORT).show()
             onSuccessCallback()
         }
     }
 
-    fun prompt(onSuccessCallback: () -> Unit) {
-        biometricPrompt = BiometricPrompt(activity, executor, AuthenticationListener(context, onSuccessCallback))
+    fun prompt(onSuccessCallback: () -> Unit, onFailError: () -> Unit = {}) {
+        biometricPrompt = BiometricPrompt(activity, executor, AuthenticationListener(context, onSuccessCallback, onFailError))
         biometricPrompt.authenticate(promptInfo)
     }
 
