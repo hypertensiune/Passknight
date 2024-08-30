@@ -12,6 +12,7 @@ import androidx.navigation.findNavController
 import com.example.passknight.R
 import com.example.passknight.databinding.FragmentVaultDeleteBinding
 import com.example.passknight.services.BiometricsProvider
+import com.example.passknight.services.Cryptography
 import com.example.passknight.viewmodels.VaultDeleteViewModel
 
 class VaultDelete : Fragment() {
@@ -46,8 +47,13 @@ class VaultDelete : Fragment() {
 
         // Clear the viewModelStore so a new view model can be created
         // For more info see [VaultView::onCreateView]
+        // Also remove the stretched master key from the encrypted shared preferences
         viewModel.clearFlag.observe(viewLifecycleOwner) {
             requireActivity().viewModelStore.clear()
+            with(Cryptography.Utils.getEncryptedSharedPreferences(requireContext()).edit()) {
+                remove("smk")
+                commit()
+            }
         }
 
         return binding.root

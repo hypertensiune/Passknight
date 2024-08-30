@@ -1,14 +1,20 @@
 package com.example.passknight.services
 
 import android.content.Context
+import android.content.SharedPreferences
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
 import android.util.Base64
 import android.util.Log
 import android.widget.Toast
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import java.security.SecureRandom
 
-class Cryptography(private val context: Context, email: String, password: String, protectedSymmetricKey: String) {
+class Cryptography {
 
     private var symmetricKey: ByteArray? = null
+    private val context: Context
 
     class Utils {
 
@@ -90,12 +96,42 @@ class Cryptography(private val context: Context, email: String, password: String
                 // Concatenate the iv and the protected symmetric key before encoding to base64
                 return Pair(masterPasswordHash, Base64.encodeToString(iv + protectedSymmetricKey.sliceArray(0..<size), Base64.NO_WRAP))
             }
+
+            @JvmStatic
+            private fun getEncryptedSharedPrefsKey(context: Context): MasterKey {
+                val spec = KeyGenParameterSpec
+                    .Builder(MasterKey.DEFAULT_MASTER_KEY_ALIAS, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
+                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                    .setKeySize(256)
+                    .setUserAuthenticationRequired(true)
+                    .setUserAuthenticationParameters(10, KeyProperties.AUTH_BIOMETRIC_STRONG or KeyProperties.AUTH_DEVICE_CREDENTIAL)
+                    .build()
+
+                return MasterKey.Builder(context).setKeyGenParameterSpec(spec).build()
+            }
+
+            fun getEncryptedSharedPreferences(context: Context): SharedPreferences = EncryptedSharedPreferences.create(
+                context,
+                "encprefs",
+                getEncryptedSharedPrefsKey(context),
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
         }
     }
 
-    init {
+    constructor(context: Context, email: String, password: String, protectedSymmetricKey: String) {
+        this.context = context
+
         val masterKey = Utils.pbkdf2(password.toByteArray(), email.toByteArray(), Utils.ITERATIONS, 32)
         val stretchedMasterKey = Utils.hkdf(masterKey, email.toByteArray(), 32)
+
+        val encryptedSharedPreferences = Utils.getEncryptedSharedPreferences(context)
+        with(encryptedSharedPreferences.edit()) {
+            putString("smk", Base64.encodeToString(stretchedMasterKey, Base64.NO_WRAP))
+            commit()
+        }
 
         val protectedSymmetricKeyBytes = Base64.decode(protectedSymmetricKey, Base64.NO_WRAP)
 
@@ -104,6 +140,24 @@ class Cryptography(private val context: Context, email: String, password: String
 
         val symmetricKey = ByteArray(psk.size + 16)
         val size = Utils.aesdecrypt(stretchedMasterKey, psk, iv, symmetricKey)
+
+        if(size < 0) {
+            Log.e("Passknight", "Error during symmetric key decrpytion! $size")
+        } else {
+            this.symmetricKey = symmetricKey.sliceArray(0..<size)
+        }
+    }
+
+    constructor(context: Context, stretchedMasterKey: String, protectedSymmetricKey: String) {
+        this.context = context
+
+        val protectedSymmetricKeyBytes = Base64.decode(protectedSymmetricKey, Base64.NO_WRAP)
+
+        val iv = protectedSymmetricKeyBytes.slice(0..15).toByteArray()
+        val psk = protectedSymmetricKeyBytes.slice(16..< protectedSymmetricKeyBytes.size).toByteArray()
+
+        val symmetricKey = ByteArray(psk.size + 16)
+        val size = Utils.aesdecrypt(Base64.decode(stretchedMasterKey, Base64.NO_WRAP), psk, iv, symmetricKey)
 
         if(size < 0) {
             Log.e("Passknight", "Error during symmetric key decrpytion! $size")

@@ -1,32 +1,74 @@
 package com.example.passknight
 
+import android.content.Context
 import android.content.Intent
+import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
 import android.service.autofill.Dataset
+import android.view.View
 import android.view.autofill.AutofillId
 import android.view.autofill.AutofillManager.EXTRA_AUTHENTICATION_RESULT
 import android.view.autofill.AutofillValue
+import android.widget.RelativeLayout
 import android.widget.RemoteViews
+import androidx.annotation.IdRes
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavArgs
 import androidx.navigation.NavHost
 import androidx.navigation.fragment.NavHostFragment
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
+import androidx.security.crypto.MasterKeys
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.Worker
+import androidx.work.WorkerParameters
+import com.example.passknight.fragments.VaultUnlockDirections
+import com.example.passknight.services.Clipboard
+import com.example.passknight.services.Cryptography
 import com.example.passknight.services.Dialog
 import com.example.passknight.services.Firestore
 import com.example.passknight.services.Settings
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.launch
+import org.intellij.lang.annotations.Identifier
+import java.util.concurrent.TimeUnit
 
 class AppActivity : AppCompatActivity() {
+
+    class LockWorker(val context: Context, workerParameters: WorkerParameters) : Worker(context, workerParameters) {
+        override fun doWork(): Result {
+            Firestore.signOut()
+            with(Cryptography.Utils.getEncryptedSharedPreferences(context).edit()) {
+                remove("smk")
+                commit()
+            }
+            return Result.success()
+        }
+    }
+
+    private lateinit var loadingScreen: RelativeLayout
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_app)
 
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        val inflater = navHostFragment.navController.navInflater
-        val graph = inflater.inflate(R.navigation.navigation)
+        loadingScreen = findViewById(R.id.appLoadingScreen)
 
-        if(Settings.firebaseInitialized) {
-            graph.setStartDestination(R.id.vault_list)
-        } else {
-            graph.setStartDestination(R.id.settings)
+        lifecycleScope.launch {
+            val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+            val inflater = navHostFragment.navController.navInflater
+            val graph = inflater.inflate(R.navigation.navigation)
+
+            val (args, destination) = getStartDestination()
+
+            graph.setStartDestination(destination)
+            navHostFragment.navController.setGraph(graph, args)
         }
 
         Settings.fromAutofillService = intent.getBooleanExtra("AutofillService", false)
@@ -52,12 +94,52 @@ class AppActivity : AppCompatActivity() {
                 finish()
             }
         }
-
-        navHostFragment.navController.setGraph(graph, intent.extras)
     }
 
-    override fun onPause() {
-        super.onPause()
-        Firestore.signOut()
+    private suspend fun getStartDestination(): Pair<Bundle, Int> {
+        val navArgs = Bundle()
+        var startDestination = -1
+
+        if(!Settings.firebaseInitialized) {
+            startDestination = R.id.settings
+        }
+        else {
+            if(Firebase.auth.currentUser == null) {
+                startDestination = R.id.vault_list
+            } else {
+                // If the user auth was persisted proceed to obtain the stretched master key from
+                // the encrypted shared preferences and the protected symmetric key from firestore
+                // required to initialize the Cryptography provider used by the vault
+
+                loadingScreen.visibility = View.VISIBLE
+
+                val stretchedMasterKey = Cryptography.Utils.getEncryptedSharedPreferences(baseContext).getString("smk", "") as String
+
+                println(stretchedMasterKey)
+
+                // If there was no value in shared preferences ignore the persistence and
+                // require the user to login again
+                if(stretchedMasterKey.isEmpty()) {
+                    startDestination = R.id.vault_list
+                } else {
+                    startDestination = R.id.vault_view
+                    navArgs.putString("psk", Firestore.getVaultPsk()!!)
+                    navArgs.putString("smk", stretchedMasterKey)
+                }
+
+                loadingScreen.visibility = View.GONE
+            }
+        }
+
+        return Pair(navArgs, startDestination)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        val delay = (Settings.get("lockTimeout") as String).toLong()
+        if(delay.toInt() != -1) {
+            val workRequest = OneTimeWorkRequestBuilder<LockWorker>().setInitialDelay(delay, TimeUnit.MINUTES).build()
+            WorkManager.getInstance(baseContext).enqueueUniqueWork("LockVault", ExistingWorkPolicy.REPLACE, workRequest)
+        }
     }
 }

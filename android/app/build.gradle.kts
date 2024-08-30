@@ -76,6 +76,7 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
     implementation("androidx.autofill:autofill:1.1.0")
+    implementation("androidx.security:security-crypto-ktx:1.1.0-alpha06")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
@@ -88,4 +89,6 @@ dependencies {
     implementation("androidx.biometric:biometric:1.1.0")
 
     implementation("androidx.preference:preference-ktx:1.2.0")
+
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
 }

@@ -6,6 +6,7 @@ import com.example.passknight.models.Vault
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.auth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
@@ -87,6 +88,17 @@ object Firestore {
             e.printStackTrace()
             return null
         }
+    }
+
+    suspend fun getVaultPsk(): String? {
+        if(Firebase.auth.currentUser == null) {
+            return null
+        }
+
+        currentUnlockedVaultID = Firebase.auth.currentUser!!.uid
+        currentUnlockedVaultName = Firebase.auth.currentUser!!.email!!.split("@")[0]
+
+        return Firebase.firestore.collection(currentUnlockedVaultID).document("psk").get().await().data?.get("psk")!! as String
     }
 
     /**

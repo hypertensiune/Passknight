@@ -49,6 +49,11 @@ class VaultView : Fragment() {
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_vault_view, container, false)
 
+        val cryptography = if(args.password.isNotEmpty() && args.email.isNotEmpty())
+            Cryptography(requireContext(), args.email, args.password, args.psk)
+        else
+            Cryptography(requireContext(), args.smk, args.psk)
+
         // https://stackoverflow.com/questions/53184320/how-to-pass-custom-parameters-to-a-viewmodel-using-factory
         // Use custom factory to create the VaultViewModel with the required parameters
         val factory = object : ViewModelProvider.Factory {
@@ -56,7 +61,7 @@ class VaultView : Fragment() {
                 return VaultViewModel(
                     container!!.findNavController(),
                     Clipboard(requireContext()),
-                    Cryptography(requireContext(), args.email, args.password, args.psk)
+                    cryptography
                 ) as T
             }
         }
@@ -100,6 +105,12 @@ class VaultView : Fragment() {
             when(it.itemId) {
                 R.id.menu_lock -> {
                     viewModel.lockVault()
+
+                    with(Cryptography.Utils.getEncryptedSharedPreferences(requireContext()).edit()) {
+                        remove("smk")
+                        commit()
+                    }
+
                     requireActivity().viewModelStore.clear()
                 }
                 R.id.menu_delete -> viewModel.deleteVault()
