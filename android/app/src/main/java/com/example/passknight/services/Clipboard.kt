@@ -5,21 +5,56 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.os.Build
 import androidx.core.content.ContextCompat
+import androidx.core.content.getSystemService
 import androidx.core.os.persistableBundleOf
 import androidx.lifecycle.viewModelScope
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.Worker
+import androidx.work.WorkerParameters
 import com.example.passknight.viewmodels.VaultViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import java.util.concurrent.TimeUnit
 
-class Clipboard(context: Context) {
+class Clipboard(private val context: Context) {
 
-    private val manager: ClipboardManager?
+    /**
+     * Worker for clearing the clipboard.
+     *
+     * Might not work properly. Seems like access to clipboard reading and writing is not
+     * permitted from a background worker.
+     */
+    class ClearWorker(private val context: Context, workerParams: WorkerParameters) : androidx.work.Worker(context, workerParams) {
+        override fun doWork(): Result {
+            val overwriteCount = (Settings.get("clipboardIterations") as String).toInt()
 
-    init {
-        manager = ContextCompat.getSystemService(context, ClipboardManager::class.java)
+            val manager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+
+            runBlocking {
+                launch {
+                    for(i in 1..overwriteCount) {
+                        delay(10)
+                        manager.setPrimaryClip(ClipData.newPlainText(i.toString(), "\u200E".repeat(i)))
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        manager.clearPrimaryClip()
+                    } else {
+                        manager.setPrimaryClip(ClipData.newPlainText("", ""))
+                    }
+                }
+            }
+
+            return Result.success()
+        }
     }
+
+    private val manager: ClipboardManager? = ContextCompat.getSystemService(context, ClipboardManager::class.java)
 
     /**
      * Copies a text to the clipboard which is deleted after specified ms.
@@ -32,11 +67,7 @@ class Clipboard(context: Context) {
      *
      * Note: This workaround may not work on all keyboards. Tested on Gboard (it works) and Swiftkey (doesn't work)
      */
-    suspend fun copy(label: String, text: String, isSensitive: Boolean, callback: () -> Unit = {}) {
-
-        val clipboardTimeout = (Settings.get("clipboardTimeout") as String).toLong()
-        val overwriteCount = (Settings.get("clipboardIterations") as String).toInt()
-
+     fun copy(label: String, text: String, isSensitive: Boolean, callback: () -> Unit = {}) {
         manager?.let {
             it.setPrimaryClip(ClipData.newPlainText(label, text).apply {
                 description.extras = persistableBundleOf("android.content.extra.IS_SENSITIVE" to isSensitive)
@@ -44,24 +75,14 @@ class Clipboard(context: Context) {
 
             callback()
 
+            val clipboardTimeout = (Settings.get("clipboardTimeout") as String).toLong()
+
             if(clipboardTimeout.toInt() == -1) {
                 return@let
             }
 
-            coroutineScope {
-                launch(Dispatchers.IO) {
-                    delay(clipboardTimeout)
-                    for(i in 1..overwriteCount) {
-                        delay(10)
-                        manager.setPrimaryClip(ClipData.newPlainText(i.toString(), "\u200E".repeat(i)))
-                    }
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        manager.clearPrimaryClip()
-                    } else {
-                        manager.setPrimaryClip(ClipData.newPlainText("", ""))
-                    }
-                }
-            }
+            val workRequest = OneTimeWorkRequestBuilder<ClearWorker>().setInitialDelay(clipboardTimeout, TimeUnit.MILLISECONDS).build()
+            WorkManager.getInstance(context).enqueueUniqueWork("ClearClipboard", ExistingWorkPolicy.REPLACE, workRequest)
         }
     }
 }

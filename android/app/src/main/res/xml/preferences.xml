@@ -20,6 +20,11 @@
             android:defaultValue="1"
             android:summary="%s"/>
 
+        <SwitchPreference
+            android:key="clearClipboardOnExit"
+            app:title="Clear clipboard on app exit"
+            android:summary="Replacement of clear after"/>
+
         <ListPreference
             android:key="clipboardIterations"
             app:title="Deep clear iterations"

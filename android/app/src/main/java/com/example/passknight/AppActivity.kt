@@ -1,8 +1,11 @@
 package com.example.passknight
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.opengl.Visibility
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.security.keystore.KeyGenParameterSpec
@@ -35,7 +38,9 @@ import com.example.passknight.services.Firestore
 import com.example.passknight.services.Settings
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.intellij.lang.annotations.Identifier
 import java.util.concurrent.TimeUnit
 
@@ -136,10 +141,33 @@ class AppActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
+
+        // Start a unique worker to lock the vault
         val delay = (Settings.get("lockTimeout") as String).toLong()
         if(delay.toInt() != -1) {
             val workRequest = OneTimeWorkRequestBuilder<LockWorker>().setInitialDelay(delay, TimeUnit.MINUTES).build()
             WorkManager.getInstance(baseContext).enqueueUniqueWork("LockVault", ExistingWorkPolicy.REPLACE, workRequest)
+        }
+
+        // Clear the clipboard if enabled in settings
+        if(isFinishing && Settings.get("clearClipboardOnExit") as Boolean) {
+
+            val overwriteCount = (Settings.get("clipboardIterations") as String).toInt()
+            val manager = baseContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+
+            runBlocking {
+                launch {
+                    for(i in 1..overwriteCount) {
+                        delay(10)
+                        manager.setPrimaryClip(ClipData.newPlainText(i.toString(), "\u200E".repeat(i)))
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        manager.clearPrimaryClip()
+                    } else {
+                        manager.setPrimaryClip(ClipData.newPlainText("", ""))
+                    }
+                }
+            }
         }
     }
 }
