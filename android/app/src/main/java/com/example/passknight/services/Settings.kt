@@ -3,6 +3,7 @@ package com.example.passknight.services
 object Settings {
 
     var firebaseInitialized: Boolean = false
+    var fromAutofillService: Boolean = false
 
     private lateinit var settings: Map<String, *>
 

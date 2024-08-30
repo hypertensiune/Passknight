@@ -27,6 +27,7 @@ import com.example.passknight.models.Vault
 import com.example.passknight.services.Clipboard
 import com.example.passknight.services.Cryptography
 import com.example.passknight.services.Firestore
+import com.example.passknight.services.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -36,7 +37,7 @@ import kotlinx.coroutines.launch
 class VaultViewModel(
     val navController: NavController,
     private val clipboard: Clipboard,
-    private val cryptography: Cryptography
+    val cryptography: Cryptography
 ) : ViewModel() {
 
     companion object {
@@ -73,18 +74,20 @@ class VaultViewModel(
     private var job: Job? = null
 
     init {
-        viewModelScope.launch(Dispatchers.Main) {
-            generator.generatedPassword.asFlow().collect {
-                if(it.isNotEmpty()) {
-                    // If a job was launched cancel it and launch a new one
-                    // with a 1500 ms delay so we don't spam firestore
-                    // with too many request to update the passwords history
-                    // if it updates too ofter (moving the length slider around continuously)
-                    job?.cancel()
-                    job = viewModelScope.launch {
-                        delay(1500)
-                        vault.value?.addHistoryItem(it)
-                        Firestore.updateHistoryItems(vault.value?.generatorHistory?.value!!)
+        if(!Settings.fromAutofillService) {
+            viewModelScope.launch(Dispatchers.Main) {
+                generator.generatedPassword.asFlow().collect {
+                    if(it.isNotEmpty()) {
+                        // If a job was launched cancel it and launch a new one
+                        // with a 1500 ms delay so we don't spam firestore
+                        // with too many request to update the passwords history
+                        // if it updates too ofter (moving the length slider around continuously)
+                        job?.cancel()
+                        job = viewModelScope.launch {
+                            delay(1500)
+                            vault.value?.addHistoryItem(it)
+                            Firestore.updateHistoryItems(vault.value?.generatorHistory?.value!!)
+                        }
                     }
                 }
             }

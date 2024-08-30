@@ -59,7 +59,7 @@ class PkAutofillService : AutofillService() {
         val presentation = RemoteViews(packageName, R.layout.autofill_list_item)
 
         // Start a new activity to unlock a vault and choose a password item to fill
-        val intent = Intent(this, MainActivity::class.java).apply {
+        val intent = Intent(this, AppActivity::class.java).apply {
             putExtra("AutofillService", true)
             putExtra("usernameAutofillId", usernameAutofillId)
             putExtra("passwordAutofillId", passwordAutofillId)
@@ -82,11 +82,11 @@ class PkAutofillService : AutofillService() {
 
         val inlinePresentation = InlinePresentation(slice, presentationSpec, false)
 
-        //Log.d("Passknight", "${usernameAutofillId.toString()} ${passwordAutofillId.toString()}")
+        Log.i("Passknight", "Autofill ${usernameAutofillId.toString()} ${passwordAutofillId.toString()}")
         val dataset = Dataset.Builder().apply {
-            usernameAutofillId?.let { setValue(usernameAutofillId!!, AutofillValue.forText("Username"), presentation, inlinePresentation) }
-            passwordAutofillId?.let { setValue(passwordAutofillId!!, AutofillValue.forText("1234"), presentation, inlinePresentation) }
-            //setAuthentication(intentSender)
+            usernameAutofillId?.let { setValue(usernameAutofillId!!, AutofillValue.forText(null), presentation, inlinePresentation) }
+            passwordAutofillId?.let { setValue(passwordAutofillId!!, AutofillValue.forText(null), presentation, inlinePresentation) }
+            setAuthentication(intentSender)
         }.build()
 
         fillResponse.addDataset(dataset)

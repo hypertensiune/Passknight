@@ -7,8 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.passknight.R
@@ -16,6 +18,7 @@ import com.example.passknight.adapters.PasswordListAdapter
 import com.example.passknight.databinding.FragmentTabPasswordsBinding
 import com.example.passknight.models.PasswordItem
 import com.example.passknight.models.Vault
+import com.example.passknight.services.Settings
 import com.example.passknight.viewmodels.VaultViewModel
 
 class TabPasswords : Fragment() {
@@ -37,20 +40,27 @@ class TabPasswords : Fragment() {
         binding.passwordListRecyclerView.layoutManager = LinearLayoutManager(context)
 
         viewModel.vault.observe(viewLifecycleOwner) {vault ->
-            Log.d("Passknight", "Vault observed")
             vault.passwords.observe(viewLifecycleOwner) {passwords ->
-                Log.d("Passknight", "Passwords observed")
+
                 val adapter = PasswordListAdapter(requireContext(), passwords,
-                    {
-                        viewModel.openPasswordItemForm(it)
+                    onItemClick = {
+                        if(Settings.fromAutofillService) {
+                            setFragmentResult("key", bundleOf(
+                                "password" to viewModel.cryptography.decrypt(it.password),
+                                "username" to it.username
+                            ))
+                        } else {
+                            viewModel.openPasswordItemForm(it)
+                        }
                     },
-                    {
+                    onPasswordCopyClick = {
                         viewModel.copyUsername(it)
                     },
-                    {
+                    onUsernameCopyClick = {
                         viewModel.copyPassword(it)
                     }
                 )
+
                 binding.passwordListRecyclerView.adapter = adapter
             }
         }

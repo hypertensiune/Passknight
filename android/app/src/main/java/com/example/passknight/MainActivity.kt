@@ -1,6 +1,9 @@
 package com.example.passknight
 
+import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -37,6 +40,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Show a message and close the app if there is no internet connection
+        if(!isOnline()) {
+            Dialog("No internet connection! Connect to internet and try again.", "Ok", null, positiveAction = {
+                finishAndRemoveTask()
+            }).show(supportFragmentManager, "NO_INTERNET")
+            return
+        }
+
         biometricsProvider = BiometricsProvider(
             applicationContext,
             this,
@@ -46,31 +57,10 @@ class MainActivity : AppCompatActivity() {
         )
 
         findViewById<MaterialButton>(R.id.unlock_btn).setOnClickListener {
-            // For autofill service testing purposes
-            // https://developer.android.com/identity/autofill/autofill-services#auth
-//            if(intent.getBooleanExtra("AutofillService", false)) {
-//
-//                val usernameAutofillId = intent.getParcelableExtra<AutofillId>("usernameAutofillId")!!
-//                val passwordAutofillId = intent.getParcelableExtra<AutofillId>("passwordAutofillId")!!
-//
-//                val notUsed = RemoteViews(packageName, R.layout.autofill_list_item)
-//
-//                val replyIntent = Intent().apply {
-//                    val responseDataset = Dataset.Builder()
-//                        .setValue(usernameAutofillId, AutofillValue.forText("Username"), notUsed)
-//                        .setValue(passwordAutofillId, AutofillValue.forText("1234"), notUsed)
-//                        .build()
-//
-//                    putExtra(EXTRA_AUTHENTICATION_RESULT, responseDataset)
-//                }
-//
-//                setResult(RESULT_OK, replyIntent)
-//                finish()
-//            } else {
-            biometricsProvider.prompt { onBiometricSuccess() }
+            biometricsProvider.prompt({ onBiometricSuccess() })
         }
 
-        biometricsProvider.prompt { onBiometricSuccess() }
+        biometricsProvider.prompt({ onBiometricSuccess() })
 
     }
 
@@ -82,5 +72,20 @@ class MainActivity : AppCompatActivity() {
         } else {
             startActivity(Intent(this, AppActivity::class.java))
         }
+    }
+
+    private fun isOnline(): Boolean {
+        val connectivityManager = baseContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        if (capabilities != null) {
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                return true
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                return true
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                return true
+            }
+        }
+        return false
     }
 }
