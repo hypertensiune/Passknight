@@ -13,31 +13,31 @@ class Generator() {
     var lowercase: Boolean = true
         set(value) {
             field = value
-            generatePassword()
+            updatePassword()
         }
 
     var uppercase: Boolean = true
         set(value) {
             field = value
-            generatePassword()
+            updatePassword()
         }
 
     var numbers: Boolean = true
         set(value) {
             field = value
-            generatePassword()
+            updatePassword()
         }
 
     var symbols: Boolean = true
         set(value) {
             field = value
-            generatePassword()
+            updatePassword()
         }
 
     var length: Float = 15f
         set(value) {
             field = value
-            generatePassword()
+            updatePassword()
         }
 
     val generatedPassword: MutableLiveData<String> = MutableLiveData("")
@@ -49,18 +49,17 @@ class Generator() {
         const val symbols = "!@#\$%^&*"
     }
 
-    init { generatePassword() }
+    init { updatePassword() }
 
     /**
      * @return A generated password using the current settings
      */
-    fun generatePassword() {
+    fun generatePassword(): String {
         var positions = ""
         var characters = ""
 
         if(!lowercase && !uppercase && !symbols && !numbers) {
-            generatedPassword.value = ""
-            return
+            return ""
         }
 
         if(lowercase) {
@@ -100,6 +99,10 @@ class Generator() {
             password += chars[random]
         }
 
-        generatedPassword.value = password
+        return password
+    }
+
+    private fun updatePassword() {
+        generatedPassword.value = generatePassword()
     }
 }

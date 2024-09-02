@@ -1,10 +1,10 @@
 package com.example.passknight.models
 
-interface Item {
+abstract class Item {
 
-    var name: String
+    abstract var name: String
 
-    fun clear()
-    fun encrypt(encryptionProvider: (String) -> String)
-    fun decrypt(decryptionProvider: (String) -> String)
+    abstract fun clear()
+    abstract fun encrypt(encryptionProvider: (String) -> String)
+    abstract fun decrypt(decryptionProvider: (String) -> String)
 }

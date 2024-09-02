@@ -100,7 +100,7 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@={viewModel.noteItem.name}"
+                    android:text="@={viewModel.noteItem.nameLive}"
                     android:textColor="@color/white"
                     app:endIconTint="@color/white" />
 
@@ -127,7 +127,7 @@
                     android:inputType="textMultiLine"
                     android:minLines="6"
                     android:maxLines="12"
-                    android:text="@={viewModel.noteItem.content}"
+                    android:text="@={viewModel.noteItem.contentLive}"
                     android:textColor="@color/white"
                     app:endIconTint="@color/white" />
 

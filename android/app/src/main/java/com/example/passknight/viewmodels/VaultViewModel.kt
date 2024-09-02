@@ -28,10 +28,12 @@ import com.example.passknight.services.Clipboard
 import com.example.passknight.services.Cryptography
 import com.example.passknight.services.Firestore
 import com.example.passknight.services.Settings
+import com.google.android.material.color.utilities.DislikeAnalyzer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class VaultViewModel(
@@ -47,17 +49,18 @@ class VaultViewModel(
 
     val vault: MutableLiveData<Vault> = MutableLiveData(Vault(null, null, null, null, null))
 
-    var passwordItem = PasswordItem.empty()
     private var originalPasswordItem: PasswordItem? = null
-    var noteItem = NoteItem.empty()
-    private var originalNoteItem: NoteItem? = null
-
-    var itemName: String = ""
+    var passwordItem = PasswordItem.empty()
         set(value) {
-            passwordItem.name = value
-            noteItem.name = value
-            formInputError.value = ""
             field = value
+            attachItemNameObserver()
+        }
+
+    private var originalNoteItem: NoteItem? = null
+    var noteItem = NoteItem.empty()
+        set(value) {
+            field = value
+            attachItemNameObserver()
         }
 
     var itemEditing = false
@@ -72,6 +75,7 @@ class VaultViewModel(
     val generator = Generator()
 
     private var job: Job? = null
+    private var namejob: Job? = null
 
     init {
         if(!Settings.fromAutofillService) {
@@ -101,6 +105,22 @@ class VaultViewModel(
                 toastMessage.postValue("Error when fetching the vault from firebase!")
             }
         }
+
+        attachItemNameObserver()
+    }
+
+    private fun attachItemNameObserver() {
+        namejob?.cancel()
+        namejob = viewModelScope.launch(Dispatchers.Main) {
+            var prevpass = ""
+            var prevnote = ""
+            passwordItem.nameLive.asFlow().collect {
+                if(it != prevpass) { formInputError.value = ""; prevpass = it }
+            }
+            noteItem.nameLive.asFlow().collect {
+                if(it != prevnote) { formInputError.value = ""; prevnote = it }
+            }
+        }
     }
 
     /**
@@ -119,7 +139,6 @@ class VaultViewModel(
      * Open the password item form for adding new item
      */
     fun openPasswordItemForm() {
-        itemName = ""
         itemEditing = false
         passwordItem = PasswordItem.empty()
         navController.navigate(R.id.vault_view_to_password_form)
@@ -134,7 +153,6 @@ class VaultViewModel(
         passwordItem = password.copy()
         passwordItem.decrypt(cryptography::decrypt)
         originalPasswordItem = password
-        itemName = password.name
         navController.navigate(R.id.vault_view_to_password_form)
     }
 
@@ -142,7 +160,6 @@ class VaultViewModel(
      * Open the note item form for adding new item
      */
     fun openNoteItemForm() {
-        itemName = ""
         itemEditing = false
         noteItem = NoteItem.empty()
         navController.navigate(R.id.vault_view_to_note_form)
@@ -157,7 +174,6 @@ class VaultViewModel(
         noteItem = note.copy()
         noteItem.decrypt(cryptography::decrypt)
         originalNoteItem = note
-        itemName = note.name
         navController.navigate(R.id.vault_view_to_note_form)
     }
 
@@ -282,6 +298,11 @@ class VaultViewModel(
                 clipboardMessage.value = "Password copied to clipboard"
             }
         }
+    }
+
+    fun fillGeneratorPassword() {
+        val pass = generator.generatePassword()
+        passwordItem.password = pass
     }
 
     fun deleteVault() {
