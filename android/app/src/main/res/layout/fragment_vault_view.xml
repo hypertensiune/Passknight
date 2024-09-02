@@ -16,13 +16,64 @@
         android:background="@color/BackgroundPrimary"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/menu_button"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/topbar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:padding="10dp"
-            android:src="@drawable/baseline_more_vert_24"/>
+            android:orientation="horizontal"
+            android:gravity="end">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:gravity="end">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/search_bar"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    app:boxBackgroundColor="@color/TextFilled"
+                    app:boxCornerRadiusBottomEnd="40dp"
+                    app:boxCornerRadiusBottomStart="40dp"
+                    app:boxCornerRadiusTopEnd="40dp"
+                    app:boxCornerRadiusTopStart="40dp"
+                    app:boxStrokeColor="@color/TextFilled"
+                    app:endIconMode="custom"
+                    app:endIconDrawable="@drawable/circle_xmark_solid"
+                    app:expandedHintEnabled="false"
+                    app:hintAnimationEnabled="false"
+                    app:hintEnabled="false"
+                    app:startIconDrawable="@drawable/baseline_search_24">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="0dp"
+                        android:paddingBottom="0dp"
+                        android:text="@={viewModel.search}"
+                        android:textColor="@color/white"
+                        app:endIconTint="@color/white" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/search_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:src="@drawable/baseline_search_24"/>
+
+            <ImageView
+                android:id="@+id/menu_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:src="@drawable/baseline_more_vert_24"/>
+
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/logo"

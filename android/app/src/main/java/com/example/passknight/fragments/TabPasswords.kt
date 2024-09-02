@@ -1,5 +1,6 @@
 package com.example.passknight.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -41,28 +42,13 @@ class TabPasswords : Fragment() {
 
         viewModel.vault.observe(viewLifecycleOwner) {vault ->
             vault.passwords.observe(viewLifecycleOwner) {passwords ->
-
-                val adapter = PasswordListAdapter(requireContext(), passwords,
-                    onItemClick = {
-                        if(Settings.fromAutofillService) {
-                            setFragmentResult("key", bundleOf(
-                                "password" to viewModel.cryptography.decrypt(it.password),
-                                "username" to it.username
-                            ))
-                        } else {
-                            viewModel.openPasswordItemForm(it)
-                        }
-                    },
-                    onPasswordCopyClick = {
-                        viewModel.copyUsername(it)
-                    },
-                    onUsernameCopyClick = {
-                        viewModel.copyPassword(it)
-                    }
-                )
-
-                binding.passwordListRecyclerView.adapter = adapter
+                binding.passwordListRecyclerView.adapter = getAdapter(viewModel, passwords)
             }
+        }
+
+        viewModel.search.observe(viewLifecycleOwner) {search ->
+            val passwords = viewModel.vault.value?.passwords?.value
+            binding.passwordListRecyclerView.adapter = getAdapter(viewModel, passwords?.filter { it.name.contains(search, true) }!! )
         }
 
         viewModel.clipboardMessage.observe(viewLifecycleOwner) {
@@ -72,5 +58,26 @@ class TabPasswords : Fragment() {
         }
 
         return binding.root
+    }
+
+    private fun getAdapter(viewModel: VaultViewModel, passwords: List<PasswordItem>): PasswordListAdapter {
+        return PasswordListAdapter(requireContext(), passwords,
+            onItemClick = {
+                if(Settings.fromAutofillService) {
+                    setFragmentResult("key", bundleOf(
+                        "password" to viewModel.cryptography.decrypt(it.password),
+                        "username" to it.username
+                    ))
+                } else {
+                    viewModel.openPasswordItemForm(it)
+                }
+            },
+            onPasswordCopyClick = {
+                viewModel.copyUsername(it)
+            },
+            onUsernameCopyClick = {
+                viewModel.copyPassword(it)
+            }
+        )
     }
 }

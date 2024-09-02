@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.passknight.R
 import com.example.passknight.adapters.NoteListAdapter
 import com.example.passknight.databinding.FragmentTabNotesBinding
+import com.example.passknight.models.NoteItem
 import com.example.passknight.viewmodels.VaultViewModel
 
 class TabNotes : Fragment() {
@@ -34,13 +35,21 @@ class TabNotes : Fragment() {
 
         viewModel.vault.observe(viewLifecycleOwner) {vault ->
             vault.notes.observe(viewLifecycleOwner) {notes ->
-                val adapter = NoteListAdapter(requireContext(), notes) {
-                    viewModel.openNoteItemForm(it)
-                }
-                binding.noteListRecyclerView.adapter = adapter
+                binding.noteListRecyclerView.adapter = getAdapter(viewModel, notes)
             }
         }
 
+        viewModel.search.observe(viewLifecycleOwner) {search ->
+            val notes = viewModel.vault.value?.notes?.value
+            binding.noteListRecyclerView.adapter = getAdapter(viewModel, notes?.filter { it.name.contains(search, true) }!! )
+        }
+
         return binding.root
+    }
+
+    private fun getAdapter(viewModel: VaultViewModel, notes: List<NoteItem>): NoteListAdapter {
+        return NoteListAdapter(requireContext(), notes) {
+            viewModel.openNoteItemForm(it)
+        }
     }
 }

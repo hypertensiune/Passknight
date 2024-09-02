@@ -49,6 +49,8 @@ class VaultViewModel(
 
     val vault: MutableLiveData<Vault> = MutableLiveData(Vault(null, null, null, null, null))
 
+    val search: MutableLiveData<String> = MutableLiveData("")
+
     private var originalPasswordItem: PasswordItem? = null
     var passwordItem = PasswordItem.empty()
         set(value) {

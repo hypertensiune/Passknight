@@ -1,12 +1,26 @@
 package com.example.passknight.fragments
 
+import android.animation.ValueAnimator
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.transition.AutoTransition
+import android.transition.ChangeBounds
+import android.transition.Fade
+import android.transition.Slide
+import android.transition.TransitionManager
+import android.transition.TransitionSet
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.DecelerateInterpolator
+import android.view.inputmethod.InputMethodManager
+import android.widget.LinearLayout
 import android.widget.PopupMenu
+import android.widget.RelativeLayout
 import android.widget.Toast
+import androidx.core.content.getSystemService
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
@@ -26,6 +40,8 @@ class VaultView : Fragment() {
     private lateinit var binding: FragmentVaultViewBinding
 
     private val args: VaultViewArgs by navArgs<VaultViewArgs>()
+
+    private var searchbarOpenend = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -88,6 +104,34 @@ class VaultView : Fragment() {
         }
 
         binding.menuButton.setOnClickListener { showPopupMenu(it, viewModel) }
+
+        binding.searchButton.setOnClickListener { view ->
+            // https://stackoverflow.com/questions/42563815/animate-a-view-from-0dp-width-to-match-parent
+            if(!searchbarOpenend) {
+                val animator = ValueAnimator.ofInt(0, (binding.searchBar.parent as View).measuredWidth + (24 * requireContext().resources.displayMetrics.density).toInt())
+                animator.duration = 200
+                animator.interpolator = DecelerateInterpolator()
+                animator.addUpdateListener {
+                    binding.searchBar.layoutParams.width = animator.animatedValue as Int
+                    binding.searchBar.requestLayout()
+                }
+
+                animator.start()
+                view.visibility = View.GONE
+
+                searchbarOpenend = true
+            }
+        }
+
+        binding.searchBar.setEndIconOnClickListener {
+            if(searchbarOpenend) {
+                binding.searchBar.layoutParams.width = 0
+                binding.searchBar.editText?.text?.clear()
+                binding.searchButton.visibility = View.VISIBLE
+
+                searchbarOpenend = false
+            }
+        }
 
         return binding.root
     }

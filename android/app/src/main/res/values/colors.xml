@@ -10,4 +10,5 @@
     <color name="Primary">#1871c2</color>
     <color name="PrimaryHover">#1864ab</color>
     <color name="InfoRed">#ef9a9a</color>
+    <color name="TextFilled">#36343b</color>
 </resources>
