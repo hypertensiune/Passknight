@@ -20,6 +20,7 @@ import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.RelativeLayout
 import android.widget.Toast
+import androidx.core.animation.addListener
 import androidx.core.content.getSystemService
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -116,6 +117,13 @@ class VaultView : Fragment() {
                     binding.searchBar.requestLayout()
                 }
 
+                // After animation is done focus on the search bar and open the keyboard
+                animator.addListener(onEnd = {
+                    binding.searchBar.requestFocus()
+                    val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.showSoftInput(binding.searchText, InputMethodManager.SHOW_IMPLICIT)
+                })
+
                 animator.start()
                 view.visibility = View.GONE
 
@@ -128,6 +136,10 @@ class VaultView : Fragment() {
                 binding.searchBar.layoutParams.width = 0
                 binding.searchBar.editText?.text?.clear()
                 binding.searchButton.visibility = View.VISIBLE
+
+                // Close the keyboard
+                val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(binding.searchText.windowToken, 0)
 
                 searchbarOpenend = false
             }

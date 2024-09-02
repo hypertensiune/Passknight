@@ -47,6 +47,7 @@
                     app:startIconDrawable="@drawable/baseline_search_24">
 
                     <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/search_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:paddingTop="0dp"
