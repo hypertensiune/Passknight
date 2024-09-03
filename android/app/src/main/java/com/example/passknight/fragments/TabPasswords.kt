@@ -72,11 +72,12 @@ class TabPasswords : Fragment() {
                     viewModel.openPasswordItemForm(it)
                 }
             },
+            decryptor = viewModel.cryptography::decrypt,
             onUsernameCopyClick = {
-                viewModel.copyUsername(it)
+                viewModel.copyUsername(viewModel.cryptography.decrypt(it))
             },
             onPasswordCopyClick = {
-                viewModel.copyPassword(it)
+                viewModel.copyPassword(viewModel.cryptography.decrypt(it))
             }
         )
     }

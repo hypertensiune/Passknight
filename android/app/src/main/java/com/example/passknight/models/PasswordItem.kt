@@ -47,10 +47,14 @@ class PasswordItem(name: String, website: String, username: String, pass: String
     }
 
     override fun encrypt(encryptionProvider: (String) -> String) {
+        website = encryptionProvider(website)
+        username = encryptionProvider(username)
         password = encryptionProvider(password)
     }
 
     override fun decrypt(decryptionProvider: (String) -> String) {
+        website = decryptionProvider(website)
+        username = decryptionProvider(username)
         password = decryptionProvider(password)
     }
 }

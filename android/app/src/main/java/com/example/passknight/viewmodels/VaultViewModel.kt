@@ -253,7 +253,7 @@ class VaultViewModel(
             return
         }
 
-        if(!checkItemNameIsValid(item)) {
+        if(original?.name != item.name && !checkItemNameIsValid(item)) {
             return
         }
 

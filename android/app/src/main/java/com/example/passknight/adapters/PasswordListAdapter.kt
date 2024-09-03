@@ -6,10 +6,12 @@ import android.view.ViewGroup
 import com.example.passknight.databinding.PasswordListItemBinding
 import com.example.passknight.databinding.VaultListItemBinding
 import com.example.passknight.models.PasswordItem
+import com.example.passknight.services.Cryptography
 
 class PasswordListAdapter(
     context: Context,
     passwords: List<PasswordItem>?,
+    private val decryptor: (String) -> String,
     private val onItemClick: (PasswordItem) -> Unit,
     private val onUsernameCopyClick: (String) -> Unit,
     private val onPasswordCopyClick: (String) -> Unit
@@ -23,8 +25,8 @@ class PasswordListAdapter(
 
         return ViewHolder(binding) { item, binding ->
             binding.name = item.name
-            binding.username = item.username
-            binding.website = item.website
+            binding.username = decryptor(item.username)
+            binding.website = decryptor(item.website)
 
             binding.copyPasswordBtn.setOnClickListener {
                 onPasswordCopyClick(item.password)
