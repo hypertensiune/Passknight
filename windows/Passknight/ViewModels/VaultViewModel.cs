@@ -56,6 +56,8 @@ namespace Passknight.ViewModels
 
         private readonly object _valueLock = new object();
 
+        public Func<string, string> DecryptorDelegate { get; }
+
         public VaultViewModel(Services.NavigationService navigationService, IDatabase database, string password)
         {
             _navigationService = navigationService;
@@ -83,6 +85,8 @@ namespace Passknight.ViewModels
             CopyGeneratedPasswordCommand = new RelayCommand((object? param) => Clipboard.SetText((string)param!));
 
             OpenHistoryCommand = new RelayCommand((object? param) => navigationService.NavigateTo<HistoryViewModel>(Vault.GeneratorHistory));
+
+            DecryptorDelegate = new Func<string, string>((string input) => _cryptography.Decrypt(input));
         }
 
         private async Task GetVaultAsync()

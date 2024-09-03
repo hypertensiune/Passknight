@@ -12,14 +12,20 @@ namespace Passknight.Models.Items
         public string Password { get; set; } = String.Empty;
         public string Username { get; set; }
         public string Website { get; set; }
+        public string Created { get; set; } = String.Empty;
+        public string Updated { get; set; } = String.Empty;
 
         public void Decrypt(Func<string, string> decrypt)
         {
+            Website = decrypt(Website);
+            Username = decrypt(Username);
             Password = decrypt(Password);
         }
 
         public void Encrypt(Func<string, string> encrypt)
         {
+            Website = encrypt(Website);
+            Username = encrypt(Username);
             Password = encrypt(Password);
         }
 
