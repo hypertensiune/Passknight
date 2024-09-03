@@ -81,6 +81,7 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/vaultListRecyclerView"
+                android:requiresFadingEdge="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="470dp"
                 android:layout_margin="20dp"
