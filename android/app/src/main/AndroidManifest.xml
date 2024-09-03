@@ -20,7 +20,8 @@
         <activity
             android:name=".AppActivity"
             android:screenOrientation="portrait"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan"/>
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait"

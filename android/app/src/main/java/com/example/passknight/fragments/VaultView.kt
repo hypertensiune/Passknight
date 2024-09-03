@@ -88,6 +88,8 @@ class VaultView : Fragment() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
+        binding.vault = args.vault
+
         binding.viewPager.adapter = ViewPagerAdapter(requireActivity(), viewModel)
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             when(position) {

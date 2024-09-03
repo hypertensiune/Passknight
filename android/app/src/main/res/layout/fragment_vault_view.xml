@@ -6,15 +6,17 @@
 
     <data>
         <variable
+            name="vault"
+            type="String" />
+        <variable
             name="viewModel"
             type="com.example.passknight.viewmodels.VaultViewModel" />
     </data>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/BackgroundPrimary"
-        android:orientation="vertical">
+        android:background="@color/BackgroundPrimary">
 
         <LinearLayout
             android:id="@+id/topbar"
@@ -80,14 +82,25 @@
             android:id="@+id/logo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="70dp"
             android:scaleX="1.2"
             android:scaleY="1.2"
             android:src="@drawable/logo"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_alignParentTop="true"/>
+
+        <TextView
+            android:id="@+id/vaultHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/logo"
+            android:text="@{vault}"
+            android:gravity="center"
+            android:textSize="22sp"/>
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
+            android:layout_below="@+id/vaultHeader"
+            android:layout_marginTop="20dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/BackgroundPrimary">
@@ -110,14 +123,16 @@
                 android:text="Generator"/>
 
         </com.google.android.material.tabs.TabLayout>
-    
+
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/view_pager"
+            android:layout_below="@id/tabLayout"
             android:layout_width="match_parent"
             android:layout_height="fill_parent">
 
 
         </androidx.viewpager2.widget.ViewPager2>
-    </LinearLayout>
+
+    </RelativeLayout>
 
 </layout>

@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
  */
 class VaultDeleteViewModel(
     val vault: String,
-    private val navController: NavController,
+    val navController: NavController,
     private val biometricsProvider: BiometricsProvider
 ) : ViewModel() {
 

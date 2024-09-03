@@ -33,6 +33,10 @@ class VaultCreate : Fragment() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
+        binding.toolbar.setNavigationOnClickListener {
+            viewModel.navController.popBackStack()
+        }
+
         return binding.root
     }
 }

@@ -45,6 +45,7 @@
         android:id="@+id/vault_view"
         android:name="com.example.passknight.fragments.VaultView"
         tools:layout="@layout/fragment_vault_view">
+        <argument android:name="vault" app:argType="string"/>
         <argument android:name="email" app:argType="string" android:defaultValue=""/>
         <argument android:name="password" app:argType="string" android:defaultValue=""/>
         <argument android:name="psk" app:argType="string" android:defaultValue=""/>

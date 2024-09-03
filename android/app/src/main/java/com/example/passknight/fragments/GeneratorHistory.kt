@@ -8,13 +8,16 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.passknight.R
 import com.example.passknight.adapters.HistoryListAdapter
 import com.example.passknight.adapters.PasswordListAdapter
 import com.example.passknight.databinding.FragmentGeneratorHistoryBinding
 import com.example.passknight.databinding.FragmentTabGeneratorBinding
+import com.example.passknight.services.Dialog
 import com.example.passknight.viewmodels.VaultViewModel
+import kotlinx.coroutines.launch
 
 class GeneratorHistory : Fragment() {
 
@@ -36,6 +39,22 @@ class GeneratorHistory : Fragment() {
             viewModel.copyPassword(it)
         }
         binding.historyRecyclerView.adapter = adapter
+
+        binding.toolbar.setNavigationOnClickListener {
+            viewModel.navController.popBackStack()
+        }
+
+        binding.toolbar.setOnMenuItemClickListener {
+            if(it.itemId == R.id.menu_clear) {
+                Dialog("Are you sure you want to clear the password history?", "Yes", "No", {
+                    lifecycleScope.launch {
+                        viewModel.clearHistory()
+                        viewModel.navController.popBackStack()
+                    }
+                }, {}).show(childFragmentManager, "DELETE_DIALOG")
+            }
+            true
+        }
 
         return binding.root
     }

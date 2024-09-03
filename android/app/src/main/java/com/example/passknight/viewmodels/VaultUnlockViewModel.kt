@@ -49,7 +49,7 @@ class VaultUnlockViewModel(
             // Don't allow back navigation from the vault view
             // The user can get back to the vault list view only by pressing a button that signs out of firebase
             // https://stackoverflow.com/questions/50514758/how-to-clear-navigation-stack-after-navigating-to-another-fragment-in-android
-            navController.navigate(VaultUnlockDirections.vaultUnlockToView("$vault@passknight.vault", password, result))
+            navController.navigate(VaultUnlockDirections.vaultUnlockToView(vault, "$vault@passknight.vault", password, result))
             //navController.navigate(R.id.vault_unlock_to_view)
         }
     }

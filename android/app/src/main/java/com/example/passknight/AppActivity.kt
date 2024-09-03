@@ -120,14 +120,13 @@ class AppActivity : AppCompatActivity() {
 
                 val stretchedMasterKey = Cryptography.Utils.getEncryptedSharedPreferences(baseContext).getString("smk", "") as String
 
-                println(stretchedMasterKey)
-
                 // If there was no value in shared preferences ignore the persistence and
                 // require the user to login again
                 if(stretchedMasterKey.isEmpty()) {
                     startDestination = R.id.vault_list
                 } else {
                     startDestination = R.id.vault_view
+                    navArgs.putString("vault", Firebase.auth.currentUser!!.email?.split("@")?.get(0))
                     navArgs.putString("psk", Firestore.getVaultPsk()!!)
                     navArgs.putString("smk", stretchedMasterKey)
                 }

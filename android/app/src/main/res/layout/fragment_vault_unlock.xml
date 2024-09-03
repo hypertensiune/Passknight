@@ -10,25 +10,33 @@
             type="com.example.passknight.viewmodels.VaultUnlockViewModel" />
     </data>
 
-    <FrameLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/BackgroundPrimary">
+
+        <ImageView
+            android:id="@+id/logoLoading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="70dp"
+            android:layout_alignParentTop="true"
+            android:scaleX="1.2"
+            android:scaleY="1.2"
+            android:src="@drawable/logo" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/logoLoading"
+            android:text="@{viewModel.vault}"
+            android:gravity="center"
+            android:textSize="22sp"/>
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="@{viewModel.loadingScreen ? View.VISIBLE : View.GONE}">
-
-            <ImageView
-                android:id="@+id/logoLoading"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_marginTop="80dp"
-                android:scaleX="1.2"
-                android:scaleY="1.2"
-                android:src="@drawable/logo" />
 
             <TextView
                 android:id="@+id/loadingMessage"
@@ -56,19 +64,19 @@
             android:layout_height="match_parent"
             android:visibility="@{viewModel.loadingScreen ? View.GONE : View.VISIBLE}">
 
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@{`Unlock ` + viewModel.vault}"
-                android:textColor="@color/ForegroundColor"
-                android:textSize="30sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.498"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.096" />
+<!--            <TextView-->
+<!--                android:id="@+id/textView"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="@{`Unlock ` + viewModel.vault}"-->
+<!--                android:textColor="@color/ForegroundColor"-->
+<!--                android:textSize="30sp"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintHorizontal_bias="0.498"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toTopOf="parent"-->
+<!--                app:layout_constraintVertical_bias="0.096" />-->
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/textInputLayout"
@@ -106,12 +114,12 @@
                 app:cornerRadius="5dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.498"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintVertical_bias="0.72"
                 app:layout_constraintTop_toBottomOf="@+id/textInputLayout"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </FrameLayout>
+    </RelativeLayout>
 
 </layout>

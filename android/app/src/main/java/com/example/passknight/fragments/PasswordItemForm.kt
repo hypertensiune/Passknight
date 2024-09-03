@@ -30,30 +30,33 @@ class PasswordItemForm : Fragment() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
-        binding.itemMenuButton.setOnClickListener { showPopupMenu(it, viewModel) }
+        binding.toolbar.setNavigationOnClickListener {
+            viewModel.navController.popBackStack()
+        }
+
+        binding.generatePasswordBtn.setOnClickListener {
+            if(viewModel.passwordItem.password.isNotEmpty()) {
+                Dialog("Are you sure you want to overwrite the current password?", "Yes", "No", {
+                    viewModel.fillGeneratorPassword()
+                }, {}).show(childFragmentManager, "PASS_OVERWRITE_DIALOG")
+            } else {
+                viewModel.fillGeneratorPassword()
+            }
+        }
+
+        if(viewModel.itemEditing) {
+            binding.toolbar.inflateMenu(R.menu.item_form_menu)
+            binding.toolbar.setOnMenuItemClickListener {
+                if(it.itemId == R.id.menu_delete) {
+                    Dialog("Are you sure you want to delete this item? Action is not reversible.", "Yes", "No", {
+                        viewModel.deleteItem(VaultViewModel.ITEM_PASSWORD)
+                    }, {}).show(childFragmentManager, "DELETE_DIALOG")
+                }
+
+                true
+            }
+        }
 
         return binding.root
-    }
-
-    private fun showPopupMenu(view: View, viewModel: VaultViewModel) {
-        val popupMenu = PopupMenu(requireContext(), view, 0, androidx.appcompat.R.attr.popupMenuStyle, R.style.PopupMenu)
-        popupMenu.menuInflater.inflate(R.menu.item_form_menu, popupMenu.menu)
-
-        // setForceShowIcon requires API level 29 (Q)
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            popupMenu.setForceShowIcon(true)
-        }
-
-        popupMenu.setOnMenuItemClickListener {
-            if(it.itemId == R.id.menu_delete) {
-                Dialog("Are you sure you want to delete this item? Action is not reversible.", "Yes", "No", {
-                    viewModel.deleteItem(VaultViewModel.ITEM_PASSWORD)
-                }, {}).show(childFragmentManager, "DELETE_DIALOG")
-            }
-
-            true
-        }
-
-        popupMenu.show()
     }
 }

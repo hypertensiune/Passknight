@@ -56,6 +56,10 @@ class VaultDelete : Fragment() {
             }
         }
 
+        binding.toolbar.setNavigationOnClickListener {
+            viewModel.navController.popBackStack()
+        }
+
         return binding.root
     }
 }

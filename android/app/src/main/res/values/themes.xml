@@ -15,6 +15,5 @@
     <style name="Theme.Passknight" parent="Base.Theme.Passknight" />
 
     <style name="PopupMenu" parent="Widget.Material3.PopupMenu">
-        <item name="android:popupBackground">@drawable/menu_background</item>
     </style>
 </resources>

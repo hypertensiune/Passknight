@@ -39,6 +39,10 @@ class Vault (
         generatorHistory.value = h
     }
 
+    fun clearHistory() {
+        generatorHistory.value = mutableListOf()
+    }
+
     fun <T> addItem(item: T) {
         if(item is PasswordItem) {
             val p = passwords.value

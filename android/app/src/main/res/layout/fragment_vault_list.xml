@@ -26,7 +26,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
-                android:layout_marginTop="80dp"
+                android:layout_marginTop="70dp"
                 android:scaleX="1.2"
                 android:scaleY="1.2"
                 android:src="@drawable/logo" />
@@ -73,7 +73,7 @@
                 android:id="@+id/logo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="80dp"
+                android:layout_marginTop="70dp"
                 android:scaleX="1.2"
                 android:scaleY="1.2"
                 android:src="@drawable/logo"

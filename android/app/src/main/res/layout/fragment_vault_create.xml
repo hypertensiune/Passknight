@@ -25,7 +25,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
-                android:layout_marginTop="80dp"
+                android:layout_marginTop="70dp"
                 android:scaleX="1.2"
                 android:scaleY="1.2"
                 android:src="@drawable/logo" />
@@ -56,18 +56,35 @@
             android:layout_height="match_parent"
             android:visibility="@{viewModel.loadingScreen ? View.GONE : View.VISIBLE}">
 
-            <TextView
-                android:id="@+id/textView2"
-                android:layout_width="wrap_content"
+            <com.google.android.material.appbar.AppBarLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="64dp"
-                android:text="Vault Setup"
-                android:textColor="@color/ForegroundColor"
-                android:textSize="30sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.498"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:background="@color/BackgroundPrimary">
+
+                <com.google.android.material.appbar.MaterialToolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:title="Create vault"
+                    app:titleTextColor="@color/ForegroundColor"
+                    app:titleCentered="true"
+                    app:navigationIcon="@drawable/baseline_arrow_back_24"
+                    app:navigationIconTint="@color/ForegroundColor"/>
+
+            </com.google.android.material.appbar.AppBarLayout>
+
+<!--            <TextView-->
+<!--                android:id="@+id/textView2"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="64dp"-->
+<!--                android:text="Vault Setup"-->
+<!--                android:textColor="@color/ForegroundColor"-->
+<!--                android:textSize="30sp"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintHorizontal_bias="0.498"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toTopOf="parent" />-->
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/textInputLayout2"
@@ -83,7 +100,7 @@
                 app:hintTextColor="@color/Primary"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.261"
+                app:layout_constraintVertical_bias="0.15"
                 tools:layout_editor_absoluteX="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -170,7 +187,6 @@
                 app:cornerRadius="5dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.498"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textInputLayout4" />
 

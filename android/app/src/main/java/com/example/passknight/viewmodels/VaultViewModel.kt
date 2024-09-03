@@ -26,6 +26,7 @@ import com.example.passknight.models.PasswordItem
 import com.example.passknight.models.Vault
 import com.example.passknight.services.Clipboard
 import com.example.passknight.services.Cryptography
+import com.example.passknight.services.Dialog
 import com.example.passknight.services.Firestore
 import com.example.passknight.services.Settings
 import com.google.android.material.color.utilities.DislikeAnalyzer
@@ -203,6 +204,15 @@ class VaultViewModel(
         return true
     }
 
+    private fun noChanges(original: Item?, item: Item): Boolean {
+        if(original is PasswordItem && item is PasswordItem) {
+            return original.name == item.name && original.website == item.website && cryptography.decrypt(original.password) == item.password
+        } else if(original is NoteItem && item is NoteItem) {
+            return original.name == item.name && cryptography.decrypt(original.content) == item.content
+        }
+        return true
+    }
+
     fun addNewItem(itemFlag: Int) {
         val item = getItem(itemFlag)
 
@@ -212,7 +222,7 @@ class VaultViewModel(
 
         // enable the progress bar while waiting for the result
         formScreen.value = true
-        formMessage.value = "Adding new item.."
+        formMessage.value = "Creating new item.."
 
         viewModelScope.launch(Dispatchers.Main) {
             item.encrypt(cryptography::encrypt)
@@ -237,6 +247,11 @@ class VaultViewModel(
     fun editItem(itemFlag: Int) {
         val original = getOriginalItem(itemFlag)
         val item = getItem(itemFlag)
+
+        if(noChanges(original, item)) {
+            navController.popBackStack()
+            return
+        }
 
         if(!checkItemNameIsValid(item)) {
             return
@@ -305,6 +320,11 @@ class VaultViewModel(
     fun fillGeneratorPassword() {
         val pass = generator.generatePassword()
         passwordItem.password = pass
+    }
+
+    suspend fun clearHistory() {
+        vault.value?.clearHistory()
+        Firestore.updateHistoryItems(emptyList())
     }
 
     fun deleteVault() {

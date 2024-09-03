@@ -17,7 +17,7 @@ import com.example.passknight.services.Firestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class VaultCreateViewModel(private val navController: NavController) : ViewModel() {
+class VaultCreateViewModel(val navController: NavController) : ViewModel() {
 
     val nameError: MutableLiveData<String> = MutableLiveData("")
     var name: String = ""
@@ -58,7 +58,7 @@ class VaultCreateViewModel(private val navController: NavController) : ViewModel
                     // Don't allow back navigation from the vault view
                     // The user can get back to the vault list view only by pressing a button that signs out of firebase
                     // https://stackoverflow.com/questions/50514758/how-to-clear-navigation-stack-after-navigating-to-another-fragment-in-android
-                    navController.navigate(VaultCreateDirections.vaultCreateToView("$name@passknight.vault", masterPassword, cryptoPair.second))
+                    navController.navigate(VaultCreateDirections.vaultCreateToView(name, "$name@passknight.vault", masterPassword, cryptoPair.second))
                     //navController.navigate(R.id.vault_create_to_view)
                 } else {
                     // otherwise clear the input fields and display an error message

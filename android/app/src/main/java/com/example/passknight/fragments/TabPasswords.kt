@@ -72,10 +72,10 @@ class TabPasswords : Fragment() {
                     viewModel.openPasswordItemForm(it)
                 }
             },
-            onPasswordCopyClick = {
+            onUsernameCopyClick = {
                 viewModel.copyUsername(it)
             },
-            onUsernameCopyClick = {
+            onPasswordCopyClick = {
                 viewModel.copyPassword(it)
             }
         )
