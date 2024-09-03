@@ -21,7 +21,7 @@ namespace Passknight.ViewModels.FormViewModels
         Edit
     };
 
-    internal class ItemFormViewModel<T> : ViewModel where T : ICryptable
+    internal class ItemFormViewModel<T> : ViewModel where T : Item, ICryptable
     {
         public T Item { get; init; }
 
@@ -59,6 +59,9 @@ namespace Passknight.ViewModels.FormViewModels
                 Item.Encrypt(_cryptography.Encrypt);
                 _items.Add(Item);
 
+                Item.Created = DateTimeOffset.Now.ToUnixTimeMilliseconds().ToString();
+                Item.Updated = DateTimeOffset.Now.ToUnixTimeMilliseconds().ToString();
+
                 var res = await _database.AddItemInVault(Item);
                 if (!res)
                 {
@@ -75,6 +78,8 @@ namespace Passknight.ViewModels.FormViewModels
                 {
                     return;
                 }
+
+                Item.Updated = DateTimeOffset.Now.ToUnixTimeMilliseconds().ToString();
 
                 Item.Encrypt(_cryptography.Encrypt);
                 _items[index] = Item;

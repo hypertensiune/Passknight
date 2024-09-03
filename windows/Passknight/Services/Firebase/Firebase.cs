@@ -110,11 +110,11 @@ namespace Passknight.Services.Firebase
 
         public async Task<bool> EditItemInVault<T>(T oldItem, T newItem) where T : notnull
         {
-            // If the names of the items are different, add the new item and then delete
-            // the old one. Otherwise simply update the existing item.
-
+            // Add the new item in the vault. If the name (which is the key in firestore) is not
+            // changed firestore will overwrite the existing field with the one, updating it.
             await AddItemInVault(newItem);
 
+            // If the name was change delete the old field from firestore
             if(typeof(T) == typeof(PasswordItem) && (oldItem as PasswordItem)!.Name != (newItem as PasswordItem)!.Name)
             {
                 await DeleteItemFromVault(oldItem);

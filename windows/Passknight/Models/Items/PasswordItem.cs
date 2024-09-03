@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace Passknight.Models.Items
 {
-    internal class PasswordItem : ICryptable
+    internal class PasswordItem : Item, ICryptable
     {
         public string Name { get; set; }
         public string Password { get; set; } = String.Empty;
         public string Username { get; set; }
         public string Website { get; set; }
-        public string Created { get; set; } = String.Empty;
-        public string Updated { get; set; } = String.Empty;
+        public override string Created { get; set; }
+        public override string Updated { get; set; }
 
         public void Decrypt(Func<string, string> decrypt)
         {

@@ -47,7 +47,9 @@ namespace Passknight.Services.Firebase
                         Name = item.Name,
                         Password = (string)fields.SelectToken("password.stringValue")!,
                         Username = (string)fields.SelectToken("username.stringValue")!,
-                        Website = (string)fields.SelectToken("website.stringValue")!
+                        Website = (string)fields.SelectToken("website.stringValue")!,
+                        Created = (string)fields.SelectToken("created.stringValue")!,
+                        Updated = (string)fields.SelectToken("updated.stringValue")!
                     });
                 }
             }
@@ -64,6 +66,8 @@ namespace Passknight.Services.Firebase
                     {
                         Name = (string)fields.SelectToken("name.stringValue")!,
                         Content = (string)fields.SelectToken("content.stringValue")!,
+                        Created = (string)fields.SelectToken("created.stringValue")!,
+                        Updated = (string)fields.SelectToken("updated.stringValue")!
                     });
                 }
             }
@@ -103,6 +107,12 @@ namespace Passknight.Services.Firebase
                                 },
                                 "password": {
                                     "stringValue": "{{item.Password}}"
+                                },
+                                "created": {
+                                    "stringValue": "{{item.Created}}"
+                                },
+                                "updated": {
+                                    "stringValue": "{{item.Updated}}"
                                 }
                             }
                         }
@@ -127,6 +137,12 @@ namespace Passknight.Services.Firebase
                             "fields": {
                                 "content": {
                                     "stringValue": "{{item.Content}}"
+                                },
+                                "created": {
+                                    "stringValue": "{{item.Created}}"
+                                },
+                                "updated": {
+                                    "stringValue": "{{item.Updated}}"
                                 }
                             }
                         }
