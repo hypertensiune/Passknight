@@ -177,6 +177,25 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <TextView
+                android:id="@+id/cretedon"
+                android:visibility="@{viewModel.itemEditing ? View.VISIBLE : View.GONE}"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@{`Created: ` + viewModel.timestampStringToDate(viewModel.noteItem.created)}"
+                android:layout_marginTop="30dp"
+                android:layout_marginHorizontal="20dp"
+                app:layout_constraintTop_toBottomOf="@+id/textInputLayout3"/>
+
+            <TextView
+                android:visibility="@{viewModel.itemEditing ? View.VISIBLE : View.GONE}"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@{`Updated: ` + viewModel.timestampStringToDate(viewModel.noteItem.updated)}"
+                android:layout_marginTop="10dp"
+                android:layout_marginHorizontal="20dp"
+                app:layout_constraintTop_toBottomOf="@+id/cretedon"/>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </FrameLayout>

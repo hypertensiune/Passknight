@@ -1,19 +1,32 @@
 package com.example.passknight.models
 
 import androidx.lifecycle.MutableLiveData
+import com.example.passknight.Utils
+import java.time.Instant
+import java.time.LocalDateTime
 
-class PasswordItem(name: String, website: String, username: String, pass: String) : Item() {
+class PasswordItem(
+    name: String,
+    website: String,
+    username: String,
+    pass: String,
+    override var created: String,
+    override var updated: String
+) : Item() {
 
     companion object {
         fun from(name: String, data: Map<String, String>) = PasswordItem(
             name,
             data["website"] as String,
             data["username"] as String,
-            data["password"] as String
+            data["password"] as String,
+            data["created"] as String,
+            data["updated"] as String
         )
 
-        fun empty(): PasswordItem = PasswordItem("", "", "", "")
+        fun empty(): PasswordItem = PasswordItem("", "", "", "", Utils.currentTimestamp(), Utils.currentTimestamp())
     }
+
 
     val nameLive: MutableLiveData<String> = MutableLiveData(name)
     override var name: String
@@ -36,7 +49,7 @@ class PasswordItem(name: String, website: String, username: String, pass: String
         set(value) { passwordLive.value = value }
 
     fun copy(): PasswordItem {
-        return PasswordItem(name, website, username, password)
+        return PasswordItem(name, website, username, password, created, updated)
     }
 
     override fun clear() {

@@ -23,7 +23,7 @@ class Vault (
             val p = passwords.map { PasswordItem.from(it.key, it.value as Map<String, String>) }.toMutableList()
             this.passwords = MutableLiveData(p)
 
-            val n = notes.map { NoteItem(it.key, it.value as String) }.toMutableList()
+            val n = notes.map { NoteItem.from(it.key, it.value as Map<String, String>) }.toMutableList()
             this.notes = MutableLiveData(n)
 
             this.generatorHistory = MutableLiveData(history?.get("history")!! as ArrayList<String>)

@@ -126,10 +126,16 @@ object Firestore {
                 Firebase.firestore.collection(currentUnlockedVaultID).document("passwords").update(item.name, mapOf(
                     "website" to item.website,
                     "username" to item.username,
-                    "password" to item.password
+                    "password" to item.password,
+                    "created" to item.created,
+                    "updated" to item.updated
                 )).await()
             } else if(item is NoteItem) {
-                Firebase.firestore.collection(currentUnlockedVaultID).document("notes").update(item.name, item.content).await()
+                Firebase.firestore.collection(currentUnlockedVaultID).document("notes").update(item.name, mapOf(
+                    "content" to item.content,
+                    "created" to item.created,
+                    "updated" to item.updated
+                )).await()
             }
             return true
         } catch (e: FirebaseException) {

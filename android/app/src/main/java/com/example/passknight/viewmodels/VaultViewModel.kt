@@ -18,6 +18,7 @@ import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.passknight.R
+import com.example.passknight.Utils
 import com.example.passknight.fragments.VaultViewDirections
 import com.example.passknight.models.Generator
 import com.example.passknight.models.Item
@@ -36,6 +37,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 class VaultViewModel(
     val navController: NavController,
@@ -257,6 +261,7 @@ class VaultViewModel(
             return
         }
 
+        item.updated = Utils.currentTimestamp()
         item.encrypt(cryptography::encrypt)
 
         formScreen.value = true
@@ -338,4 +343,6 @@ class VaultViewModel(
         // https://stackoverflow.com/questions/50514758/how-to-clear-navigation-stack-after-navigating-to-another-fragment-in-android
         navController.navigate(VaultViewDirections.vaultViewToVaultList())
     }
+
+    fun timestampStringToDate(string: String) = Utils.timestampStringToDate(string)
 }
