@@ -34,7 +34,7 @@
                 </LinearGradientBrush>
             </ScrollViewer.OpacityMask>
             <StackPanel Margin="0,0,0,35">
-                <ItemsControl ItemsSource="{Binding Vault.SearchedNoteItems}">
+                <ItemsControl ItemsSource="{Binding SearchedNoteItems}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border Style="{StaticResource Item}" Padding="0,12">

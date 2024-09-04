@@ -82,7 +82,7 @@ namespace Passknight.Services.Generator
             numbers = true;
             symbols = true;
             lowercase = true;
-            length = 5;
+            length = 15;
         }
 
         public event Action? OnSettingsChanged;

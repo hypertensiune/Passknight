@@ -105,14 +105,17 @@ namespace Passknight.ViewModels
 
         private readonly object _valueLock = new object();
 
-        public Func<string, string> DecryptorDelegate { get; }
+        public Func<string, string> DecryptorDelegate { get; private set; }
 
         public VaultViewModel(Services.NavigationService navigationService, IDatabase database, string password)
         {
             _navigationService = navigationService;
             _database = database;
 
-            _ = GetVaultAsync().Then(() => _cryptography = new Cryptography($"{Vault.Name}@passknight.vault", password, Vault.Psk));
+            _ = GetVaultAsync().Then(() => {
+                _cryptography = new Cryptography($"{Vault.Name}@passknight.vault", password, Vault.Psk);
+                DecryptorDelegate = new Func<string, string>((string input) => _cryptography.Decrypt(input));
+            });
 
             LockVaultCommand = new RelayCommand(Lock);
             DeleteVaultCommand = new RelayCommand(DeleteVaultCommandHandler);
@@ -133,9 +136,7 @@ namespace Passknight.ViewModels
             RegeneratePasswordCommand = new RelayCommand((object? param) => RegeneratePassword());
             CopyGeneratedPasswordCommand = new RelayCommand((object? param) => Clipboard.SetText((string)param!));
 
-            OpenHistoryCommand = new RelayCommand((object? param) => navigationService.NavigateTo<HistoryViewModel>(Vault.GeneratorHistory));
-
-            DecryptorDelegate = new Func<string, string>((string input) => _cryptography.Decrypt(input));
+            OpenHistoryCommand = new RelayCommand(OpenHistoryCommandHandler);
         }
 
         private List<T> SearchItems<T>(List<T> items, string search) where T : Item
@@ -174,12 +175,12 @@ namespace Passknight.ViewModels
 
         private void OpenPasswordItemAddFormCommandHanlder(object? param)
         {
-            _navigationService.NavigateTo<PasswordFormViewModel>(_database, _cryptography, FormType.Add, Vault.PasswordItems);
+            _navigationService.NavigateTo<PasswordFormViewModel>(_database, _cryptography, Vault.PasswordItems, () => generator.GeneratePassword(GeneratorSettings));
         }
 
         private void OpenPasswordItemEditFormCommandHandler(object? param)
         {
-            _navigationService.NavigateTo<PasswordFormViewModel>(_database, _cryptography, FormType.Edit, (PasswordItem)param!, Vault.PasswordItems);
+            _navigationService.NavigateTo<PasswordFormViewModel>(_database, _cryptography, (PasswordItem)param!, Vault.PasswordItems, () => generator.GeneratePassword(GeneratorSettings));
         }
 
         private void OpenNoteItemAddFormCommandHanlder(object? param)
@@ -218,6 +219,15 @@ namespace Passknight.ViewModels
                     }
                     _database.SetGeneratorHistory(Vault.GeneratorHistory);
                 }
+            });
+        }
+
+        private void OpenHistoryCommandHandler(object? param)
+        {
+            _navigationService.NavigateTo<HistoryViewModel>(Vault.GeneratorHistory, () =>
+            {
+                Vault.GeneratorHistory.Clear();
+                _database.SetGeneratorHistory(Vault.GeneratorHistory);
             });
         }
     }

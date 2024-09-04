@@ -24,10 +24,5 @@ namespace Passknight.Views
         {
             InitializeComponent();
         }
-
-        private void Open_Search(object sender, RoutedEventArgs e)
-        {
-
-        }
     }
 }
