@@ -35,6 +35,55 @@ namespace Passknight.ViewModels
 
         public Vault Vault { get; private set; }
 
+        public List<PasswordItem> SearchedPasswordItems { get; set; }
+        public List<NoteItem> SearchedNoteItems { get; set; }
+
+        private string _searchPassword = "";
+        private string _searchNote = "";
+
+        public string SearchPassword
+        {
+            get => _searchPassword;
+            set
+            {
+                _searchPassword = value;
+                if(_searchPassword == string.Empty)
+                {
+                    SearchedPasswordItems = Vault.PasswordItems;
+                    OnPropertyChanged(nameof(SearchedPasswordItems));
+                } else
+                {
+                    Task.Run(() =>
+                    {
+                        SearchedPasswordItems = SearchItems(Vault.PasswordItems, _searchPassword);
+                        OnPropertyChanged(nameof(SearchedPasswordItems));
+                    });
+                }
+            }
+        }
+
+        public string SearchNote
+        {
+            get => _searchNote;
+            set
+            {
+                _searchNote = value;
+                if (_searchNote == string.Empty)
+                {
+                    SearchedNoteItems = Vault.NoteItems;
+                    OnPropertyChanged(nameof(SearchedNoteItems));
+                }
+                else
+                {
+                    Task.Run(() =>
+                    {
+                        SearchedNoteItems = SearchItems(Vault.NoteItems, _searchNote);
+                        OnPropertyChanged(nameof(SearchedNoteItems));
+                    });
+                }
+            }
+        }
+
         public ICommand LockVaultCommand { get; }
         public ICommand OpenPasswordItemAddFormCommand { get; }
         public ICommand OpenPasswordItemEditFormCommand { get; }
@@ -89,10 +138,21 @@ namespace Passknight.ViewModels
             DecryptorDelegate = new Func<string, string>((string input) => _cryptography.Decrypt(input));
         }
 
+        private List<T> SearchItems<T>(List<T> items, string search) where T : Item
+        {
+            return items.Where(item => item.Name.Contains(search)).ToList();
+        }
+
         private async Task GetVaultAsync()
         {
             Vault = await _database.GetVault();
             OnPropertyChanged(nameof(Vault));
+
+            SearchedPasswordItems = Vault.PasswordItems;
+            SearchedNoteItems = Vault.NoteItems;
+            
+            OnPropertyChanged(nameof(SearchedPasswordItems));
+            OnPropertyChanged(nameof(SearchedNoteItems));
         }
 
         private void Lock(object? param)
