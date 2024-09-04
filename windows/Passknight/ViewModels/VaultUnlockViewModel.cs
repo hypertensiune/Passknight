@@ -19,12 +19,7 @@ namespace Passknight.ViewModels
     /// </summary>
     class VaultUnlockViewModel : Core.ViewModel
     {
-        private string _vault;
-        public string Vault
-        {
-            get => "Unlock " + _vault;
-            set => _vault = value;
-        }
+        public string Vault { get; set; }
 
         public ErrorInputField Password { get; set; } = new ErrorInputField();
 
@@ -39,7 +34,7 @@ namespace Passknight.ViewModels
             _navigationService = navigationService;
             _database = database;
 
-            _vault = vault;
+            Vault = vault;
 
             BackCommand = new RelayCommand(OnBackClick);
             UnlockVaultCommand = new RelayCommand(OnUnlockVaultCommand);
@@ -47,9 +42,9 @@ namespace Passknight.ViewModels
 
         private async void OnUnlockVaultCommand(object? param)
         {
-            var masterPasswordHash = Cryptoutils.GetMasterPasswordHash($"{_vault}@passknight.vault", Password.Input);
+            var masterPasswordHash = Cryptoutils.GetMasterPasswordHash($"{Vault}@passknight.vault", Password.Input);
 
-            var response = await _database.UnlockVault(_vault, masterPasswordHash);
+            var response = await _database.UnlockVault(Vault, masterPasswordHash);
             if (response)
             {
                 _navigationService.NavigateTo<VaultViewModel>(_database, Password.Input);

@@ -10,7 +10,20 @@ namespace Passknight.Models
     class ErrorInputField : ObservableObject
     {
         private string _input;
+        private string _message;
+
         public bool Error { get; set; } = false;
+
+        public string ErrorText
+        {
+            get => _message;
+            set
+            {
+                _message = value;
+                OnPropertyChanged(nameof(ErrorText));
+            }
+        }
+
         public string Input
         {
             get => _input;
@@ -24,7 +37,7 @@ namespace Passknight.Models
 
         public ErrorInputField()
         {
-            Input = "";
+            Input = string.Empty;
         }
 
         public void ClearField()

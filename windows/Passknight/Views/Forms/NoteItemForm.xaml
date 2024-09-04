@@ -5,60 +5,75 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Passknight.Views"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:conv="clr-namespace:Passknight.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="580" d:DesignWidth="400">
     <Grid Background="{StaticResource BackgroundPrimary}">
         <Grid.RowDefinitions>
             <RowDefinition Height="2*"/>
             <RowDefinition Height="2*"/>
-            <RowDefinition Height="6*"/>
-            <RowDefinition Height="4*"/>
+            <RowDefinition Height="5*"/>
+            <RowDefinition Height="3*"/>
         </Grid.RowDefinitions>
+
+        <Grid.Resources>
+            <conv:ErrorVisibilityConverter x:Key="ErrorVisibilityConverter"/>
+        </Grid.Resources>
+
         <ui:Button 
             Icon="{ui:SymbolIcon ArrowLeft24}"
             BorderThickness="0"
             Background="Transparent"
             Cursor="Hand"
             FontSize="18"
-            Margin="5, -80, 5, 5"
+            Margin="5, -105, 5, 5"
             Command="{Binding BackCommand}">
         </ui:Button>
+
+        <ui:Button 
+            Icon="{ui:SymbolIcon DeleteDismiss24, Filled=True}"
+            BorderThickness="0"
+            Background="Transparent"
+            Cursor="Hand"
+            FontSize="18"
+            Margin="40, -105, 5, 5"
+            Command="{Binding DeleteCommand}"
+            Visibility="{Binding EditVisibility}">
+        </ui:Button>
+
         <StackPanel 
             Orientation="Horizontal"
             HorizontalAlignment="Center">   
             <TextBlock 
                 Grid.Row="0"
-                Text="Add Item"  
+                Text="Create note"  
                 FontSize="24" 
                 Foreground="{StaticResource ForegroundColor}"
                 FontWeight="Bold"
                 HorizontalAlignment="Center"
                 Margin="0,0,10,0"
-                VerticalAlignment="Center"/>
-                <ui:Button 
-                Icon="{ui:SymbolIcon DeleteDismiss24}"
-                FontSize="16"
-                Background="Transparent"
-                Padding="0"
-                BorderBrush="Transparent"
-                Foreground="{StaticResource ForegroundColorError2}"
-                Command="{Binding DeleteCommand}"
-                Cursor="Hand" 
-                HorizontalAlignment="Center">
-                <ui:Button.MouseOverBackground>
-                    <SolidColorBrush Color="Transparent"/>
-                </ui:Button.MouseOverBackground>
-                <ui:Button.PressedBackground>
-                    <SolidColorBrush Color="Transparent"/>
-                </ui:Button.PressedBackground>
-            </ui:Button>
+                VerticalAlignment="Center"
+                Visibility="{Binding AddVisibility}"/>
+            <TextBlock 
+                Grid.Row="0"
+                Text="Edit note"  
+                FontSize="24" 
+                Foreground="{StaticResource ForegroundColor}"
+                FontWeight="Bold"
+                HorizontalAlignment="Center"
+                Margin="0,0,10,0"
+                VerticalAlignment="Center"
+                Visibility="{Binding EditVisibility}"/>
         </StackPanel>
+        
         <StackPanel 
             Grid.Row="1"
             Margin="20, 0">
             <Label Content="Name" Foreground="{StaticResource ForegroundColor}" FontWeight="Bold"/>
-            <ui:TextBox Grid.Row="1" Text="{Binding Item.Name, Mode=TwoWay}" Height="34"/>
+            <ui:TextBox Grid.Row="1" Text="{Binding Name.Input, Mode=TwoWay}" Height="34"/>
+            <Label Visibility="{Binding Name.Error, Converter={StaticResource ErrorVisibilityConverter}}" Content="{Binding Name.ErrorText}" Foreground="{StaticResource  ForegroundColorError2}"/>
         </StackPanel>
+        
         <StackPanel 
             Grid.Row="2"
             Margin="20, 0"> 
@@ -73,12 +88,23 @@
                 Height="auto"  
                 Text="{Binding Item.Content, Mode=TwoWay}" />
         </StackPanel>
+
         <ui:Button 
             Grid.Row="5"
             HorizontalAlignment="Center"
             Background="{StaticResource PrimaryColor}"
-            Command="{Binding SubmitCommand}">
-            Add
+            Command="{Binding SubmitCommand}"
+            Visibility="{Binding AddVisibility}">
+            Create
+        </ui:Button>
+
+        <ui:Button 
+            Grid.Row="5"
+            HorizontalAlignment="Center"
+            Background="{StaticResource PrimaryColor}"
+            Command="{Binding SubmitCommand}"
+            Visibility="{Binding EditVisibility}">  
+            Save
         </ui:Button>
     </Grid>
 </UserControl>

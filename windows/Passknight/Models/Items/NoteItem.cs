@@ -8,7 +8,7 @@ namespace Passknight.Models.Items
 {
     internal class NoteItem : Item, ICryptable
     {
-        public string Name { get; set; }
+        public override string Name { get; set; }
         public string Content { get; set; }
         public override string Created { get; set; } = DateTimeOffset.Now.ToUnixTimeMilliseconds().ToString();
         public override string Updated { get; set; } = DateTimeOffset.Now.ToUnixTimeMilliseconds().ToString();

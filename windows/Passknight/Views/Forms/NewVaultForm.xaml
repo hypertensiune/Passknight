@@ -32,7 +32,7 @@
         </ui:Button>
         <TextBlock 
             Grid.Row="0"
-            Text="Vault Setup"  
+            Text="Create Vault"  
             FontSize="24" 
             Foreground="{StaticResource ForegroundColor}"
             FontWeight="Bold"
@@ -76,7 +76,7 @@
             HorizontalAlignment="Center"
             Background="{StaticResource PrimaryColor}"
             Command="{Binding ConfirmCommand}">
-            Confirm
+            Create
         </ui:Button>
     </Grid>
 </UserControl>

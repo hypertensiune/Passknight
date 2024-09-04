@@ -24,6 +24,8 @@ namespace Passknight.ViewModels
             Item = item.Clone();
             Item.Decrypt(cryptography.Decrypt);
             _originalItem = item;
+
+            Name.Input = Item.Name;
         }
     }
 }

@@ -59,16 +59,16 @@ namespace Passknight.Services.Firebase
             List<NoteItem> NoteList = new List<NoteItem>();
             if (notes != null)
             {
-                foreach (var item in notes)
+                foreach (JProperty item in notes)
                 {
                     var fields = item.SelectToken("$..mapValue.fields")!;
                     NoteList.Add(new NoteItem()
                     {
-                        Name = (string)fields.SelectToken("name.stringValue")!,
+                        Name = item.Name,
                         Content = (string)fields.SelectToken("content.stringValue")!,
                         Created = (string)fields.SelectToken("created.stringValue")!,
                         Updated = (string)fields.SelectToken("updated.stringValue")!
-                    });
+                    }); ;
                 }
             }
 

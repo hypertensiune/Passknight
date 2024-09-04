@@ -8,7 +8,7 @@ namespace Passknight.Models.Items
 {
     internal class PasswordItem : Item, ICryptable
     {
-        public string Name { get; set; }
+        public override string Name { get; set; }
         public string Password { get; set; } = String.Empty;
         public string Username { get; set; }
         public string Website { get; set; }

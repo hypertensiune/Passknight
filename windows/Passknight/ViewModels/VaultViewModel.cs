@@ -104,14 +104,12 @@ namespace Passknight.ViewModels
 
         private void DeleteVaultCommandHandler(object? param)
         {
-            _navigationService.NavigateTo<DeleteConfirmViewModel>(DeleteVault);
-        }
-
-        private void DeleteVault()
-        {
-            _database.DeleteVault();
-            _navigationService.NavigateTo<VaultListViewModel>();
-            _navigationService.InvalidateNavigateBack();
+            _navigationService.NavigateTo<DeleteConfirmViewModel>(Vault.Name, _database, () =>
+            {
+                _database.DeleteVault();
+                _navigationService.NavigateTo<VaultListViewModel>();
+                _navigationService.InvalidateNavigateBack();
+            });
         }
 
         private void OpenPasswordItemAddFormCommandHanlder(object? param)

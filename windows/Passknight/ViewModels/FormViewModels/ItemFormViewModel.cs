@@ -34,6 +34,18 @@ namespace Passknight.ViewModels.FormViewModels
         private readonly Cryptography _cryptography;
 
         private readonly FormType _formType;
+
+        public ErrorInputField Name { get; set; } = new ErrorInputField();
+
+        public Visibility EditVisibility
+        {
+            get => _formType == FormType.Add ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        public Visibility AddVisibility
+        {
+            get => _formType == FormType.Add ? Visibility.Visible : Visibility.Collapsed;
+        }
         
         public ICommand BackCommand { get; }
         public ICommand SubmitCommand { get; }
@@ -56,6 +68,21 @@ namespace Passknight.ViewModels.FormViewModels
         { 
             if(_formType == FormType.Add)
             {
+                if(_items.Any((T item) => item.Name == Name.Input))
+                {
+                    Name.SetError();
+                    Name.ErrorText = "There is already an item with this name!";
+                    return;
+                }
+
+                if (Name.Input == string.Empty || Name.Input is null)
+                {
+                    Name.SetError();
+                    Name.ErrorText = "Name must not be empty!";
+                    return;
+                }
+
+                Item.Name = Name.Input;
                 Item.Encrypt(_cryptography.Encrypt);
                 _items.Add(Item);
 
@@ -79,6 +106,21 @@ namespace Passknight.ViewModels.FormViewModels
                     return;
                 }
 
+                if (_items.Any((T item) => item.Name == Name.Input && item.Name != _originalItem?.Name))
+                {
+                    Name.SetError();
+                    Name.ErrorText = "There is already an item with this name!";
+                    return;
+                }
+
+                if (Name.Input == string.Empty || Name.Input is null)
+                {
+                    Name.SetError();
+                    Name.ErrorText = "Name must not be empty!";
+                    return;
+                }
+
+                Item.Name = Name.Input;
                 Item.Updated = DateTimeOffset.Now.ToUnixTimeMilliseconds().ToString();
 
                 Item.Encrypt(_cryptography.Encrypt);
@@ -97,25 +139,23 @@ namespace Passknight.ViewModels.FormViewModels
             _navigationService.NavigateBack();
         }
 
-        private void DeleteCommandHandler(object? param)
+        private async void DeleteCommandHandler(object? param)
         {
-            _navigationService.NavigateTo<DeleteConfirmViewModel>(Delete);
-        }
-
-        private async void Delete()
-        {
-            _items.Remove(_originalItem!);
-            var res = await _database.DeleteItemFromVault<T>(_originalItem!);
-            if (!res)
+            var result = await Msgbox.ShowYesNo("Item delete!", "Are you sure you want to\npermanently delete this item?");
+            if(result == Wpf.Ui.Controls.MessageBoxResult.Primary)
             {
-                Msgbox.Show("Error", "Item couldn't be deleted");
-                _items.Add(_originalItem!);
+                _items.Remove(_originalItem!);
+                var res = await _database.DeleteItemFromVault<T>(_originalItem!);
+                if (!res)
+                {
+                    Msgbox.Show("Error", "Item couldn't be deleted");
+                    _items.Add(_originalItem!);
 
-                return;
+                    return;
+                }
+
+                _navigationService.NavigateBack();
             }
-
-            _navigationService.NavigateBack();
-            _navigationService.NavigateBack();
         }
     }
 }
