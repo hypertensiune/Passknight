@@ -45,16 +45,17 @@ chrome.runtime.onStartup.addListener(() => {
   });
 });
 
-function sortPasswordItems(passwordItems) {
+async function sortPasswordItems(passwordItems) {
 
   // Group the items by the website property
   let grouped = {};
   for(const item of passwordItems) {
-    if(grouped.hasOwnProperty(item.website)) {
-      grouped[item.website].push(item);
+    const website = await decrypt(item.website);
+    if(grouped.hasOwnProperty(website)) {
+      grouped[website].push(item);
     }
     else {
-      grouped[item.website] = [item];
+      grouped[website] = [item];
     }
   }
 
@@ -65,9 +66,9 @@ function sortPasswordItems(passwordItems) {
   return sorted;
 }
 
-function renderContextMenuItems(items) {
+async function renderContextMenuItems(items) {
 
-  const sorted = sortPasswordItems(items);
+  const sorted = await sortPasswordItems(items);
 
   chrome.contextMenus.removeAll();
   chrome.contextMenus.create({
@@ -139,8 +140,10 @@ function renderContextMenuItems(items) {
     let index = parseInt(split[2]);
     let type = split[3];
 
+
     if(type == "U") {
-      autofill(sorted[url][index].username);
+      const dec = await decrypt(sorted[url][index].username);
+      autofill(dec);
     }
     else if(type == "P") {
       const dec = await decrypt(sorted[url][index].password);

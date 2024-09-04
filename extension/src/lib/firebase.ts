@@ -26,7 +26,7 @@ import {
 
 import { clearPersistence, loadPersistence, savePersistence } from "./extension";
 
-import * as Converters from "./itemConverters.js";
+import * as Converters from "./itemUtils.js";
 
 import firebaseConfig from "./firebaseConfig.js";
 
@@ -174,10 +174,10 @@ export async function getVaultContent(): Promise<VaultContent> {
     const docdata = doc.data();
     switch(doc.id) {
       case "passwords": 
-        passwords = Object.keys(docdata).map(key => Converters.FirebaseToPasswordItem(key, docdata[key]));
+        passwords = Object.keys(docdata).map(key => Converters.firebaseToPasswordItem(key, docdata[key]));
         break;
       case "notes": 
-        notes = Object.keys(docdata).map(key => Converters.FirebaseToNoteItem(key, docdata[key]));
+        notes = Object.keys(docdata).map(key => Converters.firebaseToNoteItem(key, docdata[key]));
         break;
     }
   });
@@ -204,10 +204,10 @@ export async function addItemToVault(item: PasswordItem | NoteItem): Promise<boo
   }
 
   if (isPasswordItem(item)) {
-    await updateDoc(doc(db, unlockedVaultID, "passwords"), Converters.PasswordItemToFirebase(item));
+    await updateDoc(doc(db, unlockedVaultID, "passwords"), Converters.passwordItemToFirebase(item));
   }
   else {
-    await updateDoc(doc(db, "vaults", unlockedVaultID), Converters.NoteItemToFirebase(item));
+    await updateDoc(doc(db, "vaults", unlockedVaultID), Converters.noteItemToFirebase(item));
   }
 
   return true;

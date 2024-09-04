@@ -12,12 +12,13 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="2*"/>
             <RowDefinition Height="2*"/>
-            <RowDefinition Height="5*"/>
-            <RowDefinition Height="3*"/>
+            <RowDefinition Height="6*"/>
+            <RowDefinition Height="2*"/>
         </Grid.RowDefinitions>
 
         <Grid.Resources>
             <conv:ErrorVisibilityConverter x:Key="ErrorVisibilityConverter"/>
+            <conv:TimestampConverter x:Key="TimestampConverter"/>
         </Grid.Resources>
 
         <ui:Button 
@@ -73,10 +74,10 @@
             <ui:TextBox Grid.Row="1" Text="{Binding Name.Input, Mode=TwoWay}" Height="34"/>
             <Label Visibility="{Binding Name.Error, Converter={StaticResource ErrorVisibilityConverter}}" Content="{Binding Name.ErrorText}" Foreground="{StaticResource  ForegroundColorError2}"/>
         </StackPanel>
-        
+
         <StackPanel 
             Grid.Row="2"
-            Margin="20, 0"> 
+            Margin="20, 0">
             <Label Content="Content" Foreground="{StaticResource ForegroundColor}" FontWeight="Bold"/>
             <ui:TextBox 
                 Grid.Row="1"
@@ -87,10 +88,26 @@
                 VerticalScrollBarVisibility="Visible"
                 Height="auto"  
                 Text="{Binding Item.Content, Mode=TwoWay}" />
+            <StackPanel Margin="0,10,0,0">
+                <TextBlock 
+                     FontSize="12" 
+                     Foreground="{StaticResource ForegroundColor}"
+                     Visibility="{Binding EditVisibility}">
+                    <Run Text="Updated: "/>
+                    <Run Text="{Binding Item.Updated, Converter={StaticResource TimestampConverter}}"/>
+                </TextBlock>
+                <TextBlock 
+                     FontSize="12" 
+                     Foreground="{StaticResource ForegroundColor}"
+                     Visibility="{Binding EditVisibility}">
+                     <Run Text="Created: "/>
+                     <Run Text="{Binding Item.Created, Converter={StaticResource TimestampConverter}}"/>
+                </TextBlock>
+            </StackPanel>
         </StackPanel>
 
         <ui:Button 
-            Grid.Row="5"
+            Grid.Row="4"
             HorizontalAlignment="Center"
             Background="{StaticResource PrimaryColor}"
             Command="{Binding SubmitCommand}"
@@ -99,7 +116,7 @@
         </ui:Button>
 
         <ui:Button 
-            Grid.Row="5"
+            Grid.Row="4"
             HorizontalAlignment="Center"
             Background="{StaticResource PrimaryColor}"
             Command="{Binding SubmitCommand}"

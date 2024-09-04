@@ -39,7 +39,7 @@ namespace Passknight.ViewModels.FormViewModels
 
         public Visibility EditVisibility
         {
-            get => _formType == FormType.Add ? Visibility.Collapsed : Visibility.Visible;
+            get => _formType == FormType.Edit ? Visibility.Visible : Visibility.Collapsed;
         }
 
         public Visibility AddVisibility

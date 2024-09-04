@@ -14,10 +14,12 @@
             <conv:GeneratedPasswordConverter x:Key="PasswordConverter"/>
             <conv:GeneratedPasswordStyleConverter x:Key="StyleConverter"/>
         </Grid.Resources>
+        
         <Grid.RowDefinitions>
-            <RowDefinition Height="1*"/>
+            <RowDefinition Height="2*"/>
             <RowDefinition Height="10*"/>
         </Grid.RowDefinitions>
+        
         <ui:Button 
             Grid.Row="0"
             Icon="{ui:SymbolIcon ArrowLeft24}"
@@ -25,15 +27,36 @@
             Background="Transparent"
             Cursor="Hand"
             FontSize="18"
-            Margin="5, -60, 5, 5"
+            Margin="5, -105, 5, 5"
             Command="{Binding BackCommand}"/>
-        <ScrollViewer Grid.Row="1" Margin="0,-30,0,0">
+
+        <ui:Button 
+            Icon="{ui:SymbolIcon DeleteDismiss24, Filled=True}"
+            BorderThickness="0"
+            Background="Transparent"
+            FontSize="18"
+            Margin="40, -105, 5, 5"
+            Command="{Binding ClearHistoryCommand}">
+        </ui:Button>
+
+        <TextBlock 
+            Grid.Row="0"
+            Text="History"  
+            FontSize="24" 
+            Foreground="{StaticResource ForegroundColor}"
+            FontWeight="Bold"
+            HorizontalAlignment="Center"
+            Margin="0,0,10,0"
+            VerticalAlignment="Center"/>
+
+        <ScrollViewer Grid.Row="1" Margin="0,0,0,50">
             <ScrollViewer.OpacityMask>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                     <GradientStop Color="Black" Offset="0.8" />
                     <GradientStop Color="Transparent" Offset="1" />
                 </LinearGradientBrush>
             </ScrollViewer.OpacityMask>
+            
             <StackPanel Margin="0,0,0,50">
                 <ItemsControl ItemsSource="{Binding History}">
                     <ItemsControl.ItemTemplate>

@@ -35,6 +35,55 @@ namespace Passknight.ViewModels
 
         public Vault Vault { get; private set; }
 
+        public List<PasswordItem> SearchedPasswordItems { get; set; }
+        public List<NoteItem> SearchedNoteItems { get; set; }
+
+        private string _searchPassword = "";
+        private string _searchNote = "";
+
+        public string SearchPassword
+        {
+            get => _searchPassword;
+            set
+            {
+                _searchPassword = value;
+                if(_searchPassword == string.Empty)
+                {
+                    SearchedPasswordItems = Vault.PasswordItems;
+                    OnPropertyChanged(nameof(SearchedPasswordItems));
+                } else
+                {
+                    Task.Run(() =>
+                    {
+                        SearchedPasswordItems = SearchItems(Vault.PasswordItems, _searchPassword);
+                        OnPropertyChanged(nameof(SearchedPasswordItems));
+                    });
+                }
+            }
+        }
+
+        public string SearchNote
+        {
+            get => _searchNote;
+            set
+            {
+                _searchNote = value;
+                if (_searchNote == string.Empty)
+                {
+                    SearchedNoteItems = Vault.NoteItems;
+                    OnPropertyChanged(nameof(SearchedNoteItems));
+                }
+                else
+                {
+                    Task.Run(() =>
+                    {
+                        SearchedNoteItems = SearchItems(Vault.NoteItems, _searchNote);
+                        OnPropertyChanged(nameof(SearchedNoteItems));
+                    });
+                }
+            }
+        }
+
         public ICommand LockVaultCommand { get; }
         public ICommand OpenPasswordItemAddFormCommand { get; }
         public ICommand OpenPasswordItemEditFormCommand { get; }
@@ -56,14 +105,17 @@ namespace Passknight.ViewModels
 
         private readonly object _valueLock = new object();
 
-        public Func<string, string> DecryptorDelegate { get; }
+        public Func<string, string> DecryptorDelegate { get; private set; }
 
         public VaultViewModel(Services.NavigationService navigationService, IDatabase database, string password)
         {
             _navigationService = navigationService;
             _database = database;
 
-            _ = GetVaultAsync().Then(() => _cryptography = new Cryptography($"{Vault.Name}@passknight.vault", password, Vault.Psk));
+            _ = GetVaultAsync().Then(() => {
+                _cryptography = new Cryptography($"{Vault.Name}@passknight.vault", password, Vault.Psk);
+                DecryptorDelegate = new Func<string, string>((string input) => _cryptography.Decrypt(input));
+            });
 
             LockVaultCommand = new RelayCommand(Lock);
             DeleteVaultCommand = new RelayCommand(DeleteVaultCommandHandler);
@@ -84,15 +136,24 @@ namespace Passknight.ViewModels
             RegeneratePasswordCommand = new RelayCommand((object? param) => RegeneratePassword());
             CopyGeneratedPasswordCommand = new RelayCommand((object? param) => Clipboard.SetText((string)param!));
 
-            OpenHistoryCommand = new RelayCommand((object? param) => navigationService.NavigateTo<HistoryViewModel>(Vault.GeneratorHistory));
+            OpenHistoryCommand = new RelayCommand(OpenHistoryCommandHandler);
+        }
 
-            DecryptorDelegate = new Func<string, string>((string input) => _cryptography.Decrypt(input));
+        private List<T> SearchItems<T>(List<T> items, string search) where T : Item
+        {
+            return items.Where(item => item.Name.Contains(search)).ToList();
         }
 
         private async Task GetVaultAsync()
         {
             Vault = await _database.GetVault();
             OnPropertyChanged(nameof(Vault));
+
+            SearchedPasswordItems = Vault.PasswordItems;
+            SearchedNoteItems = Vault.NoteItems;
+            
+            OnPropertyChanged(nameof(SearchedPasswordItems));
+            OnPropertyChanged(nameof(SearchedNoteItems));
         }
 
         private void Lock(object? param)
@@ -114,12 +175,12 @@ namespace Passknight.ViewModels
 
         private void OpenPasswordItemAddFormCommandHanlder(object? param)
         {
-            _navigationService.NavigateTo<PasswordFormViewModel>(_database, _cryptography, FormType.Add, Vault.PasswordItems);
+            _navigationService.NavigateTo<PasswordFormViewModel>(_database, _cryptography, Vault.PasswordItems, () => generator.GeneratePassword(GeneratorSettings));
         }
 
         private void OpenPasswordItemEditFormCommandHandler(object? param)
         {
-            _navigationService.NavigateTo<PasswordFormViewModel>(_database, _cryptography, FormType.Edit, (PasswordItem)param!, Vault.PasswordItems);
+            _navigationService.NavigateTo<PasswordFormViewModel>(_database, _cryptography, (PasswordItem)param!, Vault.PasswordItems, () => generator.GeneratePassword(GeneratorSettings));
         }
 
         private void OpenNoteItemAddFormCommandHanlder(object? param)
@@ -158,6 +219,15 @@ namespace Passknight.ViewModels
                     }
                     _database.SetGeneratorHistory(Vault.GeneratorHistory);
                 }
+            });
+        }
+
+        private void OpenHistoryCommandHandler(object? param)
+        {
+            _navigationService.NavigateTo<HistoryViewModel>(Vault.GeneratorHistory, () =>
+            {
+                Vault.GeneratorHistory.Clear();
+                _database.SetGeneratorHistory(Vault.GeneratorHistory);
             });
         }
     }
