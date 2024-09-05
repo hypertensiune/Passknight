@@ -15,8 +15,8 @@ async function decrypt(text: string) {
   return await cryptoObject.decrypt(text) || "";
 }
 
-async function copy(text: string, needsDecrypt: boolean) {
-  if (needsDecrypt) {
+async function copy(text: string, needsDecryption: boolean) {
+  if (needsDecryption) {
     text = await decrypt(text);
   }
 

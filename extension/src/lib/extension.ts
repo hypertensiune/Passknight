@@ -21,8 +21,8 @@ export async function loadPersistence(key: string) {
     window.sessionStorage.setItem(key, res["firebase"]);
 }
 
-export function clearPersistence() {
-  chrome.storage.session.remove(["firebase", "key"]);
+export async function clearPersistence() {
+  await chrome.storage.session.remove(["firebase", "key"]);
 
   // When a user is signed out and the firebase persistence is cleared, remove all the context menu items
   removeContextMenus();

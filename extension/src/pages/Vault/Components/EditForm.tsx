@@ -34,18 +34,42 @@ async function submitDeletion(item: PasswordItem | NoteItem, deleteItem: () => v
   }
 }
 
-export default function EditForm({ opened, close, item, changeItem, deleteItem }: { opened: boolean, close: () => void, item: PasswordItem | NoteItem, changeItem: (item: PasswordItem | NoteItem) => void, deleteItem: () => void }) {
+function nameValidation(value: string, item: PasswordItem | NoteItem, items: PasswordItem[] | NoteItem[]) {
+  if(value == "") {
+    return "Name must not be empty!";
+  }
+
+  const found = items.find(i => i.name == value);
+  if(found != undefined && value != item.name) {
+    return "There is already an item with this name!";
+  }
+}
+
+export default function EditForm({ opened, close, item, items, changeItem, deleteItem }: { 
+  opened: boolean, 
+  close: () => void, 
+  item: PasswordItem | NoteItem, 
+  items: PasswordItem[] | NoteItem[], 
+  changeItem: (item: PasswordItem | NoteItem) => void, 
+  deleteItem: () => void 
+}) {
 
   const isPassword = 'password' in item;
 
   const crypto = CryptoProvider.getProvider()!!;
 
   const passForm = useForm({
-    initialValues: { name: item.name, website: '', username: '', password: '', created: item.created, updated: item.updated }
+    initialValues: { name: item.name, website: '', username: '', password: '', created: item.created, updated: item.updated },
+    validate: {
+      name: value => nameValidation(value, item, items)
+    }
   });
 
   const noteForm = useForm({
     initialValues: { name: item.name, content: '', created: item.created, updated: item.updated },
+    validate: {
+      name: value => nameValidation(value, item, items)
+    }
   });
 
   useEffect(() => {
@@ -54,10 +78,7 @@ export default function EditForm({ opened, close, item, changeItem, deleteItem }
       // Not modifying the item because we need the original one to check for changes
       if(isPassword) {
         await decryptPasswordItem(item, (input: string) => crypto.decrypt(input));
-
-        passForm.setFieldValue('website', item.website);
-        passForm.setFieldValue('username', item.username);
-        passForm.setFieldValue('password', item.password);
+        passForm.setValues({website: item.website, username: item.username, password: item.password});
       } else {
         await decryptNoteItem(item, (input: string) => crypto.decrypt(input));
         noteForm.setFieldValue('content', item.content);

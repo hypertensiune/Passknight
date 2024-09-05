@@ -72,7 +72,7 @@ export class CryptoProvider {
   /**
    * Get the {@link Cryptography} object that handles encryption and decryption
    * 
-   * Make sure {@link createProvider} or {@link loadProvider} were successfully
+   * Make sure {@link createProvider} or {@link loadProviderPsk} or {@link loadProviderPersistance} were successfully
    * called before calling this otherwise it returns null.
    */
   public static getProvider() {

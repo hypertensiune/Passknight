@@ -73,7 +73,10 @@ export default function Vault() {
           </Tabs>
         </section>
       </main>
-      <ConfirmDelete size="75%" string="vault" opened={opened} close={drawerHandlers.close} action={() => deleteVault(vault!)}/>
+      <ConfirmDelete size="75%" string="vault" opened={opened} close={drawerHandlers.close} action={async () => {
+        await deleteVault(vault!);
+        await lockVault();
+      }}/>
     </>
   )
 }

@@ -36,16 +36,23 @@ export default function Vault({ data }: { data: VaultContent }) {
         <List>
           {noteList.map((n: NoteItem, index: number) => <NoteListItem data={n} onClick={() => setSelectedNote(index)} />)}
         </List>
-        <AddForm opened={addFormOpened} close={addFormHandlers.close} addNewItem={(newItem: PasswordItem | NoteItem) => {
-          if ("password" in newItem) {
-            setPasswordList([...passwordList, newItem]);
-          } else {
-            setNoteList([...noteList, newItem]);
-          }
-        }} />
+        <AddForm 
+          opened={addFormOpened} 
+          close={addFormHandlers.close}
+          passwordItems={passwordList}
+          noteItems={noteList}
+          addNewItem={(newItem: PasswordItem | NoteItem) => {
+            if ("password" in newItem) {
+              setPasswordList([...passwordList, newItem]);
+            } else {
+              setNoteList([...noteList, newItem]);
+            }
+          }} 
+        />
         {selectedPassword > -1 &&
           <EditForm
             item={{...passwordList[selectedPassword]}}
+            items={passwordList}
             opened={true}
             close={() => {
               setSelectedPassword(-1);
@@ -57,7 +64,8 @@ export default function Vault({ data }: { data: VaultContent }) {
         }
         {selectedNote > -1 &&
           <EditForm
-            item={noteList[selectedNote]}
+            item={{...noteList[selectedNote]}}
+            items={noteList}
             opened={true}
             close={() => {
               setSelectedNote(-1);

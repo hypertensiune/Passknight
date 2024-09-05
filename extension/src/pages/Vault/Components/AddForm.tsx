@@ -27,16 +27,28 @@ async function submitNew(item: PasswordItem | NoteItem, addNewItem: (item: Passw
   }
 }
 
-export default function AddForm({ opened, close, addNewItem }: { opened: boolean, close: () => void, addNewItem: (item: PasswordItem | NoteItem) => void }) {
+export default function AddForm({ opened, close, passwordItems, noteItems, addNewItem }: { 
+  opened: boolean, 
+  close: () => void, 
+  passwordItems: PasswordItem[],
+  noteItems: NoteItem[],
+  addNewItem: (item: PasswordItem | NoteItem) => void 
+}) {
 
   const [itemType, setItemType] = useState("Password");
 
   const passForm = useForm({
     initialValues: { name: '', website: '', username: '', password: '', created: '', updated: '' },
+    validate: {
+      name: (value) => (value == "" ? "Name must not be empty!" : passwordItems.find(i => i.name == value) != undefined ? "There is already an item with this name!" : null),
+    }
   });
 
   const noteForm = useForm({
     initialValues: { name: '', content: '', created: '', updated: '' },
+    validate: {
+      name: (value) => (value == "" ? "Name must not be empty!" : noteItems.find((i: NoteItem) => i.name == value) != undefined ? "There is already an item with this name!" : null),
+    }
   });
 
   const getActiveForm = () => itemType === 'Password' ? passForm : noteForm;
@@ -46,10 +58,9 @@ export default function AddForm({ opened, close, addNewItem }: { opened: boolean
   }, []);
 
   return (
-    <Drawer opened={opened} onClose={close} position='bottom' size="100%">
+    <Drawer position='bottom' size="100%" opened={opened} onClose={close}>
       <form onSubmit={getActiveForm().onSubmit((data: PasswordItem | NoteItem) => {
-        console.log(data);
-        submitNew(data, addNewItem);
+        submitNew({...data}, addNewItem);
         passForm.reset();
         noteForm.reset();
         close();

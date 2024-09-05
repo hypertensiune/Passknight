@@ -99,9 +99,10 @@ export async function createVault(name: string, password: string, symmetricKey: 
 
     await setDoc(doc(db, "vaults", "ids"), { [name.toLowerCase()]: user.user.uid }, { merge: true });
 
-    await setDoc(doc(db, user.user.uid, "psk"), { "psk": symmetricKey });
+    await setDoc(doc(db, user.user.uid, "psk"), { "psk": symmetricKey, "master": password });
     await setDoc(doc(db, user.user.uid, "passwords"), {});
     await setDoc(doc(db, user.user.uid, "notes"), {});
+    await setDoc(doc(db, user.user.uid, "history"), {});
 
     currentUser = user.user;
     unlockedVaultID = user.user.uid;
@@ -121,9 +122,14 @@ export async function createVault(name: string, password: string, symmetricKey: 
  */
 export async function deleteVault(vault: string) {
   if (currentUser != null) {
-    await deleteDoc(doc(db, "vaults", unlockedVaultID!));
-    await deleteUser(currentUser);
     await updateDoc(doc(db, "vaults", "ids"), { [vault]: deleteField() });
+
+    await deleteDoc(doc(db, unlockedVaultID!, "psk"));
+    await deleteDoc(doc(db, unlockedVaultID!, "passwords"));
+    await deleteDoc(doc(db, unlockedVaultID!, "notes"));
+    await deleteDoc(doc(db, unlockedVaultID!, "history"));
+
+    await deleteUser(currentUser);
   }
 }
 
@@ -168,7 +174,7 @@ export async function getVaultContent(): Promise<VaultContent> {
 
   const data = await getDocs(query(collection(db, unlockedVaultID)));
   
-  let passwords: PasswordItem[] = [], notes: NoteItem[] = [];
+  let passwords: PasswordItem[] = [], notes: NoteItem[] = [], history: string[] = [];
   
   data.forEach(doc => {
     const docdata = doc.data();
@@ -179,10 +185,13 @@ export async function getVaultContent(): Promise<VaultContent> {
       case "notes": 
         notes = Object.keys(docdata).map(key => Converters.firebaseToNoteItem(key, docdata[key]));
         break;
+      case "history":
+        history = Object.keys(docdata);
+        break;
     }
   });
-  console.log(passwords);
-  return { passwords: passwords, notes: notes, history: [] };
+
+  return { passwords: passwords, notes: notes, history: history };
 }
 
 export async function getVaultPsk(): Promise<string> {
@@ -207,7 +216,7 @@ export async function addItemToVault(item: PasswordItem | NoteItem): Promise<boo
     await updateDoc(doc(db, unlockedVaultID, "passwords"), Converters.passwordItemToFirebase(item));
   }
   else {
-    await updateDoc(doc(db, "vaults", unlockedVaultID), Converters.noteItemToFirebase(item));
+    await updateDoc(doc(db, unlockedVaultID, "notes"), Converters.noteItemToFirebase(item));
   }
 
   return true;
