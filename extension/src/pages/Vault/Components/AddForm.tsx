@@ -6,16 +6,15 @@ import { useForm } from "@mantine/form";
 import { getCurrentActiveWebsite } from "@lib/extension";
 import { addItemToVault } from "@lib/firebase";
 import { CryptoProvider } from "@lib/crypto";
+import { encryptPasswordItem, encryptNoteItem } from "@lib/itemUtils";
 
 async function submitNew(item: PasswordItem | NoteItem, addNewItem: (item: PasswordItem | NoteItem) => void) {
   const crypto = CryptoProvider.getProvider()!!;
   
   if('password' in item) {
-    const enc = await crypto.encrypt((item as PasswordItem).password);
-    (item as PasswordItem).password = enc!;
+    await encryptPasswordItem(item as PasswordItem, crypto.encrypt);
   } else {
-    const enc = await crypto.encrypt((item as NoteItem).content);
-    (item as NoteItem).content = enc!;
+    await encryptNoteItem(item as NoteItem, crypto.encrypt);
   }
 
   const res = await addItemToVault(item);

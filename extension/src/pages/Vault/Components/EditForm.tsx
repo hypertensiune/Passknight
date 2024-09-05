@@ -7,16 +7,15 @@ import { deleteItemFromVault, editItemInVault } from "@lib/firebase";
 import ConfirmDelete from "./ConfirmDelete";
 import { useDisclosure } from "@mantine/hooks";
 import { CryptoProvider } from "@lib/crypto";
+import { encryptNoteItem, encryptPasswordItem } from "@lib/itemUtils";
 
 async function submitChange(oldItem: PasswordItem | NoteItem, newItem: PasswordItem | NoteItem, changeItem: (item: PasswordItem | NoteItem) => void) {
   const crypto = CryptoProvider.getProvider()!!;
   
   if('password' in newItem) {
-    const enc = await crypto.encrypt((newItem as PasswordItem).password);
-    (newItem as PasswordItem).password = enc!;
+    await encryptPasswordItem(newItem as PasswordItem, crypto.encrypt);
   } else {
-    const enc = await crypto.encrypt((newItem as NoteItem).content);
-    (newItem as NoteItem).content = enc!;
+    await encryptNoteItem(newItem as NoteItem, crypto.encrypt);
   }
   
   const res = await editItemInVault(oldItem, newItem);
@@ -47,10 +46,20 @@ export default function EditForm({ opened, close, item, changeItem, deleteItem }
   });
 
   useEffect(() => {
-    crypto.decrypt(isPassword ? item.password : item.content).then((dec: string | undefined) => {
-      isPassword && passForm.setFieldValue('password', dec!);
-      !isPassword && noteForm.setFieldValue('content', dec!);
-    });
+    (async () => {
+      if(isPassword) {
+        const website = await crypto.decrypt(item.website);
+        const username = await crypto.decrypt(item.username);
+        const password = await crypto.decrypt(item.password);
+
+        passForm.setFieldValue('website', website!);
+        passForm.setFieldValue('username', username!);
+        passForm.setFieldValue('password', password!);
+      } else {
+        const content = await crypto.decrypt(item.content);
+        noteForm.setFieldValue('content', content!);
+      }
+    })();
   }, []);
 
   const getActiveForm = () => isPassword ? passForm : noteForm;

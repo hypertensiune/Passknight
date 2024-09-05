@@ -6,13 +6,18 @@ import EditForm from './EditForm';
 import './index.scss'
 import { clipboardDeleteCommand } from '@lib/extension';
 import { CryptoProvider } from '@lib/crypto';
+import { useEffect, useState } from 'react';
 
 export { AddForm, EditForm }
 
-async function copy(text: string, decrypt: boolean) {
-  if (decrypt) {
-    const cryptoObject = CryptoProvider.getProvider()!!;
-    text = await cryptoObject.decrypt(text) || "";
+async function decrypt(text: string) {
+  const cryptoObject = CryptoProvider.getProvider()!!;
+  return await cryptoObject.decrypt(text) || "";
+}
+
+async function copy(text: string, needsDecrypt: boolean) {
+  if (needsDecrypt) {
+    text = await decrypt(text);
   }
 
   navigator.clipboard.writeText(text);
@@ -29,18 +34,29 @@ export function List({ children }: any) {
 }
 
 export function PasswordListItem({ data, onClick }: { data: PasswordItem, onClick: () => void }) {
+  
+  const [decryptedData, setDecryptedData] = useState(["", ""]);
+
+  useEffect(() => {
+    (async () => {
+      const web = await decrypt(data.website);
+      const user = await decrypt(data.username);
+      setDecryptedData([web, user]);
+    })();
+  }, []);
+  
   return (
     <div className="list-item" onClick={onClick}>
-      <img src={`https://icon.horse/icon/${data.website}`} width="20px" />
+      <img src={`https://icon.horse/icon/${decryptedData[0]}`} width="20px" />
       <div className="details" style={{ width: '70%' }}>
         <div className='name'>{data.name}</div>
-        <div className='username'>{data.username}</div>
+        <div className='username'>{decryptedData[1]}</div>
       </div>
       <div className="actions">
         <Tooltip label="Copy username" color='gray' position='bottom'>
           <i className="fa-regular fa-user" onClick={(e: any) => { 
             e.stopPropagation();
-            copy(data.username, false);
+            copy(data.username, true);
           }}></i>
         </Tooltip>
         <Tooltip label="Copy password" color='gray' position='bottom'>
