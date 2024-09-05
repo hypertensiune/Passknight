@@ -45,7 +45,7 @@ export default function Vault({ data }: { data: VaultContent }) {
         }} />
         {selectedPassword > -1 &&
           <EditForm
-            item={passwordList[selectedPassword]}
+            item={{...passwordList[selectedPassword]}}
             opened={true}
             close={() => {
               setSelectedPassword(-1);

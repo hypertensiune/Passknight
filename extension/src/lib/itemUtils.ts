@@ -3,7 +3,9 @@ export function passwordItemToFirebase(item: PasswordItem) {
     [item.name]: {
       username: item.username, 
       website: item.website,
-      password: item.password
+      password: item.password,
+      reated: item.created,
+      updated: item.updated
     } 
   }
 }
@@ -13,7 +15,9 @@ export function firebaseToPasswordItem(key: string, data: any) {
     name: key,
     website: data.website,
     username: data.username, 
-    password: data.password
+    password: data.password,
+    created: data.created,
+    updated: data.updated
   } as PasswordItem;
 }
 
@@ -21,6 +25,8 @@ export function noteItemToFirebase(item: NoteItem) {
   return {
     [item.name]: {
       content: item.content, 
+      created: item.created,
+      updated: item.updated
     } 
   }
 }
@@ -29,6 +35,8 @@ export function firebaseToNoteItem(key: string, data: any) {
   return {
     name: key,
     content: data,
+    created: data.created,
+    updated: data.updated
   } as NoteItem;
 }
 

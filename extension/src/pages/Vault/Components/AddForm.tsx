@@ -7,14 +7,18 @@ import { getCurrentActiveWebsite } from "@lib/extension";
 import { addItemToVault } from "@lib/firebase";
 import { CryptoProvider } from "@lib/crypto";
 import { encryptPasswordItem, encryptNoteItem } from "@lib/itemUtils";
+import { getTimestamp } from "@lib/time";
 
 async function submitNew(item: PasswordItem | NoteItem, addNewItem: (item: PasswordItem | NoteItem) => void) {
   const crypto = CryptoProvider.getProvider()!!;
   
+  item.created = getTimestamp();
+  item.updated = getTimestamp();
+  
   if('password' in item) {
-    await encryptPasswordItem(item as PasswordItem, crypto.encrypt);
+    await encryptPasswordItem(item as PasswordItem, (input: string) => crypto.encrypt(input));
   } else {
-    await encryptNoteItem(item as NoteItem, crypto.encrypt);
+    await encryptNoteItem(item as NoteItem, (input: string) => crypto.encrypt(input));
   }
 
   const res = await addItemToVault(item);
@@ -28,11 +32,11 @@ export default function AddForm({ opened, close, addNewItem }: { opened: boolean
   const [itemType, setItemType] = useState("Password");
 
   const passForm = useForm({
-    initialValues: { name: '', website: '', username: '', password: '' },
+    initialValues: { name: '', website: '', username: '', password: '', created: '', updated: '' },
   });
 
   const noteForm = useForm({
-    initialValues: { name: '', content: '' },
+    initialValues: { name: '', content: '', created: '', updated: '' },
   });
 
   const getActiveForm = () => itemType === 'Password' ? passForm : noteForm;

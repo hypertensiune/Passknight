@@ -7,15 +7,18 @@ import { deleteItemFromVault, editItemInVault } from "@lib/firebase";
 import ConfirmDelete from "./ConfirmDelete";
 import { useDisclosure } from "@mantine/hooks";
 import { CryptoProvider } from "@lib/crypto";
-import { encryptNoteItem, encryptPasswordItem } from "@lib/itemUtils";
+import { decryptNoteItem, decryptPasswordItem, encryptNoteItem, encryptPasswordItem } from "@lib/itemUtils";
+import { getDateFromTimestamp, getTimestamp } from "@lib/time";
 
 async function submitChange(oldItem: PasswordItem | NoteItem, newItem: PasswordItem | NoteItem, changeItem: (item: PasswordItem | NoteItem) => void) {
   const crypto = CryptoProvider.getProvider()!!;
   
+  newItem.updated = getTimestamp();
+ 
   if('password' in newItem) {
-    await encryptPasswordItem(newItem as PasswordItem, crypto.encrypt);
+    await encryptPasswordItem(newItem as PasswordItem, (input: string) => crypto.encrypt(input));
   } else {
-    await encryptNoteItem(newItem as NoteItem, crypto.encrypt);
+    await encryptNoteItem(newItem as NoteItem, (input: string) => crypto.encrypt(input));
   }
   
   const res = await editItemInVault(oldItem, newItem);
@@ -38,26 +41,26 @@ export default function EditForm({ opened, close, item, changeItem, deleteItem }
   const crypto = CryptoProvider.getProvider()!!;
 
   const passForm = useForm({
-    initialValues: { name: item.name, website: (item as PasswordItem).website, username: (item as PasswordItem).username, password: '' }
+    initialValues: { name: item.name, website: '', username: '', password: '', created: item.created, updated: item.updated }
   });
 
   const noteForm = useForm({
-    initialValues: { name: item.name, content: '' },
+    initialValues: { name: item.name, content: '', created: item.created, updated: item.updated },
   });
 
   useEffect(() => {
     (async () => {
+      // Decrypt item fields before putting them in the form
+      // Not modifying the item because we need the original one to check for changes
       if(isPassword) {
-        const website = await crypto.decrypt(item.website);
-        const username = await crypto.decrypt(item.username);
-        const password = await crypto.decrypt(item.password);
+        await decryptPasswordItem(item, (input: string) => crypto.decrypt(input));
 
-        passForm.setFieldValue('website', website!);
-        passForm.setFieldValue('username', username!);
-        passForm.setFieldValue('password', password!);
+        passForm.setFieldValue('website', item.website);
+        passForm.setFieldValue('username', item.username);
+        passForm.setFieldValue('password', item.password);
       } else {
-        const content = await crypto.decrypt(item.content);
-        noteForm.setFieldValue('content', content!);
+        await decryptNoteItem(item, (input: string) => crypto.decrypt(input));
+        noteForm.setFieldValue('content', item.content);
       }
     })();
   }, []);
@@ -101,6 +104,10 @@ export default function EditForm({ opened, close, item, changeItem, deleteItem }
                   <Textarea autosize minRows={4} maxRows={7} label="Content" {...noteForm.getInputProps('content')} />
                 </>
               )}
+              <div style={{marginTop: '20px'}}>
+                <div style={{fontSize: '14px'}}>Updated: {getDateFromTimestamp(item.updated)}</div>
+                <div style={{fontSize: '14px'}}>Created: {getDateFromTimestamp(item.created)}</div>
+              </div>
               <div style={{ display: 'flex', justifyContent: 'center', marginTop: '15%' }}>
                 <Button type="submit" color='green'>Save Changes</Button>
               </div>

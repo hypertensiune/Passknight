@@ -3,11 +3,15 @@ type PasswordItem = {
   website: string,
   username: string,
   password: string,
+  created: string,
+  updated: string
 }
 
 type NoteItem = {
   name: string,
-  content: string
+  content: string,
+  created: string,
+  updated: string
 }
 
 type VaultContent = {
