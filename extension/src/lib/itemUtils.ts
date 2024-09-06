@@ -4,7 +4,7 @@ export function passwordItemToFirebase(item: PasswordItem) {
       username: item.username, 
       website: item.website,
       password: item.password,
-      reated: item.created,
+      created: item.created,
       updated: item.updated
     } 
   }

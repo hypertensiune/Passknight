@@ -1,14 +1,11 @@
-import { Tooltip } from '@mantine/core';
-
-import AddForm from './AddForm';
-import EditForm from './EditForm';
-
-import './index.scss'
-import { clipboardDeleteCommand } from '@lib/extension';
-import { CryptoProvider } from '@lib/crypto';
 import { useEffect, useState } from 'react';
 
-export { AddForm, EditForm }
+import { Tooltip } from '@mantine/core';
+
+import { clipboardDeleteCommand } from '@lib/extension';
+import { CryptoProvider } from '@lib/crypto';
+
+import './index.scss'
 
 async function decrypt(text: string) {
   const cryptoObject = CryptoProvider.getProvider()!!;
@@ -23,14 +20,6 @@ async function copy(text: string, needsDecryption: boolean) {
   navigator.clipboard.writeText(text);
 
   clipboardDeleteCommand();
-}
-
-export function List({ children }: any) {
-  return (
-    <div className="list">
-      {children}
-    </div>
-  )
 }
 
 export function PasswordListItem({ data, onClick }: { data: PasswordItem, onClick: () => void }) {

@@ -27,12 +27,13 @@ async function submitNew(item: PasswordItem | NoteItem, addNewItem: (item: Passw
   }
 }
 
-export default function AddForm({ opened, close, passwordItems, noteItems, addNewItem }: { 
+export default function ItemAddForm({ opened, close, passwordItems, noteItems, addNewItem, generate }: { 
   opened: boolean, 
   close: () => void, 
   passwordItems: PasswordItem[],
   noteItems: NoteItem[],
-  addNewItem: (item: PasswordItem | NoteItem) => void 
+  addNewItem: (item: PasswordItem | NoteItem) => void,
+  generate: () => string
 }) {
 
   const [itemType, setItemType] = useState("Password");
@@ -58,25 +59,32 @@ export default function AddForm({ opened, close, passwordItems, noteItems, addNe
   }, []);
 
   return (
-    <Drawer position='bottom' size="100%" opened={opened} onClose={close}>
+    <Drawer transitionProps={{duration: 0}} position='bottom' size="100%" opened={opened} onClose={close}>
       <form onSubmit={getActiveForm().onSubmit((data: PasswordItem | NoteItem) => {
         submitNew({...data}, addNewItem);
         passForm.reset();
         noteForm.reset();
         close();
       })}>
-        <h2 style={{ textAlign: 'center' }}>Add Item</h2>
+        <h2 style={{ textAlign: 'center', marginTop: "0" }}>Create Item</h2>
         <NativeSelect value={itemType} data={['Password', 'Note']} style={{ marginBottom: '5%' }} onChange={(event) => setItemType(event.target.value)} />
         {itemType === "Password" ? (
           <>
-            <TextInput label="Name" {...passForm.getInputProps('name')} />
-            <TextInput label="Website" placeholder={passForm.getTransformedValues().website} {...passForm.getInputProps('website')} />
-            <TextInput label="Username" placeholder='Your username' {...passForm.getInputProps('username')} />
-            <PasswordInput label="Password" placeholder='Your password' {...passForm.getInputProps('password')} />
+            <div>
+              <TextInput label="Name" withAsterisk={true} {...passForm.getInputProps('name')} />
+              <TextInput label="Website" placeholder={passForm.getTransformedValues().website} {...passForm.getInputProps('website')} />
+              <TextInput label="Username" placeholder='Your username' {...passForm.getInputProps('username')} />
+            </div>
+            <div style={{display: "flex", position: "relative"}}>
+              <PasswordInput style={{width: "100%"}} label="Password" placeholder='Your password' {...passForm.getInputProps('password')} />
+              <i className="icon-button infield fa-solid fa-repeat" style={{position: "absolute", right: 35, bottom: 3}} onClick={() => {
+                passForm.setFieldValue("password", generate());
+              }}></i>
+            </div>
           </>
         ) : (
           <>
-            <TextInput label="Name" {...noteForm.getInputProps('name')} />
+            <TextInput label="Name" withAsterisk={true} {...noteForm.getInputProps('name')} />
             <Textarea autosize minRows={4} maxRows={7} label="Content" {...noteForm.getInputProps('content')} />
           </>
         )}

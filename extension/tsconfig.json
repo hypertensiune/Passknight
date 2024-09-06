@@ -30,9 +30,6 @@
       "@hooks/*": [
         "./src/hooks/*"
       ],
-      "@VaultComponents": [
-        "./src/pages/Vault/Components"
-      ],
       "@assets/*": [
         "./src/assets/*"
       ],

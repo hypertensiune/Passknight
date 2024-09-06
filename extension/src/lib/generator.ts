@@ -15,7 +15,7 @@ function shuffle(array: []): [] {
 }
 
 // https://github.com/bitwarden/clients/blob/main/libs/common/src/tools/generator/password/password-generation.service.ts
-export function generatePassword(length: number, options: { lowercase: boolean, uppercase: boolean, numbers: boolean, symbols: boolean }): string {
+export function generatePassword(options: GeneratorOptions): string {
   let output = "";
 
   const lowercase = "abcdefghijklmnopqrstuvwxyz";
@@ -48,7 +48,7 @@ export function generatePassword(length: number, options: { lowercase: boolean, 
     positions += 's';
   }
 
-  while(positions.length < length)
+  while(positions.length < options.length)
     positions += 'a';
 
   const positionsShuffled = shuffle(positions.split("") as []).join("");
@@ -56,7 +56,7 @@ export function generatePassword(length: number, options: { lowercase: boolean, 
   if (chars.length == 0)
     return "";
 
-  for (let i = 0; i < length; i++) {
+  for (let i = 0; i < options.length; i++) {
     let tempChars = chars;
     switch(positionsShuffled[i])
     {

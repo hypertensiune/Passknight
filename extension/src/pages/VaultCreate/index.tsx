@@ -1,9 +1,10 @@
-import { Button, Drawer, PasswordInput, TextInput } from "@mantine/core";
+import { NavigateFunction, useNavigate } from "react-router-dom";
+
+import { Button, PasswordInput, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 
 import { createVault } from "@lib/firebase";
 import { CryptoProvider } from "@lib/crypto";
-import { NavigateFunction, useNavigate } from "react-router-dom";
 
 async function submitHandler(data: { name: string, password: string, confirm: string }, navigate: NavigateFunction) {
 
@@ -16,7 +17,7 @@ async function submitHandler(data: { name: string, password: string, confirm: st
   }
 }
 
-export default function NewVaultDrawer({ opened, close, vaults }: { opened: boolean, close: () => void, vaults: string[] }) {
+export default function VaultCreate({vaults }: { vaults: string[] }) {
 
   const navigate = useNavigate();
 
@@ -25,13 +26,14 @@ export default function NewVaultDrawer({ opened, close, vaults }: { opened: bool
 
     validate: {
       name: (value) => (value.length == 0 ? 'Vault name is required' : vaults?.includes(value) ? 'Vault already exists' : null),
-      password: (value) => (value.length < 15 ? 'Passwords should be at least 15 characters' : null),
+      password: (value) => (value.length < 6 ? 'Passwords should be at least 15 characters' : null),
       confirm: (value, values) => (value !== values.password ? 'Passwords did not match' : null)
     }
   });
 
   return (
-    <Drawer opened={opened} onClose={close} title="" position='bottom' size="100%">
+    <main className="vault-create">
+      <i className="icon-button fa-solid fa-arrow-left" style={{position: "fixed", left: "0", top: "0", margin: "8px"}} onClick={() => navigate(-1)}></i>
       <form onSubmit={form.onSubmit(data => submitHandler(data, navigate))}>
         <h2 style={{ textAlign: 'center' }}>Vault setup</h2>
         <div className="form">
@@ -42,7 +44,7 @@ export default function NewVaultDrawer({ opened, close, vaults }: { opened: bool
               {...form.getInputProps('name')}
             />
           </section>
-          <section>
+          <section style={{marginBottom: "40%"}}>
             <PasswordInput
               label="Master password"
               description='The master password cannot be recovered if you forget it! 15 characters minimum'
@@ -58,9 +60,9 @@ export default function NewVaultDrawer({ opened, close, vaults }: { opened: bool
               {...form.getInputProps('confirm')}
             />
           </section>
-          <Button type='submit'>Confirm</Button>
+          <Button type='submit'>Create</Button>
         </div>
       </form>
-    </Drawer>
+    </main>
   )
 }

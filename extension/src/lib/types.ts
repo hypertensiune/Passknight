@@ -19,3 +19,11 @@ type VaultContent = {
   notes: NoteItem[],
   history: string[]
 }
+
+type GeneratorOptions = {
+  length: number,
+  lowercase: boolean,
+  uppercase: boolean,
+  numbers: boolean,
+  symbols: boolean
+}

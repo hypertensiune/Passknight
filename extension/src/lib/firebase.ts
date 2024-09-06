@@ -186,7 +186,7 @@ export async function getVaultContent(): Promise<VaultContent> {
         notes = Object.keys(docdata).map(key => Converters.firebaseToNoteItem(key, docdata[key]));
         break;
       case "history":
-        history = Object.keys(docdata);
+        history = docdata["history"]
         break;
     }
   });
@@ -266,7 +266,7 @@ export async function setGeneratorHistory(passwords: string[]) {
     return false;
   }
 
-  await updateDoc(doc(db, unlockedVaultID, "notes"), { history: passwords });
+  await updateDoc(doc(db, unlockedVaultID, "history"), { history: passwords });
 
   return true;
 }

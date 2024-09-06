@@ -8,11 +8,26 @@ div.trash-btn {
   }
 }
 
+div.vault {
+  margin-top: 2%;
+  height: 55vh;
+  overflow: scroll;
+  mask-image: linear-gradient(to bottom, black calc(100% - 48px), transparent 100%);
+  padding-bottom: 5vh;
+}
+
+div.list-toggle {
+  font-size: 14px;
+  border-bottom: 1px solid #363636;
+  width: 98%;
+  cursor: pointer;
+}
+
 div.list {
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding-top: 5%;
+  padding-top: 2%;
 
   overflow-y: scroll;
   // height: 60vh;

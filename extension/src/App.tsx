@@ -4,15 +4,16 @@ import { Route, Routes, useNavigate } from 'react-router-dom'
 import { MantineProvider } from '@mantine/core';
 import '@mantine/core/styles.css'
 
+import { CryptoProvider } from '@lib/crypto';
 import { subscribeForVaultsInfo } from '@lib/firebase';
 
-import Home from './pages/Home'
+import VaultList from './pages/VaultList';
 import Vault from './pages/Vault';
 
-import logo from '@assets/logo.svg';
-
 import './App.scss'
-import { CryptoProvider } from '@lib/crypto';
+import VaultUnlock from './pages/VaultUnlock';
+import VaultCreate from './pages/VaultCreate';
+import VaultDelete from './pages/VaultDelete';
 
 function App() {
   const navigate = useNavigate();
@@ -32,12 +33,12 @@ function App() {
 
   return (
     <MantineProvider defaultColorScheme='dark'>
-      <div className="app-logo">
-        <img src={logo}></img>
-      </div>
       <Routes>
-        <Route path='/' element={<Home vaults={vaults} />} />
+        <Route path='/' element={<VaultList vaults={vaults} />} />
+        <Route path='/unlock/:vault' element={<VaultUnlock/>}/>
+        <Route path='/create' element={<VaultCreate vaults={vaults}/>}/>
         <Route path='/v/:vault' element={<Vault />} />
+        <Route path='/v/:vault/delete' element={<VaultDelete />} />
       </Routes>
     </MantineProvider>
   )
