@@ -17,23 +17,20 @@ export function savePersistence(data: any) {
 export async function loadPersistence(key: string) {
   const res = await chrome.storage.session.get(["firebase"]);
   
-  if(res["firebase"])  
+  if(res["firebase"]) {
     window.sessionStorage.setItem(key, res["firebase"]);
+  }
 }
 
 export async function clearPersistence() {
-  await chrome.storage.session.remove(["firebase", "key"]);
+  await chrome.storage.session.remove(["firebase", "key", "items"]);
 
   // When a user is signed out and the firebase persistence is cleared, remove all the context menu items
   removeContextMenus();
 }
 
 export function saveKeyToStorage(key: string) {
-  chrome.storage.session.set({"key": key}).then(() => {
-
-    // Notify the background script it can now access the private key
-    chrome.runtime.sendMessage({action: "loadKeyFromStorage", UID: window.UID});
-  });
+  chrome.storage.session.set({"key": key});
 }
 
 export async function loadKeyFromStorage() {
@@ -41,8 +38,9 @@ export async function loadKeyFromStorage() {
   return res["key"] || "";
 }
 
-export async function renderContextMenuItems(items: PasswordItem[]) {
-  chrome.runtime.sendMessage({action: "renderContextMenuItems", data: items});
+export async function autofillInit(items: PasswordItem[]) {
+  await chrome.storage.session.set({items: items, keyMaterial: window.UID});
+  chrome.runtime.sendMessage({action: "autofillInit"});
 }
 
 function removeContextMenus() {

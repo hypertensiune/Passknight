@@ -37,8 +37,6 @@ const auth = getAuth(app);
 let vaultsInfo: Map<string, string> = new Map();
 let unlockedVaultID: string | undefined = undefined;
 
-let subscriber = (_: any) => { };
-
 let currentUser: User | null = null;
 
 declare global {
@@ -50,7 +48,39 @@ declare global {
 // Load firebase persistence info from extension's session storage.
 // This has to be done explicitly before the onAuthStateChange is called so firebase
 // can correctly detect the current state
-(async () => {
+// (async () => {
+//   await loadPersistence(`firebase:authUser:${firebaseConfig.apiKey}:[DEFAULT]`);
+
+//   onAuthStateChanged(auth, async (user) => {
+//     // get all the names of the available vaults
+//     const res = await getDoc(doc(db, "vaults", "ids"));
+//     const resObj = res.data() as Object;
+
+//     window.UID = user?.uid || "";
+
+//     vaultsInfo = new Map(Object.entries(resObj));
+
+//     const data = Object.keys(resObj);
+
+//     data.sort();
+
+//     let options: any[] = [false];
+
+//     // if we are already logged in and there is no unlocked vault
+//     // get the unlocked vault from the user's email and set it to unlocked
+//     if (user && unlockedVaultID === undefined) {
+//       const name = user.email!.split('@')[0];
+//       unlockedVaultID = vaultsInfo.get(name);
+//       options = [true, name];
+//     }
+//     subscriber([data, ...options]);
+//   });
+// })();
+
+// Load firebase persistence info from extension's session storage.
+// This has to be done explicitly before the onAuthStateChange is called so firebase
+// can correctly detect the current state
+export async function firebaseInit(callback: (data: any) => void) {
   await loadPersistence(`firebase:authUser:${firebaseConfig.apiKey}:[DEFAULT]`);
 
   onAuthStateChanged(auth, async (user) => {
@@ -75,13 +105,8 @@ declare global {
       unlockedVaultID = vaultsInfo.get(name);
       options = [true, name];
     }
-    subscriber([data, ...options]);
+    callback([data, ...options]);
   });
-})();
-
-
-export function subscribeForVaultsInfo(callback: (data: any) => void) {
-  subscriber = callback;
 }
 
 export function isVaultUnlocked(): boolean {

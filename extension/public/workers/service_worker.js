@@ -1,153 +1,164 @@
-import { decrypt, loadKeyFromStorage } from './crypto.js';
+import { Crypto } from './crypto.js';
 
-chrome.runtime.onMessage.addListener((message, sender, res) => {
-  if(message.action == "deleteClipboard") {
-    setTimeout(() => {
-      chrome.tabs.query({active: true}, (tabs) => {
-        chrome.tabs.sendMessage(tabs[0].id, {action: "deleteClipboard"});
-      });
-    }, 10000);
-  }
-});
-
-chrome.runtime.onMessage.addListener((message, sender, res) => {
-  if(message.action == "renderContextMenuItems") {
-    renderContextMenuItems(message.data);
-  }
-});
-
-chrome.runtime.onMessage.addListener((message, sender, res) => {
-  if(message.action == "loadKeyFromStorage") {
-    loadKeyFromStorage(message.UID);
-  }
-});
-
-function autofill(data) {
-  chrome.tabs.query({active: true}, async (tabs) => {
-    chrome.tabs.sendMessage(tabs[0].id, {action: "autofill", data: data});
-  });
-}
+let currentContextMenuListener = null;
 
 // Display the default context menu items when the browser is started
 chrome.runtime.onStartup.addListener(() => {
   chrome.contextMenus.removeAll();
   chrome.contextMenus.create({
     title: "Passknight",
-    contexts: ["editable"],
+    contexts: ["all"],
     id: "PK_ROOT",
   });
-  
+
   chrome.contextMenus.create({
     title: "Unlock a vault",
-    contexts: ["editable"],
+    contexts: ["all"],
     parentId: "PK_ROOT",
     id: "PK_1"
   });
 });
 
-async function sortPasswordItems(passwordItems) {
-
-  // Group the items by the website property
-  let grouped = {};
-  for(const item of passwordItems) {
-    const website = await decrypt(item.website);
-    if(grouped.hasOwnProperty(website)) {
-      grouped[website].push(item);
-    }
-    else {
-      grouped[website] = [item];
-    }
+chrome.runtime.onMessage.addListener(async (message, sender, res) => {
+  if (message.action == "autofillInit") {
+    autofillInit();
   }
+});
 
-  // Sort the grouped items by website in alphabetical order
-  // https://stackoverflow.com/a/51725400
-  const sorted = Object.keys(grouped).sort().reduce((a, c) => (a[c] = grouped[c], a), {});
+// Rerender the context menu when the url on the active tab is changed
+// or the active tab itself changes
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (changeInfo.url) {
+    autofillInit();
+  }
+});
 
-  return sorted;
+chrome.tabs.onActivated.addListener(activeInfo => {
+  autofillInit();
+});
+
+async function autofillInit() {
+  const storage = await chrome.storage.session.get(["items", "keyMaterial"]);
+
+  if(Object.keys(storage).length == 2) {
+    const crypto = new Crypto(storage["keyMaterial"], async () => {
+      const filtered = await filterPasswordItems(storage["items"], crypto);
+      renderContextMenu(filtered, crypto);
+
+      // items = filtered;
+      setMenuClickListener(filtered, crypto);
+    });
+  }
 }
 
-async function renderContextMenuItems(items) {
+/**
+ * @param {"multi" | "single"} type The type of the autofill
+ * @param {string[]} fields Username and password in this order
+ */
+function sendAutofillRequest(type, ...fields) {
+  chrome.tabs.query({active: true, currentWindow: true}, tabs => {
+    if(type == "multi") {
+      chrome.tabs.sendMessage(tabs[0].id, {action: "autofill", type: "multi", username: fields[0], password: fields[1]});
+    } else if(type == "single") {
+      chrome.tabs.sendMessage(tabs[0].id, {action: "autofill", type: "single", data: fields[0]});
+    }
+  });
+}
 
-  const sorted = await sortPasswordItems(items);
-
+async function renderContextMenu(items, crypto) {
+  if (crypto == null) {
+    console.warn("NULL CRYPTO");
+    return
+  }
+  
   chrome.contextMenus.removeAll();
   chrome.contextMenus.create({
     title: "Passknight",
-    contexts: ["editable"],
+    contexts: ["all"],
     id: "PK_ROOT",
   });
 
-  for(const [key, value] of Object.entries(sorted)) {
-
+  for (const index in items) {
     chrome.contextMenus.create({
-      title: key,
+      title: items[index].name,
       parentId: "PK_ROOT",
-      contexts: ["editable"],
-      id: `PK_${key}`
+      contexts: ["all"],
+      id: `PK_${index}`
     });
 
-    // If there is only one password saved for this website show it directly
-    if(value.length == 1) {
-      chrome.contextMenus.create({
-        title: "Fill username",
-        contexts: ["editable"],
-        parentId: `PK_${key}`,
-        id: `PK_${key}_0_U`,
-      });
-  
-      chrome.contextMenus.create({
-        title: "Fill password",
-        contexts: ["editable"],
-        parentId: `PK_${key}`,
-        id: `PK_${key}_0_P`,
-      });
-    }
-    else {
-      // Show all saved passwords under the this website's menu
-      for(const [index, item] of value.entries()) {
-        chrome.contextMenus.create({
-          title: item.name,
-          contexts: ["editable"],
-          parentId: `PK_${key}`,
-          id: `PK_${key}_${index}`,
-        });
-    
-        chrome.contextMenus.create({
-          title: "Fill username",
-          contexts: ["editable"],
-          parentId: `PK_${key}_${index}`,
-          id: `PK_${key}_${index}_U`,
-        });
-    
-        chrome.contextMenus.create({
-          title: "Fill password",
-          contexts: ["editable"],
-          parentId: `PK_${key}_${index}`,
-          id: `PK_${key}_${index}_P`,
-        });
-      }
+    chrome.contextMenus.create({
+      title: "Autofill",
+      contexts: ["all"],
+      parentId: `PK_${index}`,
+      id: `PK_${index}_A`
+    })
+
+    chrome.contextMenus.create({
+      title: "Fill username",
+      contexts: ["editable"],
+      parentId: `PK_${index}`,
+      id: `PK_${index}_U`,
+    });
+
+    chrome.contextMenus.create({
+      title: "Fill password",
+      contexts: ["editable"],
+      parentId: `PK_${index}`,
+      id: `PK_${index}_P`,
+    });
+  }
+}
+
+async function filterPasswordItems(passwordItems, crypto) {
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+
+  if (!tabs || !tabs[0] || !tabs[0].url) {
+    return [];
+  }
+
+  const currentWebsite = tabs[0].url.match(/https?:\/\/([^\/]*)/)?.at(1);
+
+  // Return only the password items for the current web url
+  let filtered = [];
+  for (const item of passwordItems) {
+    const website = await crypto.decrypt(item.website);
+    if (website == currentWebsite) {
+      filtered.push(item);
     }
   }
 
-  chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+  filtered.sort((a, b) => a.name < b.name);
+
+  return filtered;
+}
+
+function createContextMenuListener(filtered, crypto) {
+  return async function(info, tab) {
+    
     if(!info.menuItemId.startsWith("PK", 0)) {
       return;
-    }
+    } 
 
     const split = info.menuItemId.split("_");
+    const index = split[1];
+    const type = split[2];
 
-    let url = split[1];
-    let index = parseInt(split[2]);
-    let type = split[3];
+    const user = await crypto.decrypt(filtered[index].username);
+    const pass = await crypto.decrypt(filtered[index].password);
 
-
-    if(type == "U") {
-      const dec = await decrypt(sorted[url][index].username);
-      autofill(dec);
+    if(type == "A") {
+      sendAutofillRequest("multi", user, pass);
     }
-    else if(type == "P") {
-      const dec = await decrypt(sorted[url][index].password);
-      autofill(dec);
+    else if(type == "U") {
+      sendAutofillRequest("single", user);
+    } else {
+      sendAutofillRequest("single", pass);
     }
-  }); 
+  }
+}
+
+async function setMenuClickListener(filtered, crypto) {
+  chrome.contextMenus.onClicked.removeListener(currentContextMenuListener);
+  currentContextMenuListener = createContextMenuListener(filtered, crypto);
+  chrome.contextMenus.onClicked.addListener(currentContextMenuListener);
 }
