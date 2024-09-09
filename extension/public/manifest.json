@@ -24,7 +24,7 @@
     "content_scripts": [
         {
             "js": ["content.js"],
-            "matches": ["https://*/*"]
+            "matches": ["<all_urls>"]
         }
     ],
     "icons": {

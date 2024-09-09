@@ -38,22 +38,27 @@ export async function loadKeyFromStorage() {
   return res["key"] || "";
 }
 
-export async function autofillInit(items: PasswordItem[]) {
-  await chrome.storage.session.set({items: items, keyMaterial: window.UID});
-  chrome.runtime.sendMessage({action: "autofillInit"});
+export async function autofillSetItems(items: PasswordItem[]) {
+  await chrome.storage.session.set({items: items});
+  chrome.tabs.query({active: true, currentWindow: true}, tabs => {
+    // Notify the active tab's content script that the items were updated
+    if(tabs[0].url?.match(/https?:\/\/([^\/]*)/)) {
+      chrome.tabs.sendMessage(tabs[0].id!, {action: "autofillItemsUpdated"});
+    }
+  }); 
 }
 
 function removeContextMenus() {
   chrome.contextMenus.removeAll();
   chrome.contextMenus.create({
     title: "Passknight",
-    contexts: ["editable"],
+    contexts: ["all"],
     id: "PK_ROOT",
   });
   
   chrome.contextMenus.create({
     title: "Unlock a vault",
-    contexts: ["editable"],
+    contexts: ["all"],
     parentId: "PK_ROOT",
     id: "PK_1"
   });

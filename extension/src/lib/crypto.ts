@@ -195,64 +195,26 @@ export class Cryptography {
   }
 
   /**
-   * Wrap the encryption key and store it for later use with firebase auth persistence.
-   * Uses the firebase user's UID as the key material. 
+   * Save the symmetric key in chrome session storage to be used with 
+   * auth persistence and by the aufofill service worker
    */
   private save() {
     if(this.symmetricKey == null) {
       return;
     }
 
-    // Make sure the raw key data is 256 bits. Pad if necessary.
-    const buf = CryptoUtils.string2Buf(window.UID);
-    const pad = new Uint8Array(32 - buf.length);
-    pad.fill(0);
-
-    const padded = CryptoUtils.concatBufs(buf, pad);
-
-    crypto.subtle.importKey("raw", padded, { name: "AES-CBC" }, false, ["wrapKey"]).then((wrapKey: CryptoKey) => {
-      crypto.subtle.wrapKey(
-        "raw", 
-        this.symmetricKey!, 
-        wrapKey, 
-        { 
-          name: "AES-CBC", 
-          iv: new Uint8Array(16) 
-        }
-      ).then((wrapped: ArrayBuffer) => {
-        saveKeyToStorage(Base64.encode(wrapped));
-      });
+    crypto.subtle.exportKey("raw", this.symmetricKey).then(buffer => {
+      saveKeyToStorage(Base64.encode(buffer));
     });
   }
 
   /**
-   * Unwrap the stored encryption key.
+   * Load the symmetric key from chrome session storage and unwrap it
    */
   load() {
-    loadKeyFromStorage().then((key: string) => {
-
-      // Make sure the raw key data is 256 bits. Pad if necessary.
-      const buf = CryptoUtils.string2Buf(window.UID);
-      const pad = new Uint8Array(32 - buf.length);
-      pad.fill(0);
-
-      const padded = CryptoUtils.concatBufs(buf, pad);
-
-      crypto.subtle.importKey("raw", padded, { name: "AES-CBC" }, false, ["unwrapKey"]).then((unwrapKey: CryptoKey) => {
-        crypto.subtle.unwrapKey(
-          "raw",
-          Base64.decode(key),
-          unwrapKey,
-          {
-            name: "AES-CBC", 
-            iv: new Uint8Array(16) 
-          },
-          CryptoUtils.privateKeyType,
-          true,
-          ["encrypt", "decrypt"]
-        ).then((unwrapped: CryptoKey) => {
-          this.symmetricKey = unwrapped;
-        });
+    loadKeyFromStorage().then((raw: string) => {
+      crypto.subtle.importKey("raw", Base64.decode(raw), { name: "AES-CBC" }, true, ["encrypt", "decrypt"]).then(symmetricKey => {
+        this.symmetricKey = symmetricKey;
       });
     });
   }

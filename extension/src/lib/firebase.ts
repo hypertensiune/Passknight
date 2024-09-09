@@ -39,44 +39,6 @@ let unlockedVaultID: string | undefined = undefined;
 
 let currentUser: User | null = null;
 
-declare global {
-  interface Window {
-    UID: string
-  }
-}
-
-// Load firebase persistence info from extension's session storage.
-// This has to be done explicitly before the onAuthStateChange is called so firebase
-// can correctly detect the current state
-// (async () => {
-//   await loadPersistence(`firebase:authUser:${firebaseConfig.apiKey}:[DEFAULT]`);
-
-//   onAuthStateChanged(auth, async (user) => {
-//     // get all the names of the available vaults
-//     const res = await getDoc(doc(db, "vaults", "ids"));
-//     const resObj = res.data() as Object;
-
-//     window.UID = user?.uid || "";
-
-//     vaultsInfo = new Map(Object.entries(resObj));
-
-//     const data = Object.keys(resObj);
-
-//     data.sort();
-
-//     let options: any[] = [false];
-
-//     // if we are already logged in and there is no unlocked vault
-//     // get the unlocked vault from the user's email and set it to unlocked
-//     if (user && unlockedVaultID === undefined) {
-//       const name = user.email!.split('@')[0];
-//       unlockedVaultID = vaultsInfo.get(name);
-//       options = [true, name];
-//     }
-//     subscriber([data, ...options]);
-//   });
-// })();
-
 // Load firebase persistence info from extension's session storage.
 // This has to be done explicitly before the onAuthStateChange is called so firebase
 // can correctly detect the current state
@@ -87,8 +49,6 @@ export async function firebaseInit(callback: (data: any) => void) {
     // get all the names of the available vaults
     const res = await getDoc(doc(db, "vaults", "ids"));
     const resObj = res.data() as Object;
-
-    window.UID = user?.uid || "";
 
     vaultsInfo = new Map(Object.entries(resObj));
 
@@ -118,9 +78,6 @@ export async function createVault(name: string, password: string, symmetricKey: 
 
   try {
     const user = await createUserWithEmailAndPassword(auth, `${name}@passknight.vault`, password);
-
-    // await setDoc(doc(db, "vaults", "ids"), { [name.toLowerCase()]: user.user.uid }, { merge: true });
-    // await setDoc(doc(db, "vaults", user.user.uid), { "psk": symmetricKey, "passwords": [], "notes": [], "history": [] });
 
     await setDoc(doc(db, "vaults", "ids"), { [name.toLowerCase()]: user.user.uid }, { merge: true });
 
@@ -185,7 +142,7 @@ export async function lockVault() {
   const auth = getAuth();
   await signOut(auth);
 
-  clearPersistence();
+  await clearPersistence();
 
   window.location.reload();
 }
@@ -194,8 +151,6 @@ export async function getVaultContent(): Promise<VaultContent> {
   if (unlockedVaultID === undefined) {
     return { passwords: [], notes: [], history: [] };
   }
-  // const data = (await getDoc(doc(db, "vaults", unlockedVaultID))).data();
-  // return data as VaultContent;
 
   const data = await getDocs(query(collection(db, unlockedVaultID)));
   

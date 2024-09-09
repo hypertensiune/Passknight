@@ -9,7 +9,7 @@ import VaultTab from "./Tabs/VaultTab";
 import Current from "./Tabs/Current";
 
 import { getVaultContent, lockVault } from "@lib/firebase";
-import { getCurrentActiveWebsite, autofillInit } from "@lib/extension";
+import { getCurrentActiveWebsite, autofillSetItems } from "@lib/extension";
 
 import logo from '@assets/logo.svg';
 import { generatePassword } from "@lib/generator";
@@ -75,15 +75,17 @@ export default function Vault() {
       setPasswords(content.passwords);
       setNotes(content.notes);
       setHistory(content.history);
-
-      // Context menu items for autofilling
-      autofillInit(content.passwords);
     });
 
     getCurrentActiveWebsite((web: string) => {
       setWebsite(web);
     });
   }, []);
+
+  useEffect(() => {
+    // Context menu items for autofilling
+    autofillSetItems(passwords);
+  }, [passwords]);
 
   return (
     <main className="vault">

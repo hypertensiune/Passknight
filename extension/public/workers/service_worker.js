@@ -20,33 +20,30 @@ chrome.runtime.onStartup.addListener(() => {
 });
 
 chrome.runtime.onMessage.addListener(async (message, sender, res) => {
-  if (message.action == "autofillInit") {
-    autofillInit();
+  if (message.action == "autofillServiceLoaded") {
+    const tabs = await chrome.tabs.query({active: true, currentWindow: true});
+    
+    // Return if the message was not sent from the active tab
+    if(!tabs || !tabs[0] || tabs[0].id != sender.tab.id) {
+      return;
+    }
+
+    autofillInit(tabs[0], message.isAutofillPossible);
   }
 });
 
-// Rerender the context menu when the url on the active tab is changed
-// or the active tab itself changes
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.url) {
-    autofillInit();
-  }
-});
+async function autofillInit(tab, autofill) {
+  const storage = await chrome.storage.session.get(["items"]);
 
-chrome.tabs.onActivated.addListener(activeInfo => {
-  autofillInit();
-});
-
-async function autofillInit() {
-  const storage = await chrome.storage.session.get(["items", "keyMaterial"]);
-
-  if(Object.keys(storage).length == 2) {
-    const crypto = new Crypto(storage["keyMaterial"], async () => {
-      const filtered = await filterPasswordItems(storage["items"], crypto);
-      renderContextMenu(filtered, crypto);
-
-      // items = filtered;
+  if("items" in storage) {
+    const currentWebsite = tab.url.match(/https?:\/\/([^\/]*)/)?.at(1);
+    
+    const crypto = new Crypto(async () => {
+      
+      const filtered = await filterPasswordItems(storage["items"], currentWebsite, crypto);
+      renderContextMenu(filtered, autofill, crypto);
       setMenuClickListener(filtered, crypto);
+
     });
   }
 }
@@ -65,7 +62,7 @@ function sendAutofillRequest(type, ...fields) {
   });
 }
 
-async function renderContextMenu(items, crypto) {
+async function renderContextMenu(items, autofill, crypto) {
   if (crypto == null) {
     console.warn("NULL CRYPTO");
     return
@@ -83,15 +80,17 @@ async function renderContextMenu(items, crypto) {
       title: items[index].name,
       parentId: "PK_ROOT",
       contexts: ["all"],
-      id: `PK_${index}`
+      id: `PK_${index}`,
     });
 
-    chrome.contextMenus.create({
-      title: "Autofill",
-      contexts: ["all"],
-      parentId: `PK_${index}`,
-      id: `PK_${index}_A`
-    })
+    if(autofill) {
+      chrome.contextMenus.create({
+        title: "Autofill",
+        contexts: ["all"],
+        parentId: `PK_${index}`,
+        id: `PK_${index}_A`
+      })
+    }
 
     chrome.contextMenus.create({
       title: "Fill username",
@@ -109,14 +108,7 @@ async function renderContextMenu(items, crypto) {
   }
 }
 
-async function filterPasswordItems(passwordItems, crypto) {
-  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-
-  if (!tabs || !tabs[0] || !tabs[0].url) {
-    return [];
-  }
-
-  const currentWebsite = tabs[0].url.match(/https?:\/\/([^\/]*)/)?.at(1);
+async function filterPasswordItems(passwordItems, currentWebsite, crypto) {
 
   // Return only the password items for the current web url
   let filtered = [];
