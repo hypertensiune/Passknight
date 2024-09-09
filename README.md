@@ -2,57 +2,88 @@
     <img center src="extension/src/assets/logo.svg">
 </h1>
 
-<h3 align="center">Open source self hosted password manager.</h3>
+<h3 align="center">Self hosted, multi vault, secure password manager.</h3>
+
+## Table of Contents
+1. [Description](#description)
+    1. [Features](#features)
+    2. [Autofill](#autofill)
+    3. [Supported platforms](#supported-platforms)
+2. [Security](#security)
+3. [Firebase setup](#firebase-setup)
+4. [Supported Languages](#supported-languages)
 
 # Description
 
-<p>Passknight is a cross-platform, self hosted password manager.</p> 
+Passknight is a cross-platform, self hosted password manager that uses [Firestore](https://firebase.google.com/docs/firestore) as it's backend. It provides a secure environment for storing and managing credentials and secure notes with it's security implementation and firestore rules.
 
-<p>It supports multiple users / vaults, making it easy to organize your passwords and notes.</p>
-
-<p>Easy to setup a secure environment for your whole family.</p>
+It supports multiple users / vaults, making it easy to organize your passwords and notes.
 
 <br>
 <p align="center">
-  <img  src="imgs/img1.png" width=40%></img>
+  <img  src="imgs/img.png"></img>
 </p>
 
-## Current supported platforms
-- **Windows**
+
+## Features
+- Multiple vaults
+- Store credentials and secure notes safely
+- Synced between devices
+- Strong password generator with custom options
+- Authentication persistence for easier access and convenience. For the duration of the session (browser) and with custom timeout (Android)
+- Local vaults, no need for firebase (only for windows)
+- Autofill
+- Auto clipboard clearing
+
+## Supported platforms
 - **Chromium based browsers**
+- **Windows**
+- **Android 11 and newer**
+
+<br><br>
 
 # Security
 
-All of your passwords are encrypted before being stored in firebase. 
+The security measures used by Passknight are heavily inspired by those implemented by Bitwarden. See https://bitwarden.com/help/bitwarden-security-white-paper/ for more details.
 
-A Passknight vault is represented by a user in firebase. The password used to authentificate in firebase and get the corresponding vault is the vault's masterpassword. 
+Due to this if a bad actor gets the content of the vault (like a possible breach of firebase accounts, badly formatted firestore rules, etc) data is still safe as credentials and the symmetric key are fully encrypted using the master password which is never sent to the cloud. **For this reason, if the master password is forgotten there is no way for it or the stored items to be recovered**.
 
-### Private key
+Each passknight vault is represented by a user in firebase. The vault's **master password** is the base material used to derive a password used to login in firebase - the master password hash.
 
-The **masterpassword** is then used to derive a private key unique to that vault that will encrypt and decrypt the vault content.
+### Master password hash 
 
-The derivation proccess is done using **600,000** iterations of **PBKDF2** with **SHA-256** and a randomly generated salt.
+A **256 bit master key** is derived using **600,000** iterations of **PBKDF2 SHA-256** and a salt of the email address used in firebase (vaultname@passknight.vault).
+
+The **master key** is then derived again with the same **PBKDF2** algorithm but this time the salt used is the vault's master password. The resulting key is the **256 bit master password hash**.
+
+### Symmetric key
+
+The **256 bit symmetric key** is used for all encryption and decryption operations. It is randomly generated during vault creation and it is encrypted using the **stretched master key** with **AES-256** before being stored in the vault for further use.
+
+The **stretched master key** is obtained from the **master key** by using **HKDF** and is expanded to 512 bits.
+
+### Authentication and vault unlocking
+
+When the user wants to unlock a vault the same process is repeated. The **master key** is derived from the the email and vault's master password and the master key is derived again to get the **master password hash** which is used to authenticate in firebase.
+
+If authentication is successfull the vault content and the associated **protected symmetric key** is fetched from firestore, the latter being decrypted to obtain the **symmetric key**.
 
 ### Encryption & Decryption
 
 To encrypt and decrypt your passwords, Passknigth uses the **AES-CBC** algorithm with a randomly generated 16 bytes IV.
-The first 16 bytes of the stored buffer is represented by the IV.
 
-### Auth persistence - only in browser extension
-
-To be able to use firebase's auth persistence Passknight encrypts the private key (using [crypto.subtle.wrapKey](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/wrapKey)) and stores it in session storage.
-
-The key used for this encryption is imported from the firebase user UID (which is guaranteed to be unique) using the **AES-CBC** algorithm.
 
 ### Cryptography libraries
 
 - Browser extension - [WebCrypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API)
 - Windows - [.NET Cryptography](https://learn.microsoft.com/en-us/dotnet/standard/security/cryptography-model)
+- Android - [OpenSSL](https://www.openssl.org/)/[BoringSSL](https://boringssl.googlesource.com/boringssl). Using this with native C++ as Java's cryptography implementation is too slow and not suitable for the application
 
+<br><br>
 
 # Firebase setup
 
-### Required for the web extension. Optional for the windows app as it also has locally stored vaults.
+**This is optional for the windows app as it also has locally stored vaults.**
 
 - Login to [firebase](https://firebase.com) and create a new project.
 - Register a **web app**. 
@@ -67,12 +98,24 @@ service cloud.firestore {
     	allow write, read;
     }
     
-    match /vaults/{vault} {
+    match /{vault}/{document=**} {
     	allow write, read: if request.auth != null && request.auth.uid == vault
     }
   }
 }
 ```
+
+### Android
+
+Open the settings and fill in the required firebase information.
+
+### Windows
+
+Create a file ```firebase``` in the application root directory and paste the firebase API KEY:
+```
+[API_KEY]
+```
+
 ### Web extension
 To initialize Firebase create a file called ```firebaseConfig.js``` in the extension's folder that should look like this:
 ```
@@ -87,11 +130,6 @@ const firebaseConfig = {
 window.firebaseConfig = firebaseConfig;
 ```
 
-### Windows
 
-Create a file ```firebase``` in the application root directory and paste the firebase API KEY:
-```
-[API_KEY]
-```
 
-### Your config from can be found in <u>Project settings > General</u>.
+### Your config can be found in Project settings > General.
