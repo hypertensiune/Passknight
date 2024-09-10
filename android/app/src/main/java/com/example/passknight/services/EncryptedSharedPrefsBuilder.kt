@@ -25,7 +25,8 @@ class EncryptedSharedPrefsUtil(val context: Context) {
          */
         return try {
             createEncryptedSharedPreferences(name)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
+            Log.w("Passknight", "Encryption prefs not usable. Attempting to delete and create again")
             deleteSharedPreferences(name)
             deleteMasterKey()
             createEncryptedSharedPreferences(name)
@@ -54,7 +55,7 @@ class EncryptedSharedPrefsUtil(val context: Context) {
 
     private fun deleteSharedPreferences(name: String) {
         try {
-            context.getSharedPreferences(name, Context.MODE_PRIVATE).edit().clear().apply()
+            context.getSharedPreferences(name, Context.MODE_PRIVATE).edit().clear().commit()
             context.deleteSharedPreferences(name)
         } catch (e: Exception) {
             Log.e("Passknight", "Error deleting shared preferences")
