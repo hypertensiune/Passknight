@@ -66,7 +66,7 @@ class TabPasswords : Fragment() {
                 if(Settings.fromAutofillService) {
                     setFragmentResult("key", bundleOf(
                         "password" to viewModel.cryptography.decrypt(it.password),
-                        "username" to it.username
+                        "username" to viewModel.cryptography.decrypt(it.username)
                     ))
                 } else {
                     viewModel.openPasswordItemForm(it)

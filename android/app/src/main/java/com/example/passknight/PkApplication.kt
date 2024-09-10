@@ -31,12 +31,13 @@ class PkApplication: Application() {
         val storageBucket = preferences.getString("storageBucket", "")!!
 
         Settings.firebaseInitialized = apiKey.isNotEmpty() && projectId.isNotEmpty() && storageBucket.isNotEmpty()
-
-        FirebaseApp.initializeApp(applicationContext, FirebaseOptions.Builder()
-            .setApiKey(apiKey)
-            .setApplicationId(applicationContext.packageName)
-            .setProjectId(projectId)
-            .setStorageBucket(storageBucket)
-            .build())
+        if(Settings.firebaseInitialized) {
+            FirebaseApp.initializeApp(applicationContext, FirebaseOptions.Builder()
+                .setApiKey(apiKey)
+                .setApplicationId(applicationContext.packageName)
+                .setProjectId(projectId)
+                .setStorageBucket(storageBucket)
+                .build())
+        }
     }
 }
