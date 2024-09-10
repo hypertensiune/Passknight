@@ -98,26 +98,7 @@ class Cryptography {
             }
 
             @JvmStatic
-            private fun getEncryptedSharedPrefsKey(context: Context): MasterKey {
-                val spec = KeyGenParameterSpec
-                    .Builder(MasterKey.DEFAULT_MASTER_KEY_ALIAS, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
-                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                    .setKeySize(256)
-                    .setUserAuthenticationRequired(true)
-                    .setUserAuthenticationParameters(10, KeyProperties.AUTH_BIOMETRIC_STRONG or KeyProperties.AUTH_DEVICE_CREDENTIAL)
-                    .build()
-
-                return MasterKey.Builder(context).setKeyGenParameterSpec(spec).build()
-            }
-
-            fun getEncryptedSharedPreferences(context: Context): SharedPreferences = EncryptedSharedPreferences.create(
-                context,
-                "encprefs",
-                getEncryptedSharedPrefsKey(context),
-                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-            )
+            fun getEncryptedSharedPreferences(context: Context): SharedPreferences = EncryptedSharedPrefsUtil(context).get("encprefs")
         }
     }
 
@@ -204,6 +185,11 @@ class Cryptography {
         }
 
         val decoded = Base64.decode(input, Base64.NO_WRAP)
+
+        if(decoded.size < 16) {
+            Log.e("Passknight", "Input not valid")
+            return ""
+        }
 
         val iv = decoded.slice(0..15).toByteArray()
         val bytes = decoded.slice(16..<decoded.size).toByteArray()

@@ -6,7 +6,7 @@
 
     <application
         android:name=".PkApplication"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:appComponentFactory="@string/app_name"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
