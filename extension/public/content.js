@@ -9,7 +9,7 @@
 
   chrome.runtime.onMessage.addListener((message, sender, res) => {
     if (message.action == "deleteClipboard") {
-      navigator.clipboard.writeText("");
+      navigator.clipboard.writeText("\u0000");
     }
   });
   

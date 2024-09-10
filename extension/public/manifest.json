@@ -11,7 +11,9 @@
         "scripting",
         "tabs",
         "storage",
-        "contextMenus"
+        "contextMenus",
+        "clipboardWrite",
+        "clipboardRead"
     ],
     "host_permissions": [
         "http://*/",

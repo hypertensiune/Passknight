@@ -19,6 +19,16 @@ chrome.runtime.onStartup.addListener(() => {
   });
 });
 
+chrome.runtime.onMessage.addListener((message, sender, res) => {
+  if(message.action == "deleteClipboard") {
+    setTimeout(() => {
+      chrome.tabs.query({active: true}, tabs => {
+        chrome.tabs.sendMessage(tabs[0].id, {action: "deleteClipboard"});
+      });
+    }, 30000);
+  }
+});
+
 chrome.runtime.onMessage.addListener(async (message, sender, res) => {
   if (message.action == "autofillServiceLoaded") {
     const tabs = await chrome.tabs.query({active: true, currentWindow: true});
