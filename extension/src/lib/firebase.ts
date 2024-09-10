@@ -84,7 +84,7 @@ export async function createVault(name: string, password: string, symmetricKey: 
     await setDoc(doc(db, user.user.uid, "psk"), { "psk": symmetricKey, "master": password });
     await setDoc(doc(db, user.user.uid, "passwords"), {});
     await setDoc(doc(db, user.user.uid, "notes"), {});
-    await setDoc(doc(db, user.user.uid, "history"), {});
+    await setDoc(doc(db, user.user.uid, "history"), { "history": [] });
 
     currentUser = user.user;
     unlockedVaultID = user.user.uid;
@@ -119,7 +119,7 @@ export async function unlockVault(vault: string, password: string) {
   const auth = getAuth(app);
 
   let success = true;
-
+  
   await setPersistence(auth, browserSessionPersistence);
 
   await signInWithEmailAndPassword(auth, `${vault}@passknight.vault`, password)

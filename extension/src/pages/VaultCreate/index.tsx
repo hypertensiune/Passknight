@@ -8,9 +8,8 @@ import { CryptoProvider } from "@lib/crypto";
 
 async function submitHandler(data: { name: string, password: string, confirm: string }, navigate: NavigateFunction) {
 
-  const keys = await CryptoProvider.createProvider(`${data.name}@passknight.vault`, data.password)
-  console.log(keys);
-  const result = await createVault(data.name, keys.masterPasswordHash, keys.protectedSymmetricKey)
+  const keys = await CryptoProvider.createProvider(`${data.name.toLowerCase()}@passknight.vault`, data.password)
+  const result = await createVault(data.name.toLowerCase(), keys.masterPasswordHash, keys.protectedSymmetricKey)
   
   if(result) {
     navigate(`/v/${data.name}`);
@@ -26,7 +25,7 @@ export default function VaultCreate({vaults }: { vaults: string[] }) {
 
     validate: {
       name: (value) => (value.length == 0 ? 'Vault name is required' : vaults?.includes(value) ? 'Vault already exists' : null),
-      password: (value) => (value.length < 6 ? 'Passwords should be at least 15 characters' : null),
+      password: (value) => (value.length < 15 ? 'Passwords should be at least 15 characters' : null),
       confirm: (value, values) => (value !== values.password ? 'Passwords did not match' : null)
     }
   });

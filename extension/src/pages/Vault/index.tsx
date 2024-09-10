@@ -122,7 +122,7 @@ export default function Vault() {
             <Menu.Item 
               color="red"
               leftSection={<i className="fa-solid fa-trash"></i>}
-              onClick={() => navigate('/v/:vault/delete')} >
+              onClick={() => navigate(`/v/${vault}/delete`)} >
               Delete
             </Menu.Item>
           </Menu.Dropdown>
@@ -163,7 +163,7 @@ export default function Vault() {
             />
           </Tabs.Panel>
           <Tabs.Panel value="generator">
-            <GeneratorTab _history={history} options={generatorOptions} setOptions={setGeneratorOptions} key={history[0]} />
+            <GeneratorTab _history={history} options={generatorOptions} setOptions={setGeneratorOptions} />
           </Tabs.Panel>
         </Tabs>
       </section>
