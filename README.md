@@ -4,11 +4,17 @@
 
 <h3 align="center">Self hosted, multi vault, secure password manager.</h3>
 
+<br>
+<p align="center">
+  <img  src="imgs/img.png"></img>
+</p>
+
 ## Table of Contents
 1. [Description](#description)
     1. [Features](#features)
     2. [Autofill](#autofill)
-    3. [Supported platforms](#supported-platforms)
+    3. [Clipboard](#clipboard)
+    4. [Supported platforms](#supported-platforms)
 2. [Security](#security)
 3. [Firebase setup](#firebase-setup)
 4. [Supported Languages](#supported-languages)
@@ -19,12 +25,6 @@ Passknight is a cross-platform, self hosted password manager that uses [Firestor
 
 It supports multiple users / vaults, making it easy to organize your passwords and notes.
 
-<br>
-<p align="center">
-  <img  src="imgs/img.png"></img>
-</p>
-
-
 ## Features
 - Multiple vaults
 - Store credentials and secure notes safely
@@ -34,6 +34,17 @@ It supports multiple users / vaults, making it easy to organize your passwords a
 - Local vaults, no need for firebase (only for windows)
 - Autofill
 - Auto clipboard clearing
+
+## Autofill
+
+On **Android** you have to go to settings and set Passknight as the current autofill service.
+
+The autofill service prioritizes input fields that have autofill hints enabled, if those are not found it checks the hint or text attribute (on Android [see more](https://github.com/hypertensiune/Passknight/blob/667b58f5b48b04f701651497abd4ed5956ffcbb1/android/app/src/main/java/com/example/passknight/PkAutofillService.kt#L139)) and the type or name attribute (on browser [see more](https://github.com/hypertensiune/Passknight/blob/667b58f5b48b04f701651497abd4ed5956ffcbb1/extension/public/content.js#L51)). If the inputs on a page or app don't have any of those, autofill will not be possible. 
+
+As a solution for those situations, **with the browser extension**, users can manually select fields and what to fill them with.
+
+**On Android**, unfortunatelly, the only other options is to copy & paste from the vault. 
+
 
 ## Supported platforms
 - **Chromium based browsers**
