@@ -98,7 +98,7 @@ class Cryptography {
             }
 
             @JvmStatic
-            fun getEncryptedSharedPreferences(context: Context): SharedPreferences = EncryptedSharedPrefsUtil(context).get("encprefs")
+            fun getEncryptedSharedPreferences(context: Context): SharedPreferences = EncryptedSharedPrefsUtil(context).get("pkencprefs")
         }
     }
 

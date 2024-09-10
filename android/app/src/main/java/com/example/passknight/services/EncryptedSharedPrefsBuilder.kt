@@ -28,7 +28,9 @@ class EncryptedSharedPrefsUtil(val context: Context) {
         } catch (e: Throwable) {
             Log.w("Passknight", "Encryption prefs not usable. Attempting to delete and create again")
             deleteSharedPreferences(name)
+            Log.d("Passknight", "Deleted shared preferences")
             deleteMasterKey()
+            Log.d("Passknight", "Deleted master key")
             createEncryptedSharedPreferences(name)
         }
     }
@@ -39,9 +41,9 @@ class EncryptedSharedPrefsUtil(val context: Context) {
             .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
             .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
             .setKeySize(256)
-            .setUserAuthenticationRequired(true)
-            .setUserAuthenticationParameters(10, KeyProperties.AUTH_BIOMETRIC_STRONG or KeyProperties.AUTH_DEVICE_CREDENTIAL)
             .build()
+            //.setUserAuthenticationRequired(true)
+            //.setUserAuthenticationParameters(10, KeyProperties.AUTH_BIOMETRIC_STRONG or KeyProperties.AUTH_DEVICE_CREDENTIAL)
 
         return MasterKey.Builder(context).setKeyGenParameterSpec(spec).build()
     }
