@@ -17,7 +17,7 @@
     4. [Supported platforms](#supported-platforms)
 2. [Security](#security)
 3. [Firebase setup](#firebase-setup)
-4. [Supported Languages](#supported-languages)
+4. [Notes](#notes)
 
 # Description
 
@@ -141,6 +141,12 @@ const firebaseConfig = {
 window.firebaseConfig = firebaseConfig;
 ```
 
-
-
 ### Your config can be found in Project settings > General.
+
+# Notes
+
+- The **android** app requires the lock screen to have at least a PIN, pattern or password. Recommended is to use a stronger, biometric option like a fingerprint. It is also more convenient to be used this way as the app requires aditional authentication with the lock screen method **before** unlocking the vault.
+
+- On **Android** the clipboard manager is unaccessible when the app is in the background so the clipboard can be cleared only when the app is exited (**If the app is terminated by the system or manually the clipboard will not be cleared**). 
+
+  Also, different keyboards handle clipboard clearing in different ways. Actually the clipboard cannot be cleared, what Passknight is doing is writing many empty items to the clipboard to completely overwrite the history. (the number of items to write can be changed in settings)
