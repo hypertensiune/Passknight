@@ -71,12 +71,13 @@ namespace Passknight.Services.Firebase
                 firebaseStore.CurrentUnlockedVaultName = vault;
 
                 var bodyids = $$""" { "fields": { "{{vault}}": { "stringValue": "{{ID!}}" } } } """;
+                var bodypsk = $$""" { "fields": { "psk": { "stringValue": "{{psk}}" } } } """;
+                var bodyhistory = $$$""" { "fields": { "history": { "arrayValue": {} } } }""";
 
-                var bodypsk = $$""" { "psk": { "stringValue": "{{psk}}" } } """;
-
+                await firestore.SetDoc(ID!, "psk", bodypsk, authentification.ID_TOKEN);
                 await firestore.SetDoc(ID!, "passwords", "", authentification.ID_TOKEN);
                 await firestore.SetDoc(ID!, "notes", "", authentification.ID_TOKEN);
-                await firestore.SetDoc(ID!, "psk", bodypsk, authentification.ID_TOKEN);
+                await firestore.SetDoc(ID!, "history", bodyhistory, authentification.ID_TOKEN);
 
                 await firestore.UpdateDoc("vaults", "ids", vault, bodyids, authentification.ID_TOKEN);
             }
@@ -87,7 +88,14 @@ namespace Passknight.Services.Firebase
         public async Task<bool> DeleteVault()
         {
             await firestore.UpdateDoc("vaults", "ids", firebaseStore.CurrentUnlockedVaultName, "", authentification.ID_TOKEN);
+
+            await firestore.DeleteDoc(firebaseStore.CurrentUnlockedVaultID, "psk", authentification.ID_TOKEN);
             await firestore.DeleteDoc(firebaseStore.CurrentUnlockedVaultID, "passwords", authentification.ID_TOKEN);
+            await firestore.DeleteDoc(firebaseStore.CurrentUnlockedVaultID, "notes", authentification.ID_TOKEN);
+            await firestore.DeleteDoc(firebaseStore.CurrentUnlockedVaultID, "history", authentification.ID_TOKEN);
+
+            authentification.DeleteUser();
+            authentification.SignOut();
 
             return true;
         }

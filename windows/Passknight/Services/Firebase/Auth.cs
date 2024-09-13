@@ -23,6 +23,7 @@ namespace Passknight.Services.Firebase
 
         private string URL_SIGIN;
         private string URL_SIGNUP;
+        private string URL_DELETE_ACCOUNT;
 
         public string? ID_TOKEN { get; private set; }
 
@@ -32,6 +33,7 @@ namespace Passknight.Services.Firebase
 
             URL_SIGIN = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + API_KEY;
             URL_SIGNUP = "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=" + API_KEY;
+            URL_DELETE_ACCOUNT = "https://identitytoolkit.googleapis.com/v1/accounts:delete?key=" + API_KEY;
         }
 
         public async Task<(bool, string?)> SignIn(string email, string password)
@@ -83,6 +85,23 @@ namespace Passknight.Services.Firebase
         public void SignOut()
         {
             ID_TOKEN = null;
+        }
+
+        public async void DeleteUser()
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, URL_DELETE_ACCOUNT);
+
+            string content = String.Format("{{\"idToken\":\"{0}\"}}", ID_TOKEN);
+            request.Content = new StringContent(content);
+
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+            var response = await httpClient.SendAsync(request);
+            //response.EnsureSuccessStatusCode();
+
+            string body = await response.Content.ReadAsStringAsync();
+
+            var json = JObject.Parse(body);
         }
     }
 }
