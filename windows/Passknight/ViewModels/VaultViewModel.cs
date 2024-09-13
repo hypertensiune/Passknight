@@ -126,7 +126,7 @@ namespace Passknight.ViewModels
             OpenNoteItemAddFormCommand = new RelayCommand(OpenNoteItemAddFormCommandHanlder);
             OpenNoteItemEditFormCommand = new RelayCommand(OpenNoteItemEditFormCommandHandler);
 
-            CopyUsernameCommand = new RelayCommand((object? param) => Clipboard.SetText((string)param!));
+            CopyUsernameCommand = new RelayCommand((object? param) => Clipboard.SetText((_cryptography.Decrypt((string)param!))));
             CopyPasswordCommand = new RelayCommand((object? param) => Clipboard.SetText((_cryptography.Decrypt((string)param!))));
 
             GeneratorSettings.OnSettingsChanged += RegeneratePassword;

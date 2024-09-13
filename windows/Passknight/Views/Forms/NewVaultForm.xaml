@@ -53,7 +53,8 @@
             VerticalAlignment="Bottom">
             <Label Content="Vault Name" Foreground="{StaticResource ForegroundColor}" FontWeight="Bold"/>
             <ui:TextBox Grid.Row="1" Text="{Binding Name.Input, Mode=TwoWay}" Height="34"/>
-            <Label Visibility="{Binding Name.Error, Converter={StaticResource ErrorVisibilityConverter}}" Content="Vault name is required!" Foreground="{StaticResource  ForegroundColorError2}"/>
+            <Label Visibility="{Binding Name.Error, Converter={StaticResource ErrorVisibilityConverter}}" Content="Vault name must not be empty and must not be already" Foreground="{StaticResource  ForegroundColorError2}"/>
+            <Label Visibility="{Binding Name.Error, Converter={StaticResource ErrorVisibilityConverter}}" Content="used!" Foreground="{StaticResource  ForegroundColorError2}"/>
         </StackPanel>
         <StackPanel 
             Grid.Row="3"

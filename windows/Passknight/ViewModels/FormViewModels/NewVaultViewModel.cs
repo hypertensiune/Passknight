@@ -14,13 +14,20 @@ using Passknight.Services.PKDB;
 namespace Passknight.ViewModels
 {
     /// <summary>
-    /// Dependecies: <see cref="IDatabase"/>
+    /// Dependecies: <br/>
+    /// <see cref="IDatabase"/> firebase <br/>
+    /// <see cref="IDatabase"/> pkdb <br/>
+    /// <see cref="List{string}"/> firebaseVaults <br/>
+    /// <see cref="List{string}"/> pkdbVaults
     /// </summary>
     class NewVaultViewModel : Core.ViewModel
     {
         private NavigationService _navigationService;
         private IDatabase _firebase;
         private IDatabase _pkdb;
+
+        private List<string> _firebaseVaults;
+        private List<string> _pkdbVaults;
 
         public int VaultType { get; set; } = 0;
 
@@ -31,11 +38,14 @@ namespace Passknight.ViewModels
         public ICommand ConfirmCommand { get; }
         public ICommand BackCommand { get; }
 
-        public NewVaultViewModel(NavigationService navigationService, IDatabase firebase, IDatabase pkdb)
+        public NewVaultViewModel(NavigationService navigationService, IDatabase firebase, IDatabase pkdb, List<string> firebaseVaults, List<string> pkdbVaults)
         {
             _navigationService = navigationService;
             _firebase = firebase;
             _pkdb = pkdb;
+
+            _firebaseVaults = firebaseVaults;
+            _pkdbVaults = pkdbVaults;
 
             BackCommand = new RelayCommand((object? obj) => _navigationService.NavigateBack());
             ConfirmCommand = new RelayCommand(SubmitNewVault);
@@ -43,7 +53,7 @@ namespace Passknight.ViewModels
 
         private async void SubmitNewVault(object? param)
         {
-            if (Name.Input == "")
+            if (Name.Input == "" || (VaultType == 0 && _firebaseVaults.Contains(Name.Input.ToLower())) || (VaultType == 1 && _pkdbVaults.Contains(Name.Input.ToLower())))
             {
                 Name.SetError();
             }

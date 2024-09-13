@@ -10,8 +10,8 @@ namespace Passknight.Models.Items
     {
         public override string Name { get; set; }
         public string Password { get; set; } = String.Empty;
-        public string Username { get; set; }
-        public string Website { get; set; }
+        public string Username { get; set; } = String.Empty;
+        public string Website { get; set; } = String.Empty;
         public override string Created { get; set; }
         public override string Updated { get; set; }
 

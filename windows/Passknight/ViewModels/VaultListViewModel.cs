@@ -71,7 +71,7 @@ namespace Passknight.ViewModels
 
         private void NewVaultCommandHandler(object? param)
         {
-            _navigationService.NavigateTo<NewVaultViewModel>(_firebase, _pkdb);
+            _navigationService.NavigateTo<NewVaultViewModel>(_firebase, _pkdb, FirebaseVaults, PKDBVaults);
         }
     }
 }
