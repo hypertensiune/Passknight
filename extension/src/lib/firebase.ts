@@ -81,7 +81,7 @@ export async function createVault(name: string, password: string, symmetricKey: 
 
     await setDoc(doc(db, "vaults", "ids"), { [name.toLowerCase()]: user.user.uid }, { merge: true });
 
-    await setDoc(doc(db, user.user.uid, "psk"), { "psk": symmetricKey, "master": password });
+    await setDoc(doc(db, user.user.uid, "psk"), { "psk": symmetricKey });
     await setDoc(doc(db, user.user.uid, "passwords"), {});
     await setDoc(doc(db, user.user.uid, "notes"), {});
     await setDoc(doc(db, user.user.uid, "history"), { "history": [] });
@@ -242,7 +242,7 @@ export async function setGeneratorHistory(passwords: string[]) {
   if (unlockedVaultID === undefined) {
     return false;
   }
-  if(passwords.length > 0) {
+  if(passwords.length == 0) {
     return false;
   }
 

@@ -32,7 +32,7 @@ function printPassword(password: string) {
 function HistoryDrawer({ history, clear, opened, close }: { history: string[], clear: () => void, opened: boolean, close: any }) {
   
   const [modal, modalHandlers] = useDisclosure(false);
-  
+
   return (
     <>
       <Drawer.Root transitionProps={{duration: 0}} opened={opened} onClose={close} size="100%">
@@ -83,9 +83,12 @@ export default function Generator({ _history, options, setOptions }: { _history:
 
   const [history, setHistory] = useState<string[]>(_history);
 
-  const password = generatePassword(options);
+  const [password, setPassword] = useState(generatePassword(options));
 
   useEffect(() => {
+
+    const generated = generatePassword(options);
+    setPassword(generated);
 
     if (timeoutHandle != null) {
       clearInterval(timeoutHandle);
@@ -95,7 +98,7 @@ export default function Generator({ _history, options, setOptions }: { _history:
       if (history.length > 15) {
         newarr.pop()
       }
-      newarr.unshift(password);
+      newarr.unshift(generated);
 
       setHistory(newarr);
       setGeneratorHistory(newarr);

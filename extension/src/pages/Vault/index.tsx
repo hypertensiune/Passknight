@@ -163,7 +163,7 @@ export default function Vault() {
             />
           </Tabs.Panel>
           <Tabs.Panel value="generator">
-            <GeneratorTab _history={history} options={generatorOptions} setOptions={setGeneratorOptions} />
+            <GeneratorTab _history={history} options={generatorOptions} setOptions={setGeneratorOptions} key={history[0]} />
           </Tabs.Panel>
         </Tabs>
       </section>
