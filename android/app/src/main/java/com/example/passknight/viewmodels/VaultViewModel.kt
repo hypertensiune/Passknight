@@ -241,6 +241,7 @@ class VaultViewModel(
 
                 // Navigate back to the passwords tab
                 navController.popBackStack()
+                toastMessage.postValue("Item added!")
             } else {
                 toastMessage.postValue("There was an error adding the new item to firebase!")
                 getItem(itemFlag).clear()
@@ -274,6 +275,7 @@ class VaultViewModel(
             if(result) {
                 vault.value?.editItem(original, item)
                 navController.popBackStack()
+                toastMessage.postValue("Item edited!")
             } else {
                 toastMessage.postValue("There was an error updating the item in firebase!")
             }
@@ -284,7 +286,7 @@ class VaultViewModel(
         val originalItem = getOriginalItem(itemFlag)
 
         formScreen.value = true
-        formMessage.value = "Deleting item item.."
+        formMessage.value = "Deleting item.."
 
         viewModelScope.launch(Dispatchers.Main) {
             val result = Firestore.deleteItemInVault(originalItem)

@@ -82,7 +82,7 @@ class VaultCreateViewModel(val navController: NavController) : ViewModel() {
             nameError.value = "Vault name is required"
             valid = false
         }
-        if(masterPassword.length < 6) {
+        if(masterPassword.length < 15) {
             masterPasswordError.value = "Password should be at least 15 characters"
             valid = false
         }
